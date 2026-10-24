@@ -22,3 +22,9 @@ De plaatjes staan in de map `logboek/`. Ze komen uit het voorproef-hulpje (compu
 
 ❓ **Voor jou**
 - Niets.
+
+🖼️ **Plaatjes** (links voor, rechts na)
+
+![Menu voor en na](logboek/0-menu-voor-na.png)
+![Komt later voor en na](logboek/0-komt-later-voor-na.png)
+![Tegels voor en na](logboek/0-tegels-voor-na.png)
