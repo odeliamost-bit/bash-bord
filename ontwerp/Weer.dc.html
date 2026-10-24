@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Zeilweer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 1500px; box-sizing: border-box; background: linear-gradient(180deg, #A9D3EA 0px, #CFE6F1 380px, #EAF3F4 850px, #FDF6EF 1500px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 40px; display: flex; flex-direction: column; gap: 16px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(80,120,150,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2F5670" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1; font-size: 28px; font-weight: 900; color: #23465E;">Zeilweer</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #9FD0EE, #5B9CC9); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 6px 14px rgba(91,156,201,0.35);">⛵</span>
+</div>
+
+<!-- Dag kiezen -->
+<div style="display: flex; gap: 8px;">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="3">
+<button onClick="{{d.pick}}" aria-pressed="{{d.on}}" style="flex: 1; min-height: 52px; border-radius: 999px; border: none; background: {{d.bg}}; color: {{d.ink}}; font-size: 16px; font-weight: 900; box-shadow: 0 6px 12px rgba(60,100,130,0.18);">{{d.label}}</button>
+</sc-for>
+</div>
+
+<!-- Oordeel -->
+<section aria-label="Zeilweer tussen 12 en 4" style="background: {{verdictBg}}; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 12px 24px rgba(60,100,130,0.2); display: flex; align-items: center; gap: 14px;">
+<span style="width: 84px; height: 84px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 46px; flex-shrink: 0; box-shadow: 0 6px 14px rgba(60,100,130,0.15);" aria-hidden="true">{{verdictEmo}}</span>
+<div style="flex-grow: 1;">
+<div style="font-size: 14px; font-weight: 800; color: #4F6B7E;">🕛 12:00 – 16:00</div>
+<div style="font-size: 25px; font-weight: 900; color: {{verdictInk}}; line-height: 1.1;">{{verdictText}}</div>
+<div style="font-size: 15px; font-weight: 800; color: #4F6B7E; margin-top: 4px;">💨 {{avgBft}} Bft · {{avgKmh}} km/u</div>
+</div>
+</section>
+
+<!-- Apps -->
+<section aria-label="Bekeken in" style="background: #FBF3EA; border-radius: 30px; padding: 16px 18px; box-shadow: 0 10px 20px rgba(60,100,130,0.16); display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 19px; font-weight: 900; color: #23465E;">📱 Bekeken in</span>
+<span style="font-size: 13px; font-weight: 800; color: {{agreeInk}};">{{agreeText}}</span>
+</div>
+<div style="display: flex; gap: 2px; justify-content: space-between;">
+<sc-for list="{{apps}}" as="a" hint-placeholder-count="6">
+<button onClick="{{a.pick}}" aria-pressed="{{a.on}}" style="display: flex; flex-direction: column; align-items: center; gap: 5px; border: none; background: transparent; padding: 0; width: 52px;">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: {{a.bg}}; border: 3px solid {{a.ring}}; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), 0 6px 12px rgba(60,100,130,0.2); box-sizing: border-box;">{{a.emo}}</span>
+<span style="font-size: 11px; font-weight: 900; color: #23465E; text-align: center; line-height: 1.1; hyphens: manual; max-width: 52px;">{{a.name}}</span>
+</button>
+</sc-for>
+</div>
+</section>
+
+<!-- Per uur -->
+<section aria-label="Per uur" style="background: #FBF3EA; border-radius: 30px; padding: 16px 14px; box-shadow: 0 10px 20px rgba(60,100,130,0.16); display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 19px; font-weight: 900; color: #23465E; padding: 0 4px;">⏰ Per uur · {{appName}}</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px;">
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 2px; border-radius: 20px; background: {{h.bg}};">
+<span style="font-size: 15px; font-weight: 900; color: #23465E;">{{h.t}}</span>
+<span style="font-size: 26px;" aria-hidden="true">{{h.sky}}</span>
+<svg width="30" height="30" viewBox="0 0 24 24" aria-label="{{h.dirName}}" style="transform: rotate({{h.rot}}deg);"><path d="M12 3l5 15-5-3-5 3z" fill="#5B9CC9"></path></svg>
+<span style="font-size: 12px; font-weight: 800; color: #4F6B7E;">{{h.dirName}}</span>
+<span style="font-size: 22px; font-weight: 900; color: #23465E; line-height: 1;">{{h.bft}}</span>
+<span style="font-size: 11px; font-weight: 800; color: #4F6B7E;">Bft</span>
+<span style="font-size: 13px; font-weight: 900; color: #23465E;">{{h.kmh}}</span>
+<span style="font-size: 10px; font-weight: 800; color: #4F6B7E;">km/u</span>
+<span style="font-size: 12px; font-weight: 900; color: {{h.gustInk}};">↑{{h.gust}}</span>
+<span style="font-size: 14px; font-weight: 900; color: #A0583C;">{{h.temp}}°</span>
+<span style="font-size: 12px; font-weight: 800; color: #3E79A8;">💧{{h.rain}}</span>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 12px; font-weight: 700; color: #6F8796; padding: 0 4px;">Bft = Beaufort · ↑ = windstoten in km/u · 💧 = regen in mm</div>
+</section>
+
+<!-- Vergelijken -->
+<section aria-label="Apps naast elkaar" style="background: #FBF3EA; border-radius: 30px; padding: 16px 18px; box-shadow: 0 10px 20px rgba(60,100,130,0.16); display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 19px; font-weight: 900; color: #23465E;">⚖️ Apps naast elkaar</div>
+<div style="display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 4px; font-size: 12px; font-weight: 900; color: #6F8796; padding: 0 6px;">
+<span>app</span><span>wind</span><span>stoot km/u</span><span>regen</span>
+</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 4px; align-items: center; padding: 8px 6px; border-radius: 16px; background: {{r.bg}}; font-size: 15px; font-weight: 900; color: #23465E;">
+<span style="display: flex; align-items: center; gap: 6px;"><span style="width: 28px; height: 28px; border-radius: 9px; background: {{r.icoBg}}; display: flex; align-items: center; justify-content: center; font-size: 15px;">{{r.emo}}</span><span style="font-size: 12px;">{{r.name}}</span></span>
+<span>{{r.bft}} Bft</span><span style="color: {{r.gustInk}};">{{r.gust}}</span><span>{{r.rain}}</span>
+</div>
+</sc-for>
+</section>
+
+<button style="min-height: 56px; border-radius: 999px; border: 2px dashed #8FB4CC; background: rgba(255,255,255,0.6); color: #2F5670; font-size: 17px; font-weight: 900;">＋ App toevoegen</button>
+<div style="font-size: 13px; font-weight: 700; color: #6F8796; text-align: center;">Dit zijn voorbeeldcijfers, geen echt weer.</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1500}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { day: 0, app: 'alle' };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var A = [
+{ id: 'wf', name: 'Windfinder', emo: '🌬️', c: ['#9FE0D6', '#4FB5A6'], w: [9, 10, 11, 11, 10], g: [13, 14, 16, 15, 14], r: [0, 0, 0, 0.2, 0] },
+{ id: 'wy', name: 'Windy.com', emo: '🌀', c: ['#F6B3A4', '#E07A62'], w: [8, 9, 11, 12, 11], g: [12, 14, 17, 18, 16], r: [0, 0, 0.1, 0.3, 0.1] },
+{ id: 'br', name: 'Buienradar', emo: '🌧️', c: ['#A9CBF2', '#5B8FD6'], w: [9, 9, 10, 10, 9], g: [13, 13, 15, 14, 13], r: [0, 0, 0, 0.4, 0.2] },
+{ id: 'wg', name: 'Windguru', emo: '🏄', c: ['#C9B8F2', '#8E74D6'], w: [10, 11, 11, 12, 11], g: [14, 15, 16, 17, 15], r: [0, 0, 0, 0.2, 0.1] },
+{ id: 'wo', name: 'Weeronline', emo: '☀️', c: ['#F7DA8A', '#E5B54E'], w: [8, 10, 10, 11, 10], g: [12, 15, 15, 16, 15], r: [0, 0, 0, 0.1, 0] }
+];
+var dir = [225, 230, 240, 250, 250], temp = [16, 17, 18, 18, 17], sky = ['🌤️', '☀️', '☀️', '⛅', '⛅'];
+var D = [{ label: 'Vandaag', f: 1, rf: 1 }, { label: 'Morgen', f: 1.9, rf: 6 }, { label: 'Maandag', f: 0.35, rf: 0 }];
+var day = D[s.day];
+var dn = function (d) { return ['N', 'NO', 'O', 'ZO', 'Z', 'ZW', 'W', 'NW'][Math.round(d / 45) % 8]; };
+var bft = function (k) { var t = [1, 4, 7, 11, 17, 22, 28, 34, 41]; var b = 0; while (b < t.length && k >= t[b]) b++; return b; };
+var kmh = function (k) { return Math.round(k * 1.852); };
+var r1 = function (x) { return Math.round(x * 10) / 10; };
+var data = A.map(function (a) {
+return { a: a, w: a.w.map(function (x) { return Math.round(x * day.f); }), g: a.g.map(function (x) { return Math.round(x * day.f); }), r: a.r.map(function (x) { return r1(x * day.rf); }) };
+});
+var avg = function (arr) { return arr.reduce(function (p, c) { return p + c; }, 0) / arr.length; };
+var sel = s.app === 'alle' ? null : data.filter(function (d) { return d.a.id === s.app; })[0];
+var hw = [0, 1, 2, 3, 4].map(function (i) {
+if (sel) return { w: sel.w[i], g: sel.g[i], r: sel.r[i] };
+return { w: Math.round(avg(data.map(function (d) { return d.w[i]; }))), g: Math.max.apply(null, data.map(function (d) { return d.g[i]; })), r: r1(avg(data.map(function (d) { return d.r[i]; }))) };
+});
+var avgKn = Math.round(avg(hw.map(function (h) { return h.w; })));
+var maxG = Math.max.apply(null, hw.map(function (h) { return h.g; }));
+var rain = hw.reduce(function (p, h) { return p + h.r; }, 0);
+var v;
+if (maxG > 24) v = ['⚠️', 'Te veel wind', '#FBE0E0', '#A23B3B'];
+else if (avgKn < 5) v = ['😴', 'Weinig wind', '#EEF0F4', '#4F6B7E'];
+else if (rain > 2) v = ['🌧️', 'Veel regen', '#E3ECF8', '#2F5670'];
+else v = ['👍', 'Goed zeilweer!', '#E3F2E5', '#2F6B45'];
+var avgs = data.map(function (d) { return avg(d.w); });
+var spread = Math.max.apply(null, avgs) - Math.min.apply(null, avgs);
+var apps = [{ id: 'alle', name: 'Alles', emo: '✨', c: ['#D9C9F5', '#9E86D9'] }].concat(A).map(function (a) {
+var on = s.app === a.id;
+return { name: a.name.replace('online', '\u00ADonline').replace('finder', '\u00ADfinder').replace('radar', '\u00ADradar').replace('.com', '\u00AD.com').replace('guru', '\u00ADguru'), emo: a.emo, on: on ? 'true' : 'false', bg: 'linear-gradient(160deg, ' + a.c[0] + ', ' + a.c[1] + ')', ring: on ? '#23465E' : 'transparent', pick: function () { self.setState({ app: a.id }); } };
+});
+return {
+days: D.map(function (d, i) { var on = s.day === i; return { label: d.label, on: on ? 'true' : 'false', bg: on ? 'linear-gradient(160deg, #7FB8DE, #3F7FB0)' : '#FBF3EA', ink: on ? '#FFFFFF' : '#2F5670', pick: function () { self.setState({ day: i }); } }; }),
+verdictEmo: v[0], verdictText: v[1], verdictBg: v[2], verdictInk: v[3],
+avgKmh: kmh(avgKn), avgBft: bft(avgKn),
+agreeText: spread <= 2 ? '✓ apps zijn het eens' : '≠ apps verschillen',
+agreeInk: spread <= 2 ? '#2F6B45' : '#A0583C',
+apps: apps,
+appName: sel ? sel.a.name : 'alle apps samen',
+hours: hw.map(function (h, i) {
+return { t: (12 + i) + ':00', sky: day.rf > 3 ? '🌧️' : sky[i], rot: dir[i] + 180, dirName: dn(dir[i]), bft: bft(h.w), kmh: kmh(h.w), gust: kmh(h.g), gustInk: h.g > 24 ? '#C0392B' : '#4F6B7E', temp: temp[i], rain: h.r, bg: h.g > 24 ? '#FBE0E0' : '#FFFFFF' };
+}),
+rows: data.map(function (d) {
+var g = Math.max.apply(null, d.g);
+return { name: d.a.name, emo: d.a.emo, icoBg: 'linear-gradient(160deg, ' + d.a.c[0] + ', ' + d.a.c[1] + ')', bft: bft(avg(d.w)), gust: kmh(g), gustInk: g > 24 ? '#C0392B' : '#23465E', rain: r1(d.r.reduce(function (p, c) { return p + c; }, 0)) + ' mm', bg: s.app === d.a.id ? '#DCEBF5' : '#FFFFFF' };
+})
+};
+}
+}
+</script>
+</body>
+</html>

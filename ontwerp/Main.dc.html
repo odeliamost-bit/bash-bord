@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Mijn dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+a{color:#B9533C}a:hover{color:#8E3C29}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 1650px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 400px, #FBE6D9 950px, #FDF6EF 1650px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+
+<div style="padding: 24px 18px 130px; display: flex; flex-direction: column; gap: 20px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<span style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(160deg, #CFE3D2, #9EC4A6); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.6), inset 0 -4px 0 rgba(0,0,0,0.08), 0 6px 12px rgba(110,156,121,0.35); border: 3px solid #FBF3EA; flex-shrink: 0;">
+<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4.5" fill="#FBF3EA"></circle><path d="M3.5 21a8.5 8.5 0 0 1 17 0z" fill="#FBF3EA"></path></svg>
+</span>
+<div style="flex-grow: 1;">
+<div style="font-size: 26px; font-weight: 900; line-height: 1.1;">Dashboard</div>
+<div style="font-size: 16px; font-weight: 700; color: #6E4A3A;">zaterdag 24 okt</div>
+</div>
+<button aria-label="Meldingen, 2 nieuw" style="position: relative; width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z" fill="#5E9070"></path><circle cx="12" cy="20" r="2" fill="#5E9070"></circle></svg>
+<span style="position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(160deg, #F09A84, #D9694F); color: #FFFFFF; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(217,105,79,0.4);">2</span>
+</button>
+</div>
+
+<!-- Hero: originele Mia-kaart met Odelia's eigen meisje -->
+<section style="position: relative; height: 168px; margin-top: 30px; border-radius: 28px; background: #F3CBB4 url(/_blob/83a4335b58052384dc0fa0676fe0a6b6) center / cover no-repeat; border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 12px 24px rgba(190,110,80,0.22); box-sizing: border-box;">
+<img src="/_blob/947206a8c3767f6b6ea978e1ab4e179f" alt="" style="position: absolute; left: 4px; bottom: 1px; height: 196px; clip-path: inset(-120px 0 0 0 round 0 0 0 26px); width: auto; z-index: 2; filter: drop-shadow(0 6px 8px rgba(120,60,60,0.2));">
+<div style="position: absolute; left: 190px; right: 8px; top: 16px; display: flex; flex-direction: column; gap: 3px; z-index: 3;">
+<div style="font-size: 18px; font-weight: 900; line-height: 1.12; color: #5A3426;">Goedemorgen,<br>Odelia! <svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -3px;"><circle cx="12" cy="12" r="5" fill="#F5C24E"></circle><g stroke="#F5C24E" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"></path></g></svg></div>
+<div style="font-size: 14px; font-weight: 700; line-height: 1.2; color: #7A4A38; max-width: 112px;">Fijne werkdag vandaag</div>
+<button aria-label="Voorlezen" style="margin-top: 6px; align-self: flex-start; display: flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 12px 0 10px; border: none; border-radius: 999px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 14px; font-weight: 900; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(217,105,79,0.4);">
+<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="#FFFFFF"></path></svg>
+Voorlezen
+</button>
+</div>
+<!-- plantje op hangend plankje met touwtjes, steekt rechts uit -->
+<div aria-hidden="true" style="position: absolute; right: -22px; top: 4px; bottom: 26px; width: 86px; z-index: 2;">
+<svg width="86" height="100%" viewBox="0 0 86 138" preserveAspectRatio="none" style="position: absolute; inset: 0; overflow: visible;">
+<path d="M17 132 L18 74" fill="none" stroke="#B98A63" stroke-width="2.2" stroke-linecap="round"></path>
+<circle cx="18" cy="73" r="4.5" fill="#D9A27A" stroke="#B98A63" stroke-width="1.5"></circle>
+</svg>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(-3px 6px 6px rgba(150,80,50,0.25));">
+<img src="/_blob/0904e769cded64198896060da4d9ff52" alt="" style="height: 90px; width: auto; margin-bottom: -3px; position: relative; z-index: 1;">
+<div style="align-self: flex-start; margin-left: 12px; width: 52px; height: 13px; border-radius: 7px 0 0 7px; background: linear-gradient(180deg, #F2C9A0, #DDA67C); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), inset 0 -3px 0 rgba(140,80,40,0.18);"></div>
+</div>
+</div>
+</section>
+
+<!-- Tabjes -->
+<div role="tablist" aria-label="Onderdelen" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; background: rgba(251,243,234,0.7); border-radius: 999px; padding: 6px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 2px 4px rgba(170,110,80,0.15);">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 52px; border: none; border-radius: 999px; background: {{t.bg}}; box-shadow: {{t.shadow}}; font-size: 17px; font-weight: 900; color: {{t.ink}};">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="{{t.icon}}" fill="{{t.iconFill}}"></path></svg>
+{{t.label}}
+</button>
+</sc-for>
+</div>
+
+<sc-if value="{{tabVandaag}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+
+<!-- Klokken -->
+<sc-if value="{{isIn}}" hint-placeholder-val="{{true}}">
+<section aria-label="Klokken" style="background: #E3EDDF; border-radius: 30px; padding: 20px; display: flex; align-items: center; gap: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(80,120,90,0.08), 0 12px 24px rgba(90,130,100,0.22);">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; flex-shrink: 0;">
+<button onClick="{{toggle}}" aria-label="Uitklokken" style="width: 124px; height: 124px; border-radius: 50%; border: 6px solid #F4F9F1; background: radial-gradient(circle at 35% 30%, #A6D6B3 0%, #6FAE84 55%, #4F9168 100%); color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: inset 0 4px 0 rgba(255,255,255,0.35), inset 0 -6px 0 rgba(0,0,0,0.12), 0 10px 0 #3F7A58, 0 16px 26px rgba(63,122,88,0.3);">
+<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="filter: drop-shadow(0 2px 1px rgba(0,0,0,0.18));"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
+<span style="font-size: 24px; font-weight: 900; text-shadow: 0 2px 1px rgba(0,0,0,0.15);">UIT</span>
+</button>
+<span style="font-size: 15px; font-weight: 800; color: #2F5E43; background: #F4F9F1; border-radius: 999px; padding: 5px 12px; box-shadow: 0 3px 6px rgba(80,120,90,0.15);">al 5½ uur gewerkt</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; color: #2F5E43;">
+<span style="width: 12px; height: 12px; border-radius: 50%; background: #3F9A64; box-shadow: 0 0 0 4px rgba(63,154,100,0.22);"></span>
+Aan het werk
+</div>
+<div style="font-size: 15px; font-weight: 700; color: #3D5E4A;">sinds</div>
+<div style="font-size: 44px; font-weight: 900; line-height: 1; color: #24452F;">7:45</div>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{isOut}}" hint-placeholder-val="{{false}}">
+<section aria-label="Klokken" style="background: #FBE0DE; border-radius: 30px; padding: 20px; display: flex; align-items: center; gap: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(160,80,90,0.08), 0 12px 24px rgba(190,100,110,0.22);">
+<button onClick="{{toggle}}" aria-label="Inklokken" style="width: 124px; height: 124px; flex-shrink: 0; border-radius: 50%; border: 6px solid #FDF3F2; background: radial-gradient(circle at 35% 30%, #F7B9CB 0%, #E27FA0 55%, #C9527D 100%); color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: inset 0 4px 0 rgba(255,255,255,0.35), inset 0 -6px 0 rgba(0,0,0,0.12), 0 10px 0 #A93A66, 0 16px 26px rgba(169,58,102,0.3);">
+<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path></svg>
+<span style="font-size: 24px; font-weight: 900;">IN</span>
+</button>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="font-size: 16px; font-weight: 800; color: #7A2D4E;">Klaar voor vandaag</div>
+<div style="font-size: 15px; font-weight: 700; color: #7A2D4E;">gewerkt</div>
+<div style="font-size: 44px; font-weight: 900; line-height: 1; color: #5C1F3A;">7¼ u</div>
+</div>
+</section>
+</sc-if>
+
+<!-- Stat-tegels zoals muziek-voorbeeld -->
+<section aria-label="Overzicht" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+<div style="background: #DDE9D7; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(80,120,90,0.08), 0 10px 20px rgba(90,130,100,0.2);">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #8EC09C, #5E9A70); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(94,154,112,0.4); margin-bottom: 4px;">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#FBF3EA"></circle><path d="M12 7v5l3.2 2" stroke="#4F8A60" stroke-width="2.4" stroke-linecap="round" fill="none"></path></svg>
+</span>
+<span style="font-size: 15px; font-weight: 800; color: #3D5E4A;">Vandaag</span>
+<span style="font-size: 32px; font-weight: 900; line-height: 1; color: #24452F;">5½ u</span>
+<span style="font-size: 14px; font-weight: 800; color: #3F7A58;">nog bezig</span>
+</div>
+<div style="background: #FBE7C3; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(170,120,40,0.08), 0 10px 20px rgba(200,150,60,0.2);">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #F7D27A, #E3A93E); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(227,169,62,0.4); margin-bottom: 4px;">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.5" fill="#FBF3EA"></rect><rect x="3" y="5" width="18" height="5" rx="2.5" fill="#FFFFFF"></rect><circle cx="8" cy="14.5" r="1.6" fill="#D39A2E"></circle><circle cx="12" cy="14.5" r="1.6" fill="#D39A2E"></circle><circle cx="16" cy="14.5" r="1.6" fill="#D39A2E"></circle></svg>
+</span>
+<span style="font-size: 15px; font-weight: 800; color: #6E5410;">Deze week</span>
+<span style="font-size: 32px; font-weight: 900; line-height: 1; color: #4E3B08;">34¼ u</span>
+<span style="font-size: 14px; font-weight: 800; color: #8A6A10;">van 35 uur</span>
+</div>
+<div style="background: #FAD8CF; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(170,80,60,0.08), 0 10px 20px rgba(200,110,90,0.2);">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #F4A58B, #DC7258); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(220,114,88,0.4); margin-bottom: 4px;">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.2L6 21z" fill="#FBF3EA" stroke="#FBF3EA" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+</span>
+<span style="font-size: 15px; font-weight: 800; color: #7A3A28;">Onthoud</span>
+<span style="font-size: 32px; font-weight: 900; line-height: 1; color: #5A2A1C;">3</span>
+<span style="font-size: 14px; font-weight: 800; color: #9A4A34;">1 vandaag</span>
+</div>
+<div style="background: #DCE6F1; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(70,100,140,0.08), 0 10px 20px rgba(90,120,170,0.2);">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #9DBBDE, #6E95C3); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(110,149,195,0.4); margin-bottom: 4px;">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="3" fill="#FBF3EA"></rect><path d="M4 7.5l8 5.5 8-5.5" stroke="#6E95C3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<span style="font-size: 15px; font-weight: 800; color: #2C4A70;">Mail Kim</span>
+<span style="font-size: 32px; font-weight: 900; line-height: 1; color: #1F3F66;">vr</span>
+<span style="font-size: 14px; font-weight: 800; color: #3A5D8A;">klaar om 16:15</span>
+</div>
+</section>
+
+</div>
+</sc-if>
+
+<sc-if value="{{tabWerk}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+
+<!-- Donut -->
+<section aria-label="Uren deze week" style="background: #FBF3EA; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), inset 0 -4px 0 rgba(160,110,80,0.08), 0 12px 24px rgba(170,110,80,0.2);">
+<div style="font-size: 20px; font-weight: 900;">Uren deze week</div>
+<div style="display: flex; align-items: center; gap: 14px;">
+<div style="position: relative; width: 180px; height: 180px; flex-shrink: 0;">
+<svg width="180" height="180" viewBox="0 0 200 200" role="img" aria-label="34 en een kwart van 35 uur gewerkt">
+<circle cx="100" cy="100" r="78" fill="none" stroke="#F1EBF8" stroke-width="24"></circle>
+<g transform="rotate(-90 100 100)" fill="none" stroke-width="24" stroke-linecap="butt">
+<circle cx="100" cy="100" r="78" stroke="#F7A8C4" stroke-dasharray="97.5 1000" stroke-dashoffset="0"></circle>
+<circle cx="100" cy="100" r="78" stroke="#F6CF5A" stroke-dasharray="97.5 1000" stroke-dashoffset="-101.5"></circle>
+<circle cx="100" cy="100" r="78" stroke="#8EC5F5" stroke-dasharray="94 1000" stroke-dashoffset="-203"></circle>
+<circle cx="100" cy="100" r="78" stroke="#B9A3F0" stroke-dasharray="97.5 1000" stroke-dashoffset="-301"></circle>
+<circle cx="100" cy="100" r="78" stroke="#9ACFAE" stroke-dasharray="73 1000" stroke-dashoffset="-402.5"></circle>
+</g>
+</svg>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+<div style="font-size: 42px; font-weight: 900; line-height: 1;">34¼</div>
+<div style="font-size: 15px; font-weight: 800; color: #7A6656;">van 35 uur</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 9px; font-size: 16px; font-weight: 800; flex-grow: 1;">
+<div style="display: flex; align-items: center; gap: 8px;"><span style="width: 14px; height: 14px; border-radius: 5px; background: #F7A8C4;"></span>ma<span style="color: #7A6656; margin-left: auto;">7¼</span></div>
+<div style="display: flex; align-items: center; gap: 8px;"><span style="width: 14px; height: 14px; border-radius: 5px; background: #F6CF5A;"></span>di<span style="color: #7A6656; margin-left: auto;">7¼</span></div>
+<div style="display: flex; align-items: center; gap: 8px;"><span style="width: 14px; height: 14px; border-radius: 5px; background: #8EC5F5;"></span>wo<span style="color: #7A6656; margin-left: auto;">7</span></div>
+<div style="display: flex; align-items: center; gap: 8px;"><span style="width: 14px; height: 14px; border-radius: 5px; background: #B9A3F0;"></span>do<span style="color: #7A6656; margin-left: auto;">7¼</span></div>
+<div style="display: flex; align-items: center; gap: 8px;"><span style="width: 14px; height: 14px; border-radius: 5px; background: #9ACFAE;"></span>vr<span style="color: #7A6656; margin-left: auto;">5½</span></div>
+</div>
+</div>
+</section>
+
+<!-- Staafjes -->
+<section aria-label="Uren per dag" style="background: #FBF3EA; border-radius: 30px; padding: 20px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), inset 0 -4px 0 rgba(160,110,80,0.08), 0 12px 24px rgba(170,110,80,0.2);">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 20px; font-weight: 900;">Per dag</span>
+<span style="font-size: 14px; font-weight: 800; color: #6E4A3A; background: #F5E8DA; border-radius: 999px; padding: 6px 12px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.8), 0 3px 6px rgba(170,110,80,0.15);">deze week</span>
+</div>
+<div style="position: relative; height: 180px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: end; padding-bottom: 28px; box-sizing: border-box; background: linear-gradient(180deg, transparent 0, transparent 37px, #EFE3D6 37px, #EFE3D6 38px, transparent 38px, transparent 75px, #EFE3D6 75px, #EFE3D6 76px, transparent 76px, transparent 113px, #EFE3D6 113px, #EFE3D6 114px, transparent 114px);">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative;"><div style="width: 30px; height: 116px; border-radius: 999px; background: linear-gradient(90deg, #F6BCAE 0%, #EE9F8E 55%, #DD8574 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 5px 8px rgba(221,133,116,0.35);"></div><span style="position: absolute; bottom: -26px; font-size: 15px; font-weight: 800; color: #6E4A3A;">ma</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative;"><div style="width: 30px; height: 116px; border-radius: 999px; background: linear-gradient(90deg, #F8D995 0%, #F2C66D 55%, #E0AE50 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 5px 8px rgba(224,174,80,0.35);"></div><span style="position: absolute; bottom: -26px; font-size: 15px; font-weight: 800; color: #6E4A3A;">di</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative;"><div style="width: 30px; height: 112px; border-radius: 999px; background: linear-gradient(90deg, #BFD3EA 0%, #9DBBDE 55%, #7FA2CC 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 5px 8px rgba(127,162,204,0.35);"></div><span style="position: absolute; bottom: -26px; font-size: 15px; font-weight: 800; color: #6E4A3A;">wo</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative;"><div style="width: 30px; height: 116px; border-radius: 999px; background: linear-gradient(90deg, #DAC8EA 0%, #C6AEDD 55%, #AE93CB 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 5px 8px rgba(174,147,203,0.35);"></div><span style="position: absolute; bottom: -26px; font-size: 15px; font-weight: 800; color: #6E4A3A;">do</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative;"><div style="width: 30px; height: 88px; border-radius: 999px; background: linear-gradient(90deg, #B4D8BE 0%, #8EC09C 55%, #74A883 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 5px 8px rgba(116,168,131,0.35);"></div><span style="position: absolute; bottom: -26px; font-size: 15px; font-weight: 900; color: #FFFFFF; background: linear-gradient(160deg, #F4A58B, #D9694F); border-radius: 999px; padding: 0 8px;">vr</span></div>
+</div>
+</section>
+
+</div>
+</sc-if>
+
+<sc-if value="{{tabOnthoud}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+
+<!-- Onthoud -->
+<section aria-label="Onthoud" style="background: #FBF3EA; border-radius: 30px; padding: 18px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), inset 0 -4px 0 rgba(160,110,80,0.08), 0 12px 24px rgba(170,110,80,0.2);">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 20px; font-weight: 900;">Onthoud</span>
+<a href="#" style="font-size: 14px; font-weight: 800; color: #6E4A3A; text-decoration: none; background: #F5E8DA; border-radius: 999px; padding: 0 14px; min-height: 36px; display: flex; align-items: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.8), 0 3px 6px rgba(170,110,80,0.15);">alles</a>
+</div>
+<div style="display: flex; align-items: center; gap: 12px;">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #F4A58B, #DC7258); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(220,114,88,0.35);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l5 5v13H6z" fill="#FBF3EA"></path><path d="M14 3v5h5" fill="#F3D9CC"></path><path d="M9 13h7M9 17h5" stroke="#DC7258" stroke-width="2" stroke-linecap="round"></path></svg>
+</span>
+<div style="flex-grow: 1; min-width: 0;"><div style="font-size: 17px; font-weight: 900;">Verslag inleveren</div><div style="font-size: 14px; font-weight: 700; color: #7A6656;">Dhr. Jansen</div></div>
+<span style="background: #FAD8CF; color: #7A3A28; font-size: 14px; font-weight: 900; border-radius: 14px; padding: 6px 10px; text-align: center; line-height: 1.1; box-shadow: inset 0 2px 0 rgba(255,255,255,0.6);">ma<br>26</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px;">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #F7D27A, #E3A93E); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(227,169,62,0.35);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.7 2.8-1.8 3.4a16 16 0 0 0 6 6l3.4-1.8 2.8.7a2 2 0 0 1 1.7 2z" fill="#FBF3EA"></path></svg>
+</span>
+<div style="flex-grow: 1; min-width: 0;"><div style="font-size: 17px; font-weight: 900;">Tandarts bellen</div><div style="font-size: 14px; font-weight: 700; color: #7A6656;">voor 17:00</div></div>
+<span style="background: #FBE7C3; color: #6E5410; font-size: 14px; font-weight: 900; border-radius: 14px; padding: 6px 10px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.6);">vandaag</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px;">
+<span style="width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(160deg, #C9B3E3, #9F84C9); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(159,132,201,0.35);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2" fill="#FBF3EA"></circle><path d="M4 21a8 8 0 0 1 16 0z" fill="#FBF3EA"></path></svg>
+</span>
+<div style="flex-grow: 1; min-width: 0;"><div style="font-size: 17px; font-weight: 900;">Formulier stage</div><div style="font-size: 14px; font-weight: 700; color: #7A6656;">Mevr. Bakker</div></div>
+<span style="background: #EADFF4; color: #4F3D80; font-size: 14px; font-weight: 900; border-radius: 14px; padding: 6px 10px; text-align: center; line-height: 1.1; box-shadow: inset 0 2px 0 rgba(255,255,255,0.6);">do<br>29</span>
+</div>
+</section>
+
+<a href="Toevoegen.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 60px; border-radius: 24px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 19px; font-weight: 900; text-decoration: none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 0 #B9533C, 0 10px 22px rgba(217,105,79,0.3);">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Iets onthouden
+</a>
+
+</div>
+</sc-if>
+
+<!-- Tegels -->
+<section aria-label="Snel naar" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+<a href="#" style="grid-column: span 2; text-decoration: none; color: #4A3A30; background: #FBE0CF; border-radius: 26px; padding: 16px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(170,90,40,0.08), 0 10px 20px rgba(200,120,70,0.2);">
+<span style="width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(160deg, #F8C29C, #E28E5E); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(226,142,94,0.4);">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FBF3EA" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3z"></path><path d="M14.7 6.3l3-3a4 4 0 0 1 2 5"></path></svg>
+</span>
+<span style="display: flex; flex-direction: column; flex-grow: 1;"><span style="font-size: 20px; font-weight: 900;">Advies</span><span style="font-size: 14px; font-weight: 700; color: #7A3E12;">maken · repareren · vragen</span></span>
+</a>
+<a href="#" style="text-decoration: none; color: #4A3A30; background: #EADFF4; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(110,80,150,0.08), 0 10px 20px rgba(140,110,180,0.2);">
+<span style="width: 52px; height: 52px; border-radius: 17px; background: linear-gradient(160deg, #C9B3E3, #9F84C9); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(159,132,201,0.4);">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" fill="#FBF3EA"></path><circle cx="8.5" cy="12" r="1.3" fill="#9F84C9"></circle><circle cx="12" cy="12" r="1.3" fill="#9F84C9"></circle><circle cx="15.5" cy="12" r="1.3" fill="#9F84C9"></circle></svg>
+</span>
+<span style="font-size: 18px; font-weight: 900;">Mail-hulp</span>
+</a>
+<a href="#" style="text-decoration: none; color: #4A3A30; background: #DDE9D7; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(80,120,90,0.08), 0 10px 20px rgba(90,130,100,0.2);">
+<span style="width: 52px; height: 52px; border-radius: 17px; background: linear-gradient(160deg, #8EC09C, #5E9A70); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(94,154,112,0.4);">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.6" fill="#FBF3EA"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0z" fill="#FBF3EA"></path><circle cx="17" cy="9" r="2.6" fill="#E3EFE3"></circle><path d="M14.5 20a5 5 0 0 1 7.5-4.3V20z" fill="#E3EFE3"></path></svg>
+</span>
+<span style="font-size: 18px; font-weight: 900;">Mensen</span>
+</a>
+<a href="#" style="text-decoration: none; color: #4A3A30; background: #DCE6F1; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(70,100,140,0.08), 0 10px 20px rgba(90,120,170,0.2);">
+<span style="width: 52px; height: 52px; border-radius: 17px; background: linear-gradient(160deg, #9DBBDE, #6E95C3); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(110,149,195,0.4);">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.5" fill="#FBF3EA"></rect><rect x="3" y="5" width="18" height="5" rx="2.5" fill="#FFFFFF"></rect><circle cx="8" cy="14.5" r="1.6" fill="#6E95C3"></circle><circle cx="12" cy="14.5" r="1.6" fill="#6E95C3"></circle></svg>
+</span>
+<span style="font-size: 18px; font-weight: 900;">Week</span>
+</a>
+<a href="#" style="text-decoration: none; color: #4A3A30; background: #FBE0E4; border-radius: 26px; padding: 16px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(160,70,90,0.08), 0 10px 20px rgba(200,100,120,0.2);">
+<span style="width: 52px; height: 52px; border-radius: 17px; background: linear-gradient(160deg, #F5A9B8, #E07890); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 10px rgba(224,120,144,0.4);">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z" fill="#FBF3EA"></path></svg>
+</span>
+<span style="font-size: 18px; font-weight: 900;">Wensen</span>
+</a>
+</section>
+
+</div>
+
+<!-- Onderbalk -->
+<div style="position: absolute; left: 14px; right: 14px; bottom: 20px; display: flex; align-items: center; gap: 12px;">
+<nav aria-label="Menu" style="flex-grow: 1; background: #FBF3EA; border-radius: 999px; padding: 8px; display: flex; justify-content: space-around; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 10px 24px rgba(170,110,80,0.25);">
+<a href="#" aria-label="Thuis" style="width: 50px; height: 50px; border-radius: 50%; background: #F5E8DA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.8), 0 3px 6px rgba(170,110,80,0.18);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="#5E9070"></path></svg>
+</a>
+<a href="#" aria-label="Week" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.5" fill="#E3A93E"></rect><rect x="6" y="11" width="12" height="7" rx="1.5" fill="#FBF3EA"></rect></svg>
+</a>
+<a href="#" aria-label="Mail-hulp" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" fill="#9F84C9"></path></svg>
+</a>
+<a href="#" aria-label="Advies" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E28E5E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3z"></path><path d="M14.7 6.3l3-3a4 4 0 0 1 2 5"></path></svg>
+</a>
+</nav>
+<button aria-label="Spreek in" style="width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 8px 18px rgba(170,110,80,0.25);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2.5" width="7" height="12" rx="3.5" fill="#6E95C3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5" stroke="#6E95C3" stroke-width="2.4" stroke-linecap="round" fill="none"></path></svg>
+</button>
+<button aria-label="Snel toevoegen" style="width: 66px; height: 66px; border-radius: 22px; border: none; background: linear-gradient(160deg, #F4A58B, #D9694F); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -4px 0 rgba(0,0,0,0.12), 0 6px 0 #B9533C, 0 12px 24px rgba(217,105,79,0.35);">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" aria-hidden="true" style="filter: drop-shadow(0 2px 1px rgba(0,0,0,0.15));"><path d="M12 5v14M5 12h14"></path></svg>
+</button>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1650}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { isIn: true, tab: 'vandaag' };
+}
+renderVals() {
+var self = this;
+var tab = this.state.tab;
+var tabs = [
+{ id: 'vandaag', label: 'Vandaag', icon: 'M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM11 1h2v3h-2zM11 20h2v3h-2zM1 11h3v2H1zM20 11h3v2h-3z', color: '#E3A93E' },
+{ id: 'werk', label: 'Werk', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-1 4h2v4.4l3 1.8-1 1.7-4-2.4z', color: '#5E9A70' },
+{ id: 'onthoud', label: 'Onthoud', icon: 'M6 3h12v18l-6-4.2L6 21z', color: '#DC7258' }
+].map(function (t) {
+var on = tab === t.id;
+return Object.assign({}, t, {
+on: on,
+bg: on ? '#FBF3EA' : 'transparent',
+shadow: on ? 'inset 0 3px 0 rgba(255,255,255,0.9), 0 6px 12px rgba(170,110,80,0.25)' : 'none',
+ink: on ? '#4A3A30' : '#6E4A3A',
+iconFill: t.color,
+pick: function () { self.setState({ tab: t.id }); }
+});
+});
+return {
+tabs: tabs,
+tabVandaag: tab === 'vandaag',
+tabWerk: tab === 'werk',
+tabOnthoud: tab === 'onthoud',
+isIn: this.state.isIn,
+isOut: !this.state.isIn,
+toggle: () => this.setState({ isIn: !this.state.isIn })
+};
+}
+}
+</script>
+</body>
+</html>

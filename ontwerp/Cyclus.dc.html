@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Cyclus</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 1180px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 380px, #FBE6D9 800px, #FDF6EF 1180px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 40px; display: flex; flex-direction: column; gap: 18px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A4A38" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1; font-size: 28px; font-weight: 900; color: #5A3426;">Cyclus</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #F6B3C8, #DE7FA1); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), inset 0 -4px 0 rgba(0,0,0,0.08), 0 6px 14px rgba(222,127,161,0.35);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" fill="#FFFFFF"></path></svg>
+</span>
+</div>
+
+<!-- Ring -->
+<section aria-label="Mijn cyclus" style="background: #FBF3EA; border-radius: 30px; padding: 22px 18px 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), inset 0 -4px 0 rgba(160,110,80,0.08), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; align-items: center; gap: 14px;">
+<div style="position: relative; width: 250px; height: 250px;">
+<svg width="250" height="250" viewBox="0 0 250 250" aria-hidden="true">
+<g transform="rotate(-90 125 125)">
+<sc-for list="{{segs}}" as="s" hint-placeholder-count="28">
+<circle cx="125" cy="125" r="100" fill="none" stroke="{{s.color}}" stroke-width="{{s.w}}" stroke-dasharray="{{s.dash}}" stroke-dashoffset="{{s.off}}"></circle>
+</sc-for>
+</g>
+<circle cx="{{dotX}}" cy="{{dotY}}" r="15" fill="#FFFFFF" stroke="#D9694F" stroke-width="5" style="filter: drop-shadow(0 3px 4px rgba(150,70,50,0.35));"></circle>
+</svg>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+<div style="font-size: 16px; font-weight: 800; color: #8A5A48;">vandaag</div>
+<div style="font-size: 52px; font-weight: 900; line-height: 1; color: #5A3426;">dag {{day}}</div>
+<div style="margin-top: 6px; font-size: 16px; font-weight: 800; color: #C2457A; max-width: 150px; line-height: 1.2;">{{centerNote}}</div>
+</div>
+</div>
+<!-- legenda -->
+<div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; font-size: 15px; font-weight: 800; color: #5A4D4A;">
+<span style="display: flex; align-items: center; gap: 6px;"><span style="width: 14px; height: 14px; border-radius: 3px; background: #F07FA0;"></span>ongesteld</span>
+</div>
+<button aria-label="Voorlezen" style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border: none; border-radius: 999px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 16px; font-weight: 900; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(217,105,79,0.4);">
+<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="#FFFFFF"></path></svg>
+Voorlezen
+</button>
+</section>
+
+<!-- Grote knop -->
+<button onClick="{{togglePeriod}}" aria-pressed="{{period}}" style="display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 0 20px; border: none; border-radius: 30px; background: {{btnBg}}; color: #FFFFFF; text-align: left; box-shadow: inset 0 4px 0 rgba(255,255,255,0.4), inset 0 -5px 0 rgba(0,0,0,0.1), 0 10px 20px rgba(200,80,110,0.35);">
+<span style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="{{btnIcon}}" fill="#FFFFFF"></path></svg>
+</span>
+<span style="display: flex; flex-direction: column;">
+<span style="font-size: 22px; font-weight: 900; line-height: 1.1;">{{btnTitle}}</span>
+<span style="font-size: 15px; font-weight: 700; opacity: 0.92;">{{btnSub}}</span>
+</span>
+</button>
+
+<!-- Volgende keer -->
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+<div style="background: #FBE0E8; border-radius: 26px; padding: 16px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 10px 20px rgba(200,100,130,0.18); display: flex; flex-direction: column; gap: 4px;">
+<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" style="filter: drop-shadow(0 3px 3px rgba(222,127,161,0.45));"><rect x="3" y="5" width="18" height="16" rx="4" fill="#F4B0C8" stroke="#DE7FA1" stroke-width="2"></rect><path d="M3 10h18M8 3v4M16 3v4" stroke="#DE7FA1" stroke-width="2" stroke-linecap="round"></path></svg>
+<div style="font-size: 15px; font-weight: 800; color: #8A4A60;">volgende keer</div>
+<div style="font-size: 26px; font-weight: 900; color: #5A3426; line-height: 1.1;">± 10 nov</div>
+</div>
+<div style="background: #EFE7FB; border-radius: 26px; padding: 16px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 10px 20px rgba(130,100,200,0.18); display: flex; flex-direction: column; gap: 4px;">
+<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" style="filter: drop-shadow(0 3px 3px rgba(168,138,216,0.45));"><circle cx="12" cy="12" r="9" fill="#D2BDF0" stroke="#A88AD8" stroke-width="2"></circle><path d="M12 7v5l3 2" stroke="#A88AD8" stroke-width="2.2" stroke-linecap="round" fill="none"></path></svg>
+<div style="font-size: 15px; font-weight: 800; color: #5E4A8A;">mijn cyclus</div>
+<div style="font-size: 26px; font-weight: 900; color: #5A3426; line-height: 1.1;">28 dagen</div>
+</div>
+</div>
+
+<!-- Hoe voel ik me (alleen tijdens menstruatie) -->
+<sc-if value="{{isPeriod}}" hint-placeholder-val="{{true}}">
+<section aria-label="Hoe voel ik me" style="background: #FBF3EA; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 12px;">
+<div style="font-size: 21px; font-weight: 900; color: #5A3426;">Hoe voel ik me vandaag?</div>
+<div style="font-size: 15px; font-weight: 700; color: #8A5A48; margin-top: -8px;">alleen als ik ongesteld ben</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+<sc-for list="{{feels}}" as="f" hint-placeholder-count="6">
+<button onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 86px; padding: 10px 4px; border-radius: 22px; border: 3px solid {{f.ring}}; background: {{f.bg}}; color: #4A3A30; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 6px 12px rgba(170,110,80,0.15);">
+<span style="font-size: 32px; line-height: 1;" aria-hidden="true">{{f.emo}}</span>
+<span style="font-size: 14px; font-weight: 800;">{{f.label}}</span>
+</button>
+</sc-for>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{notPeriod}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-radius: 26px; background: rgba(251,243,234,0.7); border: 2px dashed #E9B8C8; font-size: 16px; font-weight: 800; color: #8A4A60;">
+<span style="font-size: 30px;" aria-hidden="true">😣</span>
+<span>Ben je ongesteld? Dan kun je hier tikken hoe je je voelt.</span>
+</div>
+</sc-if>
+
+<!-- Seintje -->
+<button onClick="{{toggleSein}}" aria-pressed="{{sein}}" style="display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 0 18px; border: 1px solid rgba(255,255,255,0.7); border-radius: 26px; background: #E3EDDF; color: #2F5E43; text-align: left; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 10px 20px rgba(90,130,100,0.2);">
+<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0; filter: drop-shadow(0 3px 3px rgba(111,174,132,0.45));"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z" fill="#A8D6B4" stroke="#6FAE84" stroke-width="2" stroke-linejoin="round"></path><circle cx="12" cy="20" r="2" fill="#6FAE84"></circle></svg>
+<span style="flex-grow: 1; display: flex; flex-direction: column;">
+<span style="font-size: 18px; font-weight: 900;">Seintje 2 dagen ervoor</span>
+<span style="font-size: 14px; font-weight: 700; color: #4F7A5E;">"Neem verband mee"</span>
+</span>
+<span style="width: 58px; height: 34px; border-radius: 999px; background: {{seinTrack}}; position: relative; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.12);">
+<span style="position: absolute; top: 3px; left: {{seinKnob}}; width: 28px; height: 28px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+</span>
+</button>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1180}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { period: false, sein: true, feel: { kramp: true } };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var day = 12, len = 28, C = 2 * Math.PI * 100, seg = C / len, gap = 3;
+var segs = [];
+for (var i = 1; i <= len; i++) {
+var color = '#F3E3D3';
+if (i <= 5) color = '#F07FA0';
+segs.push({ color: color, w: i === day ? 30 : 22, dash: (seg - gap) + ' ' + (C - seg + gap), off: String(-(i - 1) * seg) });
+}
+var ang = ((day - 0.5) / len) * 2 * Math.PI - Math.PI / 2;
+var list = [
+{ id: 'kramp', emo: '😣', label: 'Kramp' },
+{ id: 'moe', emo: '😴', label: 'Erg moe' },
+{ id: 'hoofd', emo: '🤕', label: 'Hoofdpijn' },
+{ id: 'verdriet', emo: '😢', label: 'Verdrietig' },
+{ id: 'bloed', emo: '🩸', label: 'Veel bloed' },
+{ id: 'goed', emo: '😊', label: 'Goed' }
+];
+var feels = list.map(function (f) {
+var on = !!s.feel[f.id];
+return Object.assign({}, f, {
+on: on ? 'true' : 'false',
+bg: on ? '#FBD9E3' : '#FFFFFF',
+ring: on ? '#DE7FA1' : 'transparent',
+pick: function () { var n = Object.assign({}, s.feel); n[f.id] = !n[f.id]; self.setState({ feel: n }); }
+});
+});
+return {
+feels: feels,
+isPeriod: !!s.period,
+notPeriod: !s.period,
+segs: segs,
+day: day,
+dotX: String(125 + 100 * Math.cos(ang)),
+dotY: String(125 + 100 * Math.sin(ang)),
+centerNote: s.period ? 'je bent ongesteld' : 'over 16 dagen ongesteld',
+period: s.period ? 'true' : 'false',
+btnBg: s.period ? 'linear-gradient(160deg, #A8D6B4, #6FAE84)' : 'linear-gradient(160deg, #F6A3BE, #DE6F95)',
+btnIcon: s.period ? 'M5 12.5l4.5 4.5L19 7.5l-1.8-1.8-7.7 7.7-2.7-2.7z' : 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',
+btnTitle: s.period ? 'Ik ben klaar' : 'Ik ben ongesteld',
+btnSub: s.period ? 'tik als het over is' : 'tik op de eerste dag',
+togglePeriod: function () { self.setState({ period: !s.period }); },
+sein: s.sein ? 'true' : 'false',
+seinTrack: s.sein ? '#6FAE84' : '#D9CFC6',
+seinKnob: s.sein ? '27px' : '3px',
+toggleSein: function () { self.setState({ sein: !s.sein }); }
+};
+}
+}
+</script>
+</body>
+</html>

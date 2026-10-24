@@ -1,0 +1,217 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-23T17:20:00Z"
+  },
+  "title": "Mijn dashboard",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1650,
+      "title": "Dashboard (telefoon)",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Widget.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 300,
+      "title": "Widget op startscherm",
+      "is_interactive": true
+    },
+    "Toevoegen.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 900,
+      "title": "Geheugen 1: snel vastleggen",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Navigatie.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Menu dicht (tik = open)",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "NavigatieOpen.dc.html": {
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Menu open",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Cyclus.dc.html": {
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 1180,
+      "title": "Cyclus",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Geld.dc.html": {
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 2450,
+      "title": "Geld",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "GeldUitgaven.dc.html": {
+      "x": 3290,
+      "y": 0,
+      "w": 390,
+      "h": 2450,
+      "title": "Geld: uitgaven",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "GeldGekocht.dc.html": {
+      "x": 3760,
+      "y": 0,
+      "w": 390,
+      "h": 2450,
+      "title": "Geld: ik heb iets gekocht",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "GeldKalender.dc.html": {
+      "x": 4230,
+      "y": 0,
+      "w": 390,
+      "h": 2450,
+      "title": "Geld: kalender-knop",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Mensen.dc.html": {
+      "x": 4700,
+      "y": 0,
+      "w": 390,
+      "h": 1300,
+      "title": "Mensen (afspraken + zoeken)",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Mail.dc.html": {
+      "x": 5170,
+      "y": 0,
+      "w": 390,
+      "h": 1250,
+      "title": "Mail-hulp",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Advies.dc.html": {
+      "x": 5640,
+      "y": 0,
+      "w": 390,
+      "h": 1200,
+      "title": "Advies",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Leren.dc.html": {
+      "x": 6110,
+      "y": 0,
+      "w": 390,
+      "h": 1250,
+      "title": "Leren",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Wensen.dc.html": {
+      "x": 6580,
+      "y": 0,
+      "w": 390,
+      "h": 4300,
+      "title": "Wensen",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "GeldVerdelen.dc.html": {
+      "x": 7050,
+      "y": 0,
+      "w": 390,
+      "h": 2450,
+      "title": "Geld: verdelen",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Wachtwoorden.dc.html": {
+      "x": 7520,
+      "y": 0,
+      "w": 390,
+      "h": 1150,
+      "title": "Wachtwoorden (op slot)",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "WachtwoordenOpen.dc.html": {
+      "x": 7990,
+      "y": 0,
+      "w": 390,
+      "h": 1150,
+      "title": "Wachtwoorden: na vingerafdruk",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Recepten.dc.html": {
+      "x": 8460,
+      "y": 0,
+      "w": 390,
+      "h": 1750,
+      "title": "Recepten & ideeën",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Weer.dc.html": {
+      "x": 8930,
+      "y": 0,
+      "w": 390,
+      "h": 1500,
+      "title": "Zeilweer (12–16 uur)",
+      "is_interactive": true,
+      "radius": 36
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Widget.dc.html",
+    "Toevoegen.dc.html",
+    "Navigatie.dc.html",
+    "NavigatieOpen.dc.html",
+    "Cyclus.dc.html",
+    "Geld.dc.html",
+    "GeldUitgaven.dc.html",
+    "GeldGekocht.dc.html",
+    "GeldKalender.dc.html",
+    "Mensen.dc.html",
+    "Mail.dc.html",
+    "Advies.dc.html",
+    "Leren.dc.html",
+    "Wensen.dc.html",
+    "GeldVerdelen.dc.html",
+    "Wachtwoorden.dc.html",
+    "WachtwoordenOpen.dc.html",
+    "Recepten.dc.html",
+    "Weer.dc.html"
+  ],
+  "notes": {},
+  "designSystems": []
+}

@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Geld</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 2450px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 380px, #FBE6D9 850px, #FDF6EF 2450px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 40px; display: flex; flex-direction: column; gap: 18px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A4A38" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1; font-size: 28px; font-weight: 900; color: #5A3426;">Geld</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #B9DDB0, #82B874); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), inset 0 -4px 0 rgba(0,0,0,0.08), 0 6px 14px rgba(130,184,116,0.35);">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12"></path></svg>
+</span>
+</div>
+
+<!-- Totaal -->
+<section aria-label="Totaal" style="background: linear-gradient(160deg, #A8D6B4, #6FAE84); border-radius: 30px; padding: 18px 20px; color: #FFFFFF; border: 1px solid rgba(255,255,255,0.6); box-shadow: inset 0 4px 0 rgba(255,255,255,0.35), inset 0 -5px 0 rgba(0,0,0,0.08), 0 12px 24px rgba(90,150,110,0.35); display: flex; align-items: center; gap: 14px;">
+<span style="font-size: 46px; line-height: 1;" aria-hidden="true">💰</span>
+<div style="flex-grow: 1;">
+<div style="font-size: 16px; font-weight: 800; opacity: 0.95;">Totaal</div>
+<div style="font-size: 34px; font-weight: 900; line-height: 1.05;">€ 4.251,72</div>
+</div>
+<button aria-label="Voorlezen" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="#FFFFFF"></path></svg>
+</button>
+</section>
+
+<!-- Tabjes -->
+<div role="tablist" aria-label="Geld" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; background: rgba(251,243,234,0.7); border-radius: 999px; padding: 6px; box-shadow: inset 0 2px 4px rgba(170,110,80,0.12);">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+<button role="tab" onClick="{{t.pick}}" aria-selected="{{t.on}}" style="min-height: 50px; border: none; border-radius: 999px; background: {{t.bg}}; color: {{t.ink}}; font-size: 17px; font-weight: 900; box-shadow: {{t.shadow}}; display: flex; align-items: center; justify-content: center; gap: 6px;"><span aria-hidden="true">{{t.emo}}</span>{{t.label}}</button>
+</sc-for>
+</div>
+
+<!-- Potjes -->
+<sc-if value="{{tabPot}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{pots}}" as="p" hint-placeholder-count="8">
+<div style="background: {{p.bg}}; border-radius: 24px; padding: 14px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 8px 16px rgba(170,110,80,0.15); display: flex; flex-direction: column; gap: 4px; min-height: 118px; box-sizing: border-box;">
+<span style="font-size: 30px; line-height: 1;" aria-hidden="true">{{p.emo}}</span>
+<div style="font-size: 15px; font-weight: 800; color: #6E4A3A; line-height: 1.15;">{{p.label}}</div>
+<div style="font-size: 13px; font-weight: 700; color: #8A6A5A;">{{p.sub}}</div>
+<div style="margin-top: auto; font-size: 22px; font-weight: 900; color: #5A3426;">€ {{p.amount}}</div>
+</div>
+</sc-for>
+</div>
+<!-- Verdelen -->
+<button onClick="{{toggleVerdeel}}" aria-expanded="{{verdeelOpen}}" style="display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 0 18px; border: none; border-radius: 28px; background: linear-gradient(160deg, #D2BDF0, #A88AD8); color: #FFFFFF; text-align: left; box-shadow: inset 0 4px 0 rgba(255,255,255,0.4), inset 0 -5px 0 rgba(0,0,0,0.08), 0 10px 20px rgba(168,138,216,0.4);">
+<span style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;" aria-hidden="true">🔀</span>
+<span style="display: flex; flex-direction: column;">
+<span style="font-size: 21px; font-weight: 900; line-height: 1.1;">Verdelen</span>
+<span style="font-size: 14px; font-weight: 700; opacity: 0.95;">loon in één tik over je potjes</span>
+</span>
+</button>
+<sc-if value="{{verdeelOpen}}" hint-placeholder-val="{{false}}">
+<section aria-label="Verdelen" style="background: #FBF3EA; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 12px;">
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">💶 Hoeveel wil je verdelen?</div>
+<div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+<span style="font-size: 36px; font-weight: 900; color: #5A3426;">€</span>
+<input aria-label="Bedrag om te verdelen" inputmode="decimal" value="{{vAmtText}}" onInput="{{onVAmt}}" style="width: 170px; border: none; border-bottom: 3px solid #D2BDF0; background: transparent; outline: none; font-family: inherit; font-size: 40px; font-weight: 900; color: #5A3426; text-align: center; padding: 0;">
+</div>
+<div style="font-size: 15px; font-weight: 800; color: #8A5A48;">1. Eerst de vaste potjes</div>
+<sc-for list="{{vFixed}}" as="v" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 18px; background: #FFFFFF;">
+<span style="font-size: 22px;" aria-hidden="true">{{v.emo}}</span>
+<span style="flex-grow: 1; font-size: 16px; font-weight: 800;">{{v.label}}</span>
+<span style="font-size: 17px; font-weight: 900; color: #5A3426;">€ {{v.amount}}</span>
+</div>
+</sc-for>
+<div style="font-size: 15px; font-weight: 800; color: #8A5A48;">2. De rest (€ {{vRest}}) zo:</div>
+<sc-for list="{{vSplit}}" as="v" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 18px; background: #FFFFFF;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<span style="font-size: 22px;" aria-hidden="true">{{v.emo}}</span>
+<span style="flex-grow: 1; font-size: 16px; font-weight: 800;">{{v.label}}</span>
+<span style="font-size: 17px; font-weight: 900; color: #5A3426; min-width: 76px; text-align: right;">€ {{v.amount}}</span>
+</div>
+<div style="display: flex; align-items: center; gap: 6px;">
+<span style="font-size: 13px; font-weight: 800; color: #8A6A5A; flex-grow: 1;">percentage</span>
+<button onClick="{{v.minus}}" aria-label="{{v.label}} minder" style="width: 38px; height: 38px; border-radius: 50%; border: none; background: #FBF3EA; font-size: 20px; font-weight: 900; color: #7A4A38;">−</button>
+<label style="display: flex; align-items: center; gap: 2px; padding: 0 8px; height: 38px; border-radius: 12px; border: 2px solid #D2BDF0; background: #FFFFFF;"><input aria-label="{{v.label}} percentage" inputmode="numeric" value="{{v.pct}}" onInput="{{v.onPct}}" style="width: 34px; border: none; outline: none; background: transparent; font-family: inherit; font-size: 18px; font-weight: 900; color: #5A3426; text-align: right; padding: 0;"><span style="font-size: 16px; font-weight: 900; color: #5A3426;">%</span></label>
+<button onClick="{{v.plus}}" aria-label="{{v.label}} meer" style="width: 38px; height: 38px; border-radius: 50%; border: none; background: #FBF3EA; font-size: 20px; font-weight: 900; color: #7A4A38;">+</button>
+</div>
+<div style="height: 8px; border-radius: 999px; background: #F1E4D6; overflow: hidden;"><div style="height: 100%; width: {{v.w}}; border-radius: 999px; background: {{v.color}};"></div></div>
+</div>
+</sc-for>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 16px; background: {{pctBg}}; font-size: 16px; font-weight: 900; color: {{pctInk}};"><span>samen</span><span>{{pctTotal}}% {{pctNote}}</span></div>
+<button onClick="{{doVerdeel}}" style="min-height: 58px; border: none; border-radius: 999px; background: {{vBtnBg}}; color: #FFFFFF; font-size: 19px; font-weight: 900; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 12px rgba(111,174,132,0.4);">{{vBtn}}</button>
+</section>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<button style="min-height: 60px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; font-size: 16px; font-weight: 900; color: #5A3426; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 8px 16px rgba(170,110,80,0.18);"><span aria-hidden="true">🔁</span>Overboeken</button>
+<button style="min-height: 60px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; font-size: 16px; font-weight: 900; color: #5A3426; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 8px 16px rgba(170,110,80,0.18);"><span aria-hidden="true">🕒</span>Overzicht</button>
+</div>
+</sc-if>
+
+<!-- Uitgaven -->
+<sc-if value="{{tabUit}}" hint-placeholder-val="{{false}}">
+<section aria-label="Uitgaven" style="background: #FBF3EA; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; align-items: center; gap: 14px;">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%;">
+<sc-for list="{{periods}}" as="r" hint-placeholder-count="3">
+<button onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="min-height: 44px; border-radius: 999px; border: none; background: {{r.bg}}; color: {{r.ink}}; font-size: 16px; font-weight: 900;">{{r.label}}</button>
+</sc-for>
+</div>
+<div style="font-size: 16px; font-weight: 800; color: #8A5A48;">{{periodText}}</div>
+<div style="position: relative; width: 210px; height: 210px;">
+<svg width="210" height="210" viewBox="0 0 210 210" aria-hidden="true">
+<g transform="rotate(-90 105 105)">
+<sc-for list="{{arcs}}" as="a" hint-placeholder-count="3">
+<circle cx="105" cy="105" r="78" fill="none" stroke="{{a.color}}" stroke-width="24" stroke-dasharray="{{a.dash}}" stroke-dashoffset="{{a.off}}"></circle>
+</sc-for>
+</g>
+</svg>
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+<div style="font-size: 15px; font-weight: 800; color: #8A5A48;">uitgegeven</div>
+<div style="font-size: 34px; font-weight: 900; color: #5A3426; line-height: 1.05;">€ {{spentTotal}}</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+<sc-for list="{{arcs}}" as="a" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 4px 10px rgba(170,110,80,0.1);">
+<span style="width: 14px; height: 14px; border-radius: 3px; background: {{a.color}}; flex-shrink: 0;"></span>
+<span style="font-size: 22px; line-height: 1;" aria-hidden="true">{{a.emo}}</span>
+<span style="flex-grow: 1; font-size: 16px; font-weight: 800;">{{a.label}}</span>
+<span style="font-size: 14px; font-weight: 800; color: #8A6A5A;">{{a.pct}}</span>
+<span style="font-size: 17px; font-weight: 900; color: #5A3426; min-width: 64px; text-align: right;">€ {{a.amount}}</span>
+</div>
+</sc-for>
+</div>
+<!-- Wat heb ik gekocht (transacties) -->
+<div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 19px; font-weight: 900; color: #5A3426; margin-top: 4px;">Wat heb ik gekocht?</div>
+<sc-for list="{{trans}}" as="t" hint-placeholder-count="5">
+<sc-if value="{{t.isDay}}" hint-placeholder-val="{{false}}">
+<div style="font-size: 15px; font-weight: 800; color: #8A5A48; margin-top: 4px;">{{t.day}}</div>
+</sc-if>
+<sc-if value="{{t.isItem}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 4px 10px rgba(170,110,80,0.1);">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: {{t.bg}}; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;" aria-hidden="true">{{t.emo}}</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; min-width: 0;">
+<span style="font-size: 16px; font-weight: 900;">{{t.where}}</span>
+<span style="font-size: 13px; font-weight: 700; color: #8A6A5A;">{{t.label}} · uit {{t.pot}}</span>
+</span>
+<span style="font-size: 17px; font-weight: 900; color: #5A3426;">€ {{t.amount}}</span>
+</div>
+</sc-if>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<!-- Iets gekocht -->
+<button onClick="{{toggleAdd}}" aria-expanded="{{addOpen}}" style="display: flex; align-items: center; gap: 14px; min-height: 80px; padding: 0 20px; border: none; border-radius: 30px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; text-align: left; box-shadow: inset 0 4px 0 rgba(255,255,255,0.4), inset 0 -5px 0 rgba(0,0,0,0.1), 0 10px 20px rgba(217,105,79,0.35);">
+<span style="width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+</span>
+<span style="display: flex; flex-direction: column;">
+<span style="font-size: 22px; font-weight: 900; line-height: 1.1;">Ik heb iets gekocht</span>
+<span style="font-size: 15px; font-weight: 700; opacity: 0.92;">tik, kies, klaar</span>
+</span>
+</button>
+
+<sc-if value="{{addOpen}}" hint-placeholder-val="{{false}}">
+<section aria-label="Iets toevoegen" style="background: #FBF3EA; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 12px;">
+<!-- uitgaven / inkomsten -->
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: #FFFFFF; border-radius: 999px; padding: 5px;">
+<sc-for list="{{kinds}}" as="k" hint-placeholder-count="3">
+<button onClick="{{k.pick}}" aria-pressed="{{k.on}}" style="min-height: 46px; border: none; border-radius: 999px; background: {{k.bg}}; color: {{k.ink}}; font-size: 14px; font-weight: 900;">{{k.label}}</button>
+</sc-for>
+</div>
+<!-- bedrag -->
+<div style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 0;">
+<span style="font-size: 40px; font-weight: 900; color: #5A3426;">€</span>
+<input aria-label="Bedrag" inputmode="decimal" value="{{amtText}}" onInput="{{onAmt}}" placeholder="0,00" style="width: 170px; border: none; border-bottom: 3px solid #E3C3B0; background: transparent; outline: none; font-family: inherit; font-size: 44px; font-weight: 900; color: #5A3426; text-align: center; padding: 0;">
+<span style="font-size: 26px;" aria-hidden="true">🧮</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{amounts}}" as="m" hint-placeholder-count="4">
+<button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="min-height: 48px; border-radius: 16px; border: 3px solid {{m.ring}}; background: #FFFFFF; font-size: 17px; font-weight: 900; color: #4A3A30; box-shadow: 0 5px 10px rgba(170,110,80,0.15);">{{m.label}}</button>
+</sc-for>
+</div>
+<!-- rekening -->
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">🫙 Uit welk potje?</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<sc-for list="{{fromPots}}" as="w" hint-placeholder-count="4">
+<button onClick="{{w.pick}}" aria-pressed="{{w.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 3px solid {{w.ring}}; background: #FFFFFF; font-size: 15px; font-weight: 800; color: #4A3A30; box-shadow: 0 5px 10px rgba(170,110,80,0.15);">{{w.label}}</button>
+</sc-for>
+</div>
+<!-- categorieen -->
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">🏷️ Wat was het?</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 4px;">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="8">
+<button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0; border: none; background: transparent; color: #4A3A30;">
+<span style="width: 52px; height: 52px; border-radius: 50%; background: {{c.color}}; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: {{c.ring}}, inset 0 3px 0 rgba(255,255,255,0.45), 0 4px 8px rgba(120,90,80,0.2);" aria-hidden="true">{{c.emo}}</span>
+<span style="font-size: 12px; font-weight: 800; line-height: 1.1; text-align: center;">{{c.label}}</span>
+</button>
+</sc-for>
+</div>
+<!-- datum -->
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">📅 Wanneer?</div>
+<div style="display: flex; gap: 8px; align-items: stretch;">
+<sc-for list="{{whens}}" as="d" hint-placeholder-count="3">
+<button onClick="{{d.pick}}" aria-pressed="{{d.on}}" style="flex: 1; min-height: 54px; border-radius: 16px; border: none; background: {{d.bg}}; color: {{d.ink}}; font-size: 14px; font-weight: 800; line-height: 1.15; box-shadow: 0 4px 8px rgba(120,90,80,0.12);">{{d.top}}<br>{{d.label}}</button>
+</sc-for>
+<button onClick="{{toggleCal}}" aria-label="Kalender" aria-expanded="{{calOpen}}" style="width: 54px; border-radius: 16px; border: 3px solid {{calRing}}; background: #FFFFFF; font-size: 24px; box-shadow: 0 4px 8px rgba(120,90,80,0.12);">🗓️</button>
+</div>
+<sc-if value="{{calOpen}}" hint-placeholder-val="{{false}}">
+<div style="background: #FFFFFF; border-radius: 22px; padding: 14px 12px; box-shadow: 0 8px 18px rgba(120,90,80,0.18); display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<button aria-label="Vorige maand" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: #FBF3EA; font-size: 18px; font-weight: 900; color: #7A4A38;">‹</button>
+<span style="font-size: 18px; font-weight: 900; color: #5A3426;">oktober 2026</span>
+<button aria-label="Volgende maand" style="width: 40px; height: 40px; border-radius: 50%; border: none; background: #FBF3EA; font-size: 18px; font-weight: 900; color: #7A4A38;">›</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; font-size: 13px; font-weight: 800; color: #9A7A6A;">
+<span>ma</span><span>di</span><span>wo</span><span>do</span><span>vr</span><span>za</span><span>zo</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px;">
+<sc-for list="{{calDays}}" as="d" hint-placeholder-count="35">
+<button onClick="{{d.pick}}" aria-label="{{d.aria}}" aria-pressed="{{d.on}}" style="height: 40px; border-radius: 12px; border: 2px solid {{d.ring}}; background: {{d.bg}}; color: {{d.ink}}; font-size: 15px; font-weight: 800; padding: 0; visibility: {{d.vis}};">{{d.n}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<!-- tags -->
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">🔖 Tags</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<sc-for list="{{tags}}" as="g" hint-placeholder-count="3">
+<button onClick="{{g.pick}}" aria-pressed="{{g.on}}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 2px solid #6FAE84; background: {{g.bg}}; color: {{g.ink}}; font-size: 14px; font-weight: 800;">{{g.label}}</button>
+</sc-for>
+<button style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 2px dashed #6FAE84; background: transparent; color: #3F7A58; font-size: 14px; font-weight: 800;">+ tag</button>
+</div>
+<!-- opmerking + foto -->
+<div style="display: flex; gap: 8px;">
+<label style="flex-grow: 1; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 50px; padding: 0 12px; border-radius: 16px; background: #FFFFFF; border: 2px solid #E3C3B0;"><span aria-hidden="true">✏️</span><input aria-label="Opmerking of winkel" value="{{note}}" onInput="{{onNote}}" placeholder="waar / wat? (bv. Ah)" style="flex-grow: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: inherit; font-size: 16px; font-weight: 700; color: #4A3A30;"></label>
+<button aria-label="Inspreken" style="width: 50px; border-radius: 16px; border: none; background: linear-gradient(160deg, #F4A58B, #D9694F); font-size: 22px;">🎤</button>
+<button aria-label="Foto" style="width: 50px; border-radius: 16px; border: none; background: #FFFFFF; font-size: 22px; box-shadow: 0 4px 8px rgba(120,90,80,0.12);">📷</button>
+</div>
+<button onClick="{{save}}" style="min-height: 58px; border: none; border-radius: 999px; background: linear-gradient(160deg, #A8D6B4, #6FAE84); color: #FFFFFF; font-size: 20px; font-weight: 900; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 12px rgba(111,174,132,0.4);">✓ Toevoegen</button>
+</section>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startTab":{"editor":"text","default":"pot"},"startAdd":{"editor":"boolean","default":false},"startCal":{"editor":"boolean","default":false},"startVerdeel":{"editor":"boolean","default":false},"$preview":{"width":390,"height":2450}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: props.startTab || 'pot', addOpen: !!props.startAdd, period: 'week', kind: 'uit', cat: 'lekkers', amt: 5, amtStr: '5,00', note: '', verdeelOpen: !!props.startVerdeel, vAmtStr: '1.000,00', vAmt: 1000, vDone: false, pcts: { 'Investeren': 30, 'Vrije geld': 20, 'Noodpot': 20, 'Spaarpot': 20, 'Goede doelen/kerk': 10 }, from: 'Vrije geld', when: 'vandaag', calOpen: !!props.startCal, tag: {}, extra: { lekkers: 0, abo: 0, bood: 0 } };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+function eur(n) { return n.toFixed(2).replace('.', ','); }
+var FIX = [{ emo: '🩺', label: 'Zorg', amt: 180 }, { emo: '📱', label: 'Vaste lasten', amt: 41.3 }];
+var SPL = [{ emo: '📈', label: 'Investeren', pct: 30, color: '#8E9CF0' }, { emo: '👛', label: 'Vrije geld', pct: 20, color: '#F6CF5A' }, { emo: '🛟', label: 'Noodpot', pct: 20, color: '#F49A8E' }, { emo: '🐷', label: 'Spaarpot', pct: 20, color: '#F7A8C4' }, { emo: '⛪', label: 'Goede doelen/kerk', pct: 10, color: '#B9A3F0' }];
+var fixSum = FIX.reduce(function (t, f) { return t + f.amt; }, 0);
+var rest = Math.max((s.vAmt || 0) - fixSum, 0);
+var vFixed = FIX.map(function (f) { return { emo: f.emo, label: f.label, amount: eur(f.amt) }; });
+var pcts = s.pcts || {};
+var pctTotal = 0;
+var setPct = function (label, val) { var n = Object.assign({}, s.pcts); n[label] = Math.max(0, Math.min(100, val)); self.setState({ pcts: n, vDone: false }); };
+var vSplit = SPL.map(function (v) { var pc = pcts[v.label] !== undefined ? pcts[v.label] : v.pct; pctTotal += pc; return { emo: v.emo, label: v.label, pct: String(pc), color: v.color, w: Math.min(pc * 2, 100) + '%', amount: eur(rest * pc / 100), minus: function () { setPct(v.label, pc - 5); }, plus: function () { setPct(v.label, pc + 5); }, onPct: function (e) { var n = parseInt(e.target.value, 10); setPct(v.label, isNaN(n) ? 0 : n); } }; });
+var tabs = [{ id: 'pot', label: 'Potjes', emo: '🫙' }, { id: 'uit', label: 'Uitgaven', emo: '⭕' }].map(function (t) {
+var on = s.tab === t.id;
+return Object.assign({}, t, { on: on ? 'true' : 'false', bg: on ? 'linear-gradient(160deg, #F4A58B, #D9694F)' : 'transparent', ink: on ? '#FFFFFF' : '#7A4A38', shadow: on ? 'inset 0 3px 0 rgba(255,255,255,0.4), 0 4px 10px rgba(217,105,79,0.35)' : 'none', pick: function () { self.setState({ tab: t.id }); } });
+});
+var pots = [
+{ emo: '💜', label: 'Inkomsten', sub: '', amount: '130', bg: '#F3E6FB' },
+{ emo: '✈️', label: 'Vakantie en lidmaatschap', sub: '', amount: '485,26', bg: '#DCE7F2' },
+{ emo: '🌿', label: 'Homeopathie', sub: '', amount: '324', bg: '#E3EDDF' },
+{ emo: '📱', label: 'Vaste lasten', sub: '€ 41,30 per maand', amount: '22,30', bg: '#FBE0E8' },
+{ emo: '🩺', label: 'Zorg', sub: '€ 180 per maand', amount: '1.790,96', bg: '#FDE6DA' },
+{ emo: '🍬', label: 'Snoep/lekkers', sub: '€ 50', amount: '50,69', bg: '#FBD9E3' },
+{ emo: '👛', label: 'Vrije geld 20%', sub: 'kleding, uitjes', amount: '645,48', bg: '#FBEBC4' },
+{ emo: '📈', label: 'Investeren 30%', sub: '', amount: '434,58', bg: '#FFF1B8' }
+];
+var base = { dag: [0, 0, 0], week: [13.06, 10, 5.77], maand: [42.5, 22.3, 61.2] };
+var b = base[s.period];
+var defs = [
+{ id: 'lekkers', label: 'Lekkers', emo: '🍦', color: '#8EC5F5' },
+{ id: 'abo', label: 'Abonnement', emo: '🧾', color: '#B9A3F0' },
+{ id: 'bood', label: 'Boodschappen', emo: '🧺', color: '#9ACFAE' }
+];
+var vals = defs.map(function (d, i) { return b[i] + s.extra[d.id]; });
+var total = vals.reduce(function (x, y) { return x + y; }, 0);
+var C = 2 * Math.PI * 78, acc = 0;
+var arcs = defs.map(function (d, i) {
+var len = total > 0 ? C * vals[i] / total : 0;
+var a = { label: d.label, emo: d.emo, color: d.color, amount: eur(vals[i]), pct: total > 0 ? Math.round(100 * vals[i] / total) + '%' : '0%', dash: Math.max(len - 3, 0) + ' ' + C, off: String(-acc) };
+acc += len;
+return a;
+});
+var periods = [{ id: 'dag', label: 'Dag' }, { id: 'week', label: 'Week' }, { id: 'maand', label: 'Maand' }].map(function (r) {
+var on = s.period === r.id;
+return Object.assign({}, r, { on: on ? 'true' : 'false', bg: on ? '#6FAE84' : '#FFFFFF', ink: on ? '#FFFFFF' : '#5A4D4A', pick: function () { self.setState({ period: r.id }); } });
+});
+var periodText = { dag: 'zaterdag 24 okt', week: '19 okt – 25 okt', maand: 'oktober' }[s.period];
+var CU = [
+{ id: 'lekkers', label: 'Lekkers', emo: '🍫', color: '#8EC5F5', vaak: true },
+{ id: 'werk', label: 'Lunch werk', emo: '🥪', color: '#F6CF5A', vaak: true },
+{ id: 'kleding', label: 'Kleding', emo: '👕', color: '#F7A8C4', vaak: true },
+{ id: 'shop', label: 'Shoppen', emo: '🛍️', color: '#F2A7D8', vaak: true },
+{ id: 'abo', label: 'Abonnement', emo: '📱', color: '#B9A3F0', vaak: true },
+{ id: 'bood', label: 'Boodschap', emo: '🧺', color: '#9ACFAE', vaak: true },
+{ id: 'verz', label: 'Verzorging', emo: '🧴', color: '#F8C29C', vaak: true },
+{ id: 'zorg', label: 'Zorg', emo: '🩺', color: '#9AD1D4' },
+{ id: 'cadeau', label: 'Cadeaus', emo: '🎁', color: '#A9C99A' },
+{ id: 'uitje', label: 'Uitjes', emo: '⛵', color: '#8EC5F5' },
+{ id: 'hand', label: 'Handwerk', emo: '🧶', color: '#F7B7AE' },
+{ id: 'kerk', label: 'Kerk/goed doel', emo: '⛪', color: '#D2BDF0' },
+{ id: 'wens', label: 'Wensenlijst', emo: '✨', color: '#F7DA8A' },
+{ id: 'ov', label: 'Vervoer', emo: '🚆', color: '#9AA8F0' },
+{ id: 'plant', label: 'Planten', emo: '🪴', color: '#B9DDB0' },
+{ id: 'rek', label: 'Rekeningen', emo: '📄', color: '#D9CFC6' }
+];
+var CI = [
+{ id: 'loon', label: 'Loon', emo: '💶', color: '#9ACFAE', vaak: true },
+{ id: 'toeslag', label: 'Zorgtoeslag', emo: '🏥', color: '#9AD1D4', vaak: true },
+{ id: 'terug', label: 'Terug', emo: '↩️', color: '#8EC5F5', vaak: true },
+{ id: 'oma', label: 'Gekregen', emo: '🎁', color: '#F7A8C4', vaak: true },
+{ id: 'verkocht', label: 'Verkocht', emo: '🏷️', color: '#F6CF5A', vaak: true }
+];
+var CO = [
+{ id: 'spaar', label: 'Spaarrekening', emo: '🐷', color: '#F7A8C4', vaak: true },
+{ id: 'nood', label: 'Noodrekening', emo: '🛟', color: '#F49A8E', vaak: true },
+{ id: 'beleg', label: 'Beleggen', emo: '📈', color: '#8E9CF0', vaak: true }
+];
+var CL = s.kind === 'uit' ? CU : s.kind === 'in' ? CI : CO;
+var shownCats = (s.kind === 'uit' && !s.more) ? CU.filter(function (c) { return c.vaak; }).concat([{ id: 'meer', label: 'Meer', emo: '➕', color: '#C9D3CE' }]) : CL;
+var cats = shownCats.map(function (d) {
+var on = s.cat === d.id;
+return { label: d.label, emo: d.emo, color: d.color, on: on ? 'true' : 'false', ring: on ? '0 0 0 4px #D9694F' : '0 0 0 0 transparent', pick: function () { if (d.id === 'meer') { self.setState({ more: true }); } else { self.setState({ cat: d.id }); } } };
+});
+var amounts = [2, 5, 10, 20].map(function (n) {
+return { label: '€' + n, on: s.amt === n ? 'true' : 'false', ring: s.amt === n ? '#D9694F' : 'transparent', pick: function () { self.setState({ amt: n, amtStr: n + ',00' }); } };
+});
+var kinds = [{ id: 'uit', label: '➖ Uitgave' }, { id: 'in', label: '➕ Inkomen' }, { id: 'over', label: '🔁 Sparen' }].map(function (k) {
+var on = s.kind === k.id;
+return { label: k.label, on: on ? 'true' : 'false', bg: on ? 'linear-gradient(160deg, #F4A58B, #D9694F)' : 'transparent', ink: on ? '#FFFFFF' : '#7A4A38', pick: function () { self.setState({ kind: k.id, more: false, cat: k.id === 'uit' ? 'lekkers' : k.id === 'in' ? 'loon' : 'spaar', from: k.id === 'over' ? 'Spaarpot' : 'Vrije geld' }); } };
+});
+var calDays = [];
+for (var i = 0; i < 3; i++) calDays.push({ n: '', aria: '', on: 'false', ring: 'transparent', bg: 'transparent', ink: '#000', vis: 'hidden', pick: function () {} });
+for (var dd = 1; dd <= 31; dd++) (function (dd) {
+var id = dd === 24 ? 'vandaag' : dd === 23 ? 'gisteren' : dd === 21 ? 'eerder' : 'd' + dd;
+var on = s.when === id;
+var future = dd > 24;
+calDays.push({ n: String(dd), aria: dd + ' oktober', on: on ? 'true' : 'false', ring: dd === 24 && !on ? '#6FAE84' : 'transparent', bg: on ? '#6FAE84' : '#FBF3EA', ink: on ? '#FFFFFF' : (future ? '#C9B8AC' : '#4A3A30'), vis: 'visible', pick: function () { if (!future) self.setState({ when: id, calOpen: false }); } });
+})(dd);
+var whenTop = s.when.charAt(0) === 'd' ? s.when.slice(1) + '-10' : null;
+var whens = [{ id: 'vandaag', top: '24-10' }, { id: 'gisteren', top: '23-10' }, { id: whenTop ? s.when : 'eerder', top: whenTop || '21-10', name: whenTop ? 'gekozen' : 'eerder' }].map(function (d) {
+var on = s.when === d.id;
+return { top: d.top, label: d.name || d.id, on: on ? 'true' : 'false', bg: on ? '#6FAE84' : '#FFFFFF', ink: on ? '#FFFFFF' : '#5A4D4A', pick: function () { self.setState({ when: d.id }); } };
+});
+var tags = ['Online shoppen', 'School', 'Merge Mansion'].map(function (t) {
+var on = !!s.tag[t];
+return { label: t, on: on ? 'true' : 'false', bg: on ? '#6FAE84' : 'transparent', ink: on ? '#FFFFFF' : '#3F7A58', pick: function () { var n = Object.assign({}, s.tag); n[t] = !n[t]; self.setState({ tag: n }); } };
+});
+var mk = function (arr, key) { return arr.map(function (v) { var on = s[key] === v; return { label: v, on: on ? 'true' : 'false', ring: on ? '#D9694F' : 'transparent', pick: function () { var o = {}; o[key] = v; self.setState(o); } }; }); };
+var trans = [
+{ day: 'woensdag 21 okt' },
+{ emo: '🍦', bg: '#DCEBFB', where: 'Ah', label: 'Lekkers', pot: 'Vrije geld', amount: '10,56' },
+{ emo: '🧾', bg: '#EDE6FB', where: 'Google Play tegoed', label: 'Abonnement', pot: 'Vrije geld', amount: '10,00' },
+{ day: 'dinsdag 20 okt' },
+{ emo: '🍦', bg: '#DCEBFB', where: 'Cargill lekkers', label: 'Lekkers', pot: 'Vrije geld', amount: '2,50' },
+{ emo: '🧺', bg: '#E3F1E7', where: 'Lidl', label: 'Boodschappen', pot: 'Vrije geld', amount: '5,77' }
+];
+if (s.added && s.added.length) { trans = [{ day: 'vandaag' }].concat(s.added, trans); }
+trans = trans.map(function (t) { return Object.assign({ isDay: !!t.day, isItem: !t.day }, t); });
+return {
+verdeelOpen: s.verdeelOpen,
+toggleVerdeel: function () { self.setState({ verdeelOpen: !s.verdeelOpen, vDone: false }); },
+vAmtText: s.vAmtStr,
+onVAmt: function (e) { var v = e.target.value; var n = parseFloat(v.replace(/\./g, '').replace(',', '.')); self.setState({ vAmtStr: v, vAmt: isNaN(n) ? 0 : n, vDone: false }); },
+vFixed: vFixed,
+vSplit: vSplit,
+vRest: eur(rest),
+pctTotal: pctTotal,
+pctNote: pctTotal === 100 ? '✓' : (pctTotal > 100 ? '· te veel!' : '· nog ' + (100 - pctTotal) + '% over'),
+pctBg: pctTotal === 100 ? '#E3EDDF' : '#FBD9D6',
+pctInk: pctTotal === 100 ? '#2F5E43' : '#C2453A',
+vBtn: s.vDone ? '✓ Verdeeld!' : '🔀 Nu verdelen',
+vBtnBg: s.vDone ? 'linear-gradient(160deg, #A8D6B4, #6FAE84)' : 'linear-gradient(160deg, #D2BDF0, #A88AD8)',
+doVerdeel: function () { self.setState({ vDone: true }); },
+calDays: calDays,
+calOpen: s.calOpen,
+calRing: s.calOpen ? '#D9694F' : 'transparent',
+toggleCal: function () { self.setState({ calOpen: !s.calOpen }); },
+kinds: kinds,
+whens: whens,
+tags: tags,
+amtText: s.amtStr,
+note: s.note,
+onAmt: function (e) { var v = e.target.value; var n = parseFloat(v.replace(',', '.')); self.setState({ amtStr: v, amt: isNaN(n) ? 0 : n }); },
+onNote: function (e) { self.setState({ note: e.target.value }); },
+fromPots: mk(s.kind === 'over' ? ['Spaarpot', 'Noodpot', 'Investeren'] : ['Vrije geld', 'Snoep/lekkers', 'Vaste lasten', 'Zorg'], 'from'),
+trans: trans,
+tabs: tabs,
+tabPot: s.tab === 'pot',
+tabUit: s.tab === 'uit',
+pots: pots,
+periods: periods,
+periodText: periodText,
+arcs: arcs,
+spentTotal: eur(total),
+cats: cats,
+amounts: amounts,
+addOpen: s.addOpen,
+toggleAdd: function () { self.setState({ addOpen: !s.addOpen }); },
+save: function () { var d = CL.filter(function (x) { return x.id === s.cat; })[0]; var n = Object.assign({}, s.extra); if (s.kind === 'uit' && n[s.cat] !== undefined) { n[s.cat] = n[s.cat] + s.amt; } var a = (s.added || []).slice(); a.unshift({ emo: d.emo, bg: '#FDE6DA', where: s.note || d.label, label: d.label, pot: s.from, amount: (s.kind === 'in' ? '+ ' : '') + s.amt.toFixed(2).replace('.', ',') }); self.setState({ extra: n, added: a, addOpen: false, tab: 'uit', note: '' }); }
+};
+}
+}
+</script>
+</body>
+</html>

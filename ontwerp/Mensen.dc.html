@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Mensen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1300px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 380px, #FBE6D9 850px, #FDF6EF 1300px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 40px; display: flex; flex-direction: column; gap: 16px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A4A38" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1; font-size: 28px; font-weight: 900; color: #5A3426;">Mensen</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #AFCBEA, #7FA5D2); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), inset 0 -4px 0 rgba(0,0,0,0.08), 0 6px 14px rgba(127,165,210,0.35);">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM2.5 20a6.5 6.5 0 0 1 13 0M17 6.5a2.5 2.5 0 1 1 0 5M18 14a5 5 0 0 1 3.5 5"></path></svg>
+</span>
+</div>
+
+<!-- Zoekbalk -->
+<div style="display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 8px 0 16px; border-radius: 999px; background: #FBF3EA; border: 1px solid rgba(255,255,255,0.8); box-shadow: inset 0 2px 4px rgba(170,110,80,0.12), 0 6px 14px rgba(170,110,80,0.15);">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9A7A6A" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+<input aria-label="Zoeken" value="{{query}}" onInput="{{onQuery}}" placeholder="Zoek: naam, opdracht, woord..." style="flex-grow: 1; min-width: 0; border: none; background: transparent; outline: none; font-size: 17px; font-weight: 700; color: #4A3A30;">
+<button aria-label="Zoeken met je stem" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: linear-gradient(160deg, #F4A58B, #D9694F); font-size: 20px; flex-shrink: 0;">🎤</button>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+<span style="font-size: 14px; font-weight: 800; color: #8A5A48; align-self: center;">probeer:</span>
+<sc-for list="{{tries}}" as="t" hint-placeholder-count="3">
+<button onClick="{{t.pick}}" style="min-height: 36px; padding: 0 12px; border-radius: 999px; border: 2px solid #E3C3B0; background: rgba(255,255,255,0.6); font-size: 14px; font-weight: 800; color: #7A4A38;">{{t.label}}</button>
+</sc-for>
+</div>
+
+<!-- Zoekresultaten -->
+<sc-if value="{{searching}}" hint-placeholder-val="{{false}}">
+<section aria-label="Gevonden" style="background: #FBF3EA; border-radius: 30px; padding: 16px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 19px; font-weight: 900; color: #5A3426;">🔍 {{hitCount}} gevonden</span>
+<button onClick="{{clearQuery}}" style="min-height: 36px; padding: 0 12px; border-radius: 999px; border: none; background: #FFFFFF; font-size: 14px; font-weight: 800; color: #7A4A38;">✕ wissen</button>
+</div>
+<sc-for list="{{hits}}" as="h" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 4px 10px rgba(170,110,80,0.1);">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: {{h.color}}; color: #FFFFFF; font-size: 17px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{h.init}}</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column;">
+<span style="font-size: 16px; font-weight: 900;">{{h.what}}</span>
+<span style="font-size: 13px; font-weight: 700; color: #8A6A5A;">{{h.who}} · {{h.when}}</span>
+</span>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<!-- Groepjes -->
+<div role="tablist" aria-label="Groep" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; background: rgba(251,243,234,0.7); border-radius: 999px; padding: 6px; box-shadow: inset 0 2px 4px rgba(170,110,80,0.12);">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<button role="tab" onClick="{{g.pick}}" aria-selected="{{g.on}}" style="min-height: 46px; border: none; border-radius: 999px; background: {{g.bg}}; color: {{g.ink}}; font-size: 16px; font-weight: 900; box-shadow: {{g.shadow}};">{{g.label}}</button>
+</sc-for>
+</div>
+
+<!-- Personen -->
+<div style="display: flex; gap: 12px; overflow: hidden; padding: 4px 2px;">
+<sc-for list="{{people}}" as="p" hint-placeholder-count="4">
+<button onClick="{{p.pick}}" aria-pressed="{{p.on}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px; border: none; background: transparent; padding: 0; width: 72px; flex-shrink: 0;">
+<span style="width: 64px; height: 64px; border-radius: 50%; background: {{p.color}}; color: #FFFFFF; font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: {{p.ring}}, inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 12px rgba(120,90,80,0.22);">{{p.init}}</span>
+<span style="font-size: 13px; font-weight: 800; color: #5A3426; text-align: center; line-height: 1.1;">{{p.short}}</span>
+</button>
+</sc-for>
+<button aria-label="Persoon toevoegen" style="display: flex; flex-direction: column; align-items: center; gap: 6px; border: none; background: transparent; padding: 0; width: 72px; flex-shrink: 0;">
+<span style="width: 64px; height: 64px; border-radius: 50%; border: 3px dashed #D9A08A; color: #D9694F; font-size: 30px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">+</span>
+<span style="font-size: 13px; font-weight: 800; color: #8A5A48;">nieuw</span>
+</button>
+</div>
+
+<!-- Persoonkaart -->
+<section aria-label="{{cur.name}}" style="background: #FBF3EA; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), inset 0 -4px 0 rgba(160,110,80,0.08), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; align-items: center; gap: 12px;">
+<span style="width: 58px; height: 58px; border-radius: 50%; background: {{cur.color}}; color: #FFFFFF; font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{cur.init}}</span>
+<div style="flex-grow: 1;">
+<div style="font-size: 22px; font-weight: 900; color: #5A3426; line-height: 1.1;">{{cur.name}}</div>
+<div style="font-size: 15px; font-weight: 700; color: #8A6A5A;">{{cur.role}}</div>
+</div>
+<div style="text-align: center;">
+<div style="font-size: 28px; font-weight: 900; color: #D9694F; line-height: 1;">{{openCount}}</div>
+<div style="font-size: 12px; font-weight: 800; color: #8A6A5A;">nog doen</div>
+</div>
+</div>
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">🗣️ Wat hebben we afgesproken?</div>
+<sc-for list="{{deals}}" as="d" hint-placeholder-count="3">
+<button onClick="{{d.toggle}}" aria-pressed="{{d.done}}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; border: none; background: #FFFFFF; text-align: left; color: #4A3A30; box-shadow: 0 4px 10px rgba(170,110,80,0.1); opacity: {{d.op}};">
+<span style="width: 30px; height: 30px; border-radius: 10px; border: 3px solid {{d.boxRing}}; background: {{d.boxBg}}; color: #FFFFFF; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{d.mark}}</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column;">
+<span style="font-size: 17px; font-weight: 900; text-decoration: {{d.strike}};">{{d.what}}</span>
+<span style="font-size: 13px; font-weight: 700; color: #8A6A5A;">gezegd op {{d.said}}</span>
+</span>
+<span style="padding: 6px 10px; border-radius: 14px; background: {{d.pillBg}}; color: {{d.pillInk}}; font-size: 14px; font-weight: 900; text-align: center; line-height: 1.1; flex-shrink: 0;">{{d.due}}</span>
+</button>
+</sc-for>
+<div style="display: grid; grid-template-columns: 1fr auto; gap: 10px;">
+<a href="Toevoegen.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border-radius: 999px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 17px; font-weight: 900; text-decoration: none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 12px rgba(217,105,79,0.4);">+ Nieuwe afspraak</a>
+<button aria-label="Inspreken" style="width: 56px; height: 56px; border-radius: 50%; border: none; background: #FFFFFF; font-size: 24px; box-shadow: 0 6px 12px rgba(170,110,80,0.2);">🎤</button>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1300}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { group: 'school', sel: 'jansen', query: '', done: { d3: true } };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var P = [
+{ id: 'jansen', group: 'school', init: 'J', short: 'Dhr. Jansen', name: 'Dhr. Jansen', role: 'leraar Nederlands', color: 'linear-gradient(160deg, #F6B3C8, #DE7FA1)' },
+{ id: 'boer', group: 'school', init: 'B', short: 'Mevr. de Boer', name: 'Mevr. de Boer', role: 'mentor', color: 'linear-gradient(160deg, #D2BDF0, #A88AD8)' },
+{ id: 'kim', group: 'werk', init: 'K', short: 'Kim', name: 'Kim', role: 'Randstad', color: 'linear-gradient(160deg, #AFCBEA, #7FA5D2)' },
+{ id: 'team', group: 'werk', init: 'T', short: 'Teamleider', name: 'Teamleider', role: 'Cargill', color: 'linear-gradient(160deg, #A8D6B4, #6FAE84)' },
+{ id: 'huisarts', group: 'thuis', init: 'H', short: 'Huisarts', name: 'Huisarts', role: 'dokter', color: 'linear-gradient(160deg, #F8C29C, #E9956A)' }
+];
+var D = [
+{ id: 'd1', who: 'jansen', what: 'Verslag inleveren', said: 'di 20 okt', due: 'ma 26', soon: true },
+{ id: 'd2', who: 'jansen', what: 'Boek meenemen', said: 'di 20 okt', due: 'do 29', soon: false },
+{ id: 'd3', who: 'jansen', what: 'Mail sturen over toets', said: 'ma 12 okt', due: 'klaar', soon: false },
+{ id: 'd4', who: 'boer', what: 'Gesprek plannen', said: 'wo 21 okt', due: 'vr 30', soon: false },
+{ id: 'd5', who: 'kim', what: 'Uren sturen', said: 'elke week', due: 'vr', soon: true },
+{ id: 'd6', who: 'team', what: 'Vrije dag doorgeven', said: 'do 22 okt', due: '1 nov', soon: false },
+{ id: 'd7', who: 'huisarts', what: 'Bloed laten prikken', said: 'ma 19 okt', due: 'ma 2 nov', soon: false }
+];
+var byId = {}; P.forEach(function (p) { byId[p.id] = p; });
+var groups = [{ id: 'school', label: '🎒 School' }, { id: 'werk', label: '🏭 Werk' }, { id: 'thuis', label: '🏠 Thuis' }].map(function (g) {
+var on = s.group === g.id;
+return { label: g.label, on: on ? 'true' : 'false', bg: on ? 'linear-gradient(160deg, #F4A58B, #D9694F)' : 'transparent', ink: on ? '#FFFFFF' : '#7A4A38', shadow: on ? 'inset 0 3px 0 rgba(255,255,255,0.4), 0 4px 10px rgba(217,105,79,0.35)' : 'none', pick: function () { var first = P.filter(function (p) { return p.group === g.id; })[0]; self.setState({ group: g.id, sel: first.id }); } };
+});
+var people = P.filter(function (p) { return p.group === s.group; }).map(function (p) {
+var on = s.sel === p.id;
+return Object.assign({}, p, { on: on ? 'true' : 'false', ring: on ? '0 0 0 4px #FFFFFF, 0 0 0 7px #D9694F' : '0 0 0 0 transparent', pick: function () { self.setState({ sel: p.id }); } });
+});
+var cur = byId[s.sel];
+var open = 0;
+var deals = D.filter(function (d) { return d.who === s.sel; }).map(function (d) {
+var done = !!s.done[d.id];
+if (!done) open++;
+return { what: d.what, said: d.said, due: done ? 'klaar' : d.due, done: done ? 'true' : 'false', mark: done ? '✓' : '', boxBg: done ? '#6FAE84' : '#FFFFFF', boxRing: done ? '#6FAE84' : '#E3C3B0', strike: done ? 'line-through' : 'none', op: done ? '0.6' : '1', pillBg: done ? '#E3EDDF' : (d.soon ? '#FBD9D6' : '#FBF3EA'), pillInk: done ? '#3F7A58' : (d.soon ? '#C2453A' : '#7A4A38'), toggle: function () { var n = Object.assign({}, s.done); n[d.id] = !n[d.id]; self.setState({ done: n }); } };
+});
+var q = (s.query || '').toLowerCase().trim();
+var hits = q ? D.filter(function (d) { var p = byId[d.who]; return (d.what + ' ' + p.name + ' ' + p.role).toLowerCase().indexOf(q) >= 0; }).map(function (d) { var p = byId[d.who]; return { init: p.init, color: p.color, what: d.what, who: p.name, when: 'gezegd op ' + d.said }; }) : [];
+var tries = ['verslag', 'Kim', 'boek'].map(function (t) { return { label: t, pick: function () { self.setState({ query: t }); } }; });
+return {
+query: s.query,
+onQuery: function (e) { self.setState({ query: e.target.value }); },
+clearQuery: function () { self.setState({ query: '' }); },
+tries: tries,
+searching: !!q,
+hits: hits,
+hitCount: hits.length,
+groups: groups,
+people: people,
+cur: cur,
+deals: deals,
+openCount: open
+};
+}
+}
+</script>
+</body>
+</html>

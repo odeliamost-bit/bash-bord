@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Menu aan de zijkant</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#3A3046}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0%, #F8CDB9 30%, #FBE6D9 62%, #FDF6EF 100%); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #3A3046;">
+
+<!-- Inhoud (voorbeeld) -->
+<div style="position: absolute; top: 0; bottom: 0; left: 88px; right: 0; padding: 24px 16px 24px 8px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: rgba(255,250,246,0.75); border-radius: 26px; padding: 18px; box-shadow: 0 8px 20px rgba(196,110,80,0.15);">
+<div style="font-size: 26px; font-weight: 900;">Hoi Odelia</div>
+<div style="font-size: 16px; font-weight: 700; color: #5A4D6B;">zaterdag 24 okt</div>
+</div>
+<div style="background: #E3EFE3; border-radius: 26px; padding: 18px; display: flex; align-items: center; gap: 14px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 8px 20px rgba(80,130,95,0.18);">
+<span style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(160deg, #8CC7A0, #4F9168); border: 5px solid #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #FFFFFF; box-shadow: 0 6px 0 #3F7A58; flex-shrink: 0;">UIT</span>
+<div>
+<div style="font-size: 15px; font-weight: 800; color: #2F5E43;">sinds</div>
+<div style="font-size: 34px; font-weight: 900; color: #24452F; line-height: 1;">7:45</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+<div style="background: #FBD9D6; border-radius: 22px; height: 110px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(196,110,80,0.15);"></div>
+<div style="background: #FBEBC4; border-radius: 22px; height: 110px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(196,140,60,0.15);"></div>
+<div style="background: #DCE7F2; border-radius: 22px; height: 110px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(90,120,170,0.15);"></div>
+<div style="background: #E3EFE3; border-radius: 22px; height: 110px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 6px 14px rgba(80,130,95,0.15);"></div>
+</div>
+</div>
+
+<!-- Waas achter open menu -->
+<sc-if value="{{open}}" hint-placeholder-val="{{false}}">
+<button onClick="{{close}}" aria-label="Menu sluiten" style="position: absolute; inset: 0; border: none; background: rgba(58,48,70,0.35); padding: 0;"></button>
+</sc-if>
+
+<!-- Zijbalk -->
+<nav aria-label="Menu" style="position: absolute; top: 12px; bottom: 12px; left: 12px; width: {{railW}}; background: #DDE9D7; border: 1px solid rgba(255,255,255,0.7); border-radius: 30px; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(80,120,90,0.08), 0 12px 28px rgba(90,130,100,0.28); transition: width 0.25s ease;">
+<button onClick="{{toggle}}" aria-label="{{toggleLabel}}" aria-expanded="{{open}}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: none; border-radius: 20px; background: linear-gradient(160deg, #F4A58B, #E07A62); padding: 0 0 0 12px; color: #FFFFFF; margin-bottom: 6px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -4px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(224,122,98,0.35);">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{toggleIcon}}"></path></svg>
+<sc-if value="{{open}}" hint-placeholder-val="{{false}}"><span style="font-size: 18px; font-weight: 900;">Menu</span></sc-if>
+</button>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="11">
+<button onClick="{{it.pick}}" aria-label="{{it.label}}" aria-current="{{it.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 58px; border: none; border-radius: 20px; background: {{it.rowBg}}; padding: 0 0 0 6px; text-align: left; color: #3A3046;">
+<span style="width: 46px; height: 46px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="{{it.soft}}" stroke="{{it.ink}}" stroke-width="2.3" style="filter: {{it.shadow}};" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.icon}}"></path></svg>
+</span>
+<sc-if value="{{open}}" hint-placeholder-val="{{false}}"><span style="font-size: 18px; font-weight: 900; white-space: nowrap;">{{it.label}}</span></sc-if>
+</button>
+</sc-for>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startOpen":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { open: !!props.startOpen, sel: 'thuis' };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var list = [
+{ id: 'thuis', label: 'Thuis', color: '#E6DBFF', ink: '#4F3399', icon: 'M3 11l9-7 9 7M5 10v10h14V10' },
+{ id: 'klok', label: 'Werk & uren', color: '#D6EBDD', ink: '#3F7A58', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2' },
+{ id: 'onthoud', label: 'Onthoud', color: '#FFD6E3', ink: '#C2457A', icon: 'M6 3h12v18l-6-4-6 4z' },
+{ id: 'mensen', label: 'Mensen', color: '#D4E8FF', ink: '#2F6DB5', icon: 'M9 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM2.5 20a6.5 6.5 0 0 1 13 0M17 6.5a2.5 2.5 0 1 1 0 5M18 14a5 5 0 0 1 3.5 5' },
+{ id: 'mail', label: 'Mail-hulp', color: '#E6DBFF', ink: '#6A4BC4', icon: 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3.5 7l8.5 6 8.5-6' },
+{ id: 'advies', label: 'Advies', color: '#FFE3CC', ink: '#B0581A', icon: 'M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3zM14.7 6.3l3-3a4 4 0 0 1 2 5' },
+{ id: 'leren', label: 'Leren', color: '#FFF1B8', ink: '#9A6F05', icon: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2' },
+{ id: 'cyclus', label: 'Cyclus', color: '#FFD6E3', ink: '#C2457A', icon: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z' },
+{ id: 'geld', label: 'Geld', color: '#D6EBDD', ink: '#3F7A58', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12' },
+{ id: 'wensen', label: 'Wensen', color: '#FFD6E3', ink: '#C2457A', icon: 'M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z' },
+{ id: 'slot', label: 'Wachtwoorden', color: '#D4EEF0', ink: '#3F8A8F', icon: 'M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11' }
+];
+var G = { thuis: ['#C9B6F2', '#9C82DA', '156,130,218'], klok: ['#A8D6B4', '#6FAE84', '111,174,132'], onthoud: ['#F6B3BF', '#E58497', '229,132,151'], mensen: ['#AFCBEA', '#7FA5D2', '127,165,210'], mail: ['#D2BDF0', '#A88AD8', '168,138,216'], advies: ['#F8C29C', '#E9956A', '233,149,106'], leren: ['#F7DA8A', '#E5B54E', '229,181,78'], cyclus: ['#F4B0C8', '#DE7FA1', '222,127,161'], geld: ['#B9DDB0', '#82B874', '130,184,116'], wensen: ['#F7B7AE', '#E8877A', '232,135,122'], slot: ['#9AD1D4', '#5FA8AD', '95,168,173'] };
+var items = list.map(function (it) {
+var on = s.sel === it.id;
+var g = G[it.id];
+return Object.assign({}, it, {
+color: 'linear-gradient(160deg, ' + g[0] + ', ' + g[1] + ')',
+ink: g[1],
+soft: it.id === 'geld' ? 'none' : g[0],
+shadow: 'drop-shadow(0 3px 3px rgba(' + g[2] + ',0.45))',
+current: on ? 'page' : 'false',
+rowBg: on ? '#FBF3EA' : 'transparent',
+pick: function () { if (!s.open) { self.setState({ open: true }); } else { self.setState({ sel: it.id, open: false }); } }
+});
+});
+return {
+open: s.open,
+items: items,
+railW: s.open ? '250px' : '76px',
+toggleLabel: s.open ? 'Menu sluiten' : 'Menu openen',
+toggleIcon: s.open ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6',
+toggle: function () { self.setState({ open: !s.open }); },
+close: function () { self.setState({ open: false }); }
+};
+}
+}
+</script>
+</body>
+</html>

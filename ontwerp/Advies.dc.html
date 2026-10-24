@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Advies</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 1200px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 380px, #FBE6D9 850px, #FDF6EF 1200px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 120px; display: flex; flex-direction: column; gap: 14px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A4A38" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1;">
+<div style="font-size: 28px; font-weight: 900; color: #5A3426; line-height: 1.1;">Advies</div>
+<div style="font-size: 14px; font-weight: 700; color: #7A4A38;">hoe maak of repareer ik iets?</div>
+</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #F8C29C, #E9956A); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 6px 14px rgba(233,149,106,0.35);">🔧</span>
+</div>
+
+<!-- Onderwerpen -->
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{topics}}" as="t" hint-placeholder-count="4">
+<button onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 80px; padding: 8px 2px; border-radius: 20px; border: 3px solid {{t.ring}}; background: {{t.bg}}; color: #4A3A30; box-shadow: inset 0 3px 0 rgba(255,255,255,0.6), 0 5px 10px rgba(170,110,80,0.15);">
+<span style="font-size: 28px; line-height: 1;" aria-hidden="true">{{t.emo}}</span>
+<span style="font-size: 13px; font-weight: 800;">{{t.label}}</span>
+</button>
+</sc-for>
+</div>
+
+<!-- Vraag -->
+<div style="align-self: flex-end; max-width: 82%; padding: 12px 16px; border-radius: 24px 24px 6px 24px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 16px; font-weight: 800;">{{question}}</div>
+<div style="align-self: flex-start; max-width: 85%; padding: 14px 16px; border-radius: 24px 24px 24px 6px; background: #FBF3EA; font-size: 17px; font-weight: 800; box-shadow: 0 6px 14px rgba(170,110,80,0.15);">{{intro}}</div>
+
+<!-- Nodig -->
+<section aria-label="Wat heb je nodig" style="background: #FBF3EA; border-radius: 26px; padding: 14px 16px; box-shadow: 0 8px 18px rgba(170,110,80,0.16); display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">🧰 Dit heb je nodig</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<sc-for list="{{needs}}" as="n" hint-placeholder-count="3">
+<span style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: #FFFFFF; font-size: 15px; font-weight: 800;"><span aria-hidden="true">{{n.emo}}</span>{{n.label}}</span>
+</sc-for>
+</div>
+</section>
+
+<!-- Stap voor stap -->
+<section aria-label="Stap voor stap" style="background: #FFFFFF; border-radius: 30px; padding: 18px; border: 3px solid #F8C29C; box-shadow: 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 16px; font-weight: 900; color: #B0581A;">stap {{stepNr}} van {{stepTotal}}</span>
+<div style="display: flex; gap: 5px;">
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="5">
+<span style="width: 12px; height: 12px; border-radius: 50%; background: {{d.c}};"></span>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 14px;">
+<span style="width: 74px; height: 74px; border-radius: 24px; background: linear-gradient(160deg, #FDE6DA, #F8C29C); display: flex; align-items: center; justify-content: center; font-size: 40px; flex-shrink: 0; box-shadow: inset 0 3px 0 rgba(255,255,255,0.6);" aria-hidden="true">{{step.emo}}</span>
+<span style="font-size: 20px; font-weight: 900; line-height: 1.25; color: #4A3A30;">{{step.text}}</span>
+</div>
+<div style="display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px;">
+<button onClick="{{prev}}" aria-label="Vorige stap" style="min-height: 56px; border-radius: 18px; border: none; background: #FBF3EA; font-size: 22px; font-weight: 900; color: #7A4A38; opacity: {{prevOp}};">‹</button>
+<button onClick="{{next}}" style="min-height: 56px; border-radius: 18px; border: none; background: linear-gradient(160deg, #A8D6B4, #6FAE84); color: #FFFFFF; font-size: 18px; font-weight: 900; box-shadow: 0 6px 12px rgba(111,174,132,0.35);">{{nextLabel}}</button>
+<button aria-label="Voorlezen" style="min-height: 56px; border-radius: 18px; border: none; background: linear-gradient(160deg, #F4A58B, #D9694F); font-size: 22px;">🔊</button>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+<button style="min-height: 52px; border-radius: 18px; border: none; background: #FBF3EA; font-size: 15px; font-weight: 900; color: #4A3A30; box-shadow: 0 5px 10px rgba(170,110,80,0.15);">📷 Foto sturen</button>
+<button style="min-height: 52px; border-radius: 18px; border: none; background: #FBF3EA; font-size: 15px; font-weight: 900; color: #4A3A30; box-shadow: 0 5px 10px rgba(170,110,80,0.15);">⭐ Bewaren</button>
+</div>
+
+</div>
+
+<!-- Typbalk onderaan -->
+<div style="position: absolute; left: 12px; right: 12px; bottom: 16px; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 18px; border-radius: 999px; background: #FBF3EA; box-shadow: 0 10px 24px rgba(170,110,80,0.28);">
+<span style="flex-grow: 1; font-size: 16px; font-weight: 700; color: #9A7A6A;">Vraag het maar...</span>
+<button aria-label="Inspreken" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: #FFFFFF; font-size: 22px; box-shadow: 0 3px 8px rgba(170,110,80,0.2);">🎤</button>
+<button aria-label="Vraag versturen" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 20px; font-weight: 900;">↑</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1200}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { topic: 'repareren', step: 0 };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var A = {
+repareren: { q: 'Mijn fietsband is lek 🚲', intro: 'Geen zorgen! We doen het samen, stap voor stap. 💪', needs: [{ emo: '🔧', label: 'bandenlichter' }, { emo: '🩹', label: 'plakset' }, { emo: '🪣', label: 'bak water' }, { emo: '💨', label: 'pomp' }], steps: [
+{ emo: '🔧', text: 'Haal de band met de bandenlichter van de velg.' },
+{ emo: '🎈', text: 'Trek de binnenband eruit en pomp hem een beetje op.' },
+{ emo: '🪣', text: 'Houd hem in water. Waar bubbels komen, zit het gat.' },
+{ emo: '🩹', text: 'Maak het droog, smeer lijm en plak de pleister erop.' },
+{ emo: '💨', text: 'Doe de band terug en pomp hem hard op. Klaar!' }] },
+maken: { q: 'Hoe haak ik een rondje? 🧶', intro: 'Leuk! Pak je haakpen erbij. 🧶', needs: [{ emo: '🧶', label: 'wol' }, { emo: '🪡', label: 'haaknaald' }, { emo: '✂️', label: 'schaar' }], steps: [
+{ emo: '🔁', text: 'Maak een magische ring om je vinger.' },
+{ emo: '🪡', text: 'Haak 6 vasten in de ring.' },
+{ emo: '🎯', text: 'Trek het eindje aan. De ring gaat dicht.' },
+{ emo: '✨', text: 'Sluit af met een halve vaste. Klaar!' }] },
+koken: { q: 'Hoe kook ik rijst? 🍚', intro: 'Makkelijk! Dit kun jij. 🍳', needs: [{ emo: '🍚', label: 'rijst' }, { emo: '🍲', label: 'pan met deksel' }, { emo: '💧', label: 'water' }], steps: [
+{ emo: '🍚', text: 'Doe 1 kopje rijst en 2 kopjes water in de pan.' },
+{ emo: '🔥', text: 'Zet het vuur hoog tot het kookt.' },
+{ emo: '⏲️', text: 'Deksel erop, vuur laag, 12 minuten wachten.' },
+{ emo: '😋', text: 'Vuur uit, nog 5 minuten laten staan. Klaar!' }] },
+planten: { q: 'Mijn plant hangt slap 🪴', intro: 'Even kijken wat je plant nodig heeft. 🌱', needs: [{ emo: '💧', label: 'gieter' }, { emo: '👆', label: 'je vinger' }], steps: [
+{ emo: '👆', text: 'Voel met je vinger in de aarde. Is het droog?' },
+{ emo: '💧', text: 'Droog? Geef water tot het onderin eruit loopt.' },
+{ emo: '☀️', text: 'Zet de plant op een lichte plek, niet in de felle zon.' },
+{ emo: '⏳', text: 'Wacht een dag. Meestal staat hij weer rechtop!' }] }
+};
+var T = [{ id: 'repareren', emo: '🔧', label: 'Repareren', bg: '#FDE6DA' }, { id: 'maken', emo: '🧶', label: 'Maken', bg: '#FBE0E8' }, { id: 'koken', emo: '🍳', label: 'Koken', bg: '#FBEBC4' }, { id: 'planten', emo: '🪴', label: 'Planten', bg: '#E3EDDF' }];
+var topics = T.map(function (t) { var on = s.topic === t.id; return Object.assign({}, t, { on: on ? 'true' : 'false', ring: on ? '#D9694F' : 'transparent', pick: function () { self.setState({ topic: t.id, step: 0 }); } }); });
+var a = A[s.topic];
+var n = a.steps.length;
+var last = s.step >= n - 1;
+var dots = a.steps.map(function (x, i) { return { c: i <= s.step ? '#E9956A' : '#F1E4D6' }; });
+return {
+topics: topics,
+question: a.q,
+intro: a.intro,
+needs: a.needs,
+step: a.steps[s.step],
+stepNr: s.step + 1,
+stepTotal: n,
+dots: dots,
+nextLabel: last ? '🎉 Gelukt!' : 'Volgende stap ›',
+prevOp: s.step === 0 ? '0.4' : '1',
+next: function () { self.setState({ step: last ? 0 : s.step + 1 }); },
+prev: function () { if (s.step > 0) self.setState({ step: s.step - 1 }); }
+};
+}
+}
+</script>
+</body>
+</html>

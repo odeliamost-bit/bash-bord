@@ -1,0 +1,16 @@
+Hoi! We gaan samen mijn dashboard-app bouwen. 😊
+
+Lees eerst rustig:
+1. CLAUDE.md (wie ik ben, wat we bouwen, de regels)
+2. De map ontwerp/ (mijn goedgekeurde ontwerp, begin bij canvas.json en Main.dc.html)
+3. De map plaatjes/
+
+Schrijf nog GEEN code.
+
+Maak eerst een kort plan voor fase 1:
+- welke stappen, in welke volgorde
+- wat we moeten installeren of instellen
+- wat je nog niet zeker weet
+
+Schrijf het plan in korte zinnen, met emoji, in het Nederlands.
+Vraag daarna of je mag beginnen met stap 1.
