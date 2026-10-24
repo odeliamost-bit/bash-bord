@@ -117,7 +117,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 
 ## Gemaakte keuzes
 
-- **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; de 🎤- en ➕-knoppen daarvan komen terug bij stap 3.
+- **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; de 🎤- en ➕-knoppen daarvan staan nu onder het Onthoud-tabje.
 - **Zijbalk gedrag:** tik op een icoontje = meteen naar dat scherm, de zijbalk blijft smal. Alleen het oranje knopje bovenaan maakt hem breed (met namen); nog een keer = weer smal.
 - **Tik-effect:** geen standaard Android-vlek (ripple). Een knop wordt bij tikken heel even iets kleiner. Gebruik voor nieuwe knoppen `tik` of `kies` uit `ui/onderdelen/Tik.kt`.
 - **Icoontjes:** Geld is een munt met €-teken (in het ontwerp stond een $). Paden die in het ontwerp net uit het midden stonden, zijn rechtgezet met `verschuif`.
@@ -125,17 +125,29 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
 - **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: eerst was `dl.google.com` in de cloud geblokkeerd. Sinds 24 okt werkt het wel. Upgraden mag later, als aparte stap.
 - **Bouwen in de cloud:** `hulpmiddelen/cloud/bouw.sh` zet de Android SDK klaar en bouwt de echte APK. Maven Central hapert hier soms, daarom gaan downloads via `maven_spiegel.py`.
-- **Plaatjes in de cloud:** met `hulpmiddelen/voorproef/` (computer-versie van de schermen). Een emulator kan hier niet (geen KVM). Het vervangt testen op de telefoon niet.
+- **Plaatjes in de cloud:** schermen met `hulpmiddelen/voorproef/` (computer-versie). Widgets met Robolectric: `WidgetPlaatjeTest` schrijft naar `app/build/plaatjes/`. Een emulator kan hier niet (geen KVM). Het vervangt testen op de telefoon niet.
+- **Opbouw van de code:**
+  - rekenregels zonder Android in `uren/` en `onthoud/` (met unit-tests in `app/src/test`)
+  - schermen in `ui/` (krijgen gegevens en acties mee, zodat de voorproef ze kan tekenen)
+  - Android-delen in `data/` (Room), `widget/` (Glance) en `meldingen/` (wekkers en meldingen). De voorproef slaat die over.
+  - na elke wijziging in de gegevens: `Bijwerken.alles` (widgets verversen, oude meldingen weg)
 - **Stap 2 (keuzes van 24 okt):**
   - Pauze: altijd 45 minuten eraf, ook op een korte dag.
   - Weekdoel: voorlopig 35 uur. Odelia weet het niet zeker, dus het moet aan te passen zijn.
   - Herinneringen ma–vr: 8:15 als ze nog niet is ingeklokt, 16:15 als ze nog niet is uitgeklokt.
   - Bij de uitklok-herinnering: snooze-knoppen "over 10 min" en "over 20 min" (ze werkt soms tot 16:30).
+- **Keuzes van Claude bij stap 2–5** (24 okt; Odelia moet ze nog bevestigen, zie LOGBOEK.md):
+  - Tegel "Vandaag": tijdens het werk de tijd sinds inklokken (zoals het ontwerp), na uitklokken de uren min pauze.
+  - Vrij en ziek = 0 uur, telt niet mee voor het weekdoel.
+  - Vergeten uit te klokken: de app stelt 15:45 voor.
+  - Seintje voor afspraken: de dag ervoor om 16:30.
+  - "Waar" heeft geen eigen veld (komt in de tekst of notitie). Groepen vast: School, Werk, Thuis. Projecten maakt ze zelf.
+  - Urenmail: Gmail openen met de tekst, of kopiëren voor een antwoord in de draad. Uren als "7,25", datum "19-10-2026". Het adres van Kim staat alleen op de telefoon. Echte Gmail-koppeling: zie `GMAIL-KOPPELING.md`.
 
 ## Status
 
 - Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd en getest op de telefoon. 👍
 - Verbeteringen na die test (zijbalk, tik-effect, icoontjes, Wachtwoorden weg): gebouwd. Nog niet getest op de telefoon.
-- Volgende: stap 2 (in- en uitklokken). Plan goedgekeurd, in 4 stukjes:
-  2a echt klokken (opslaan in Room), 2b overzicht + tijd verbeteren + vrij/ziek, 2c widget, 2d herinneringen.
-  Eerst `dl.google.com` openzetten (nieuwe cloud-sessie), dan beginnen met 2a.
+- Stap 2 t/m 5 van fase 1 (klokken, Onthoud, ochtendmelding, urenmail): gebouwd door Claude op 24 okt (zelfstandig, met toestemming). Echte app gebouwd en getest met unit-tests en Robolectric. **Nog niet getest op de telefoon.** Zie `LOGBOEK.md`.
+- Open vragen voor Odelia staan in `LOGBOEK.md` (bij ❓).
+- Let op bij installeren: de APK uit de cloud heeft een andere sleutel dan de versie uit Android Studio. Eerst de oude app verwijderen (zie README).

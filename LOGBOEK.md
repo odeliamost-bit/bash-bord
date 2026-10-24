@@ -230,3 +230,16 @@ Totaal: 22,33 uur
 - 🔢 Wil Kim de uren als **7,25** (zoals nu) of als **7:15**?
 - 📅 Moet de **datum** zo: "19-10-2026"? Of liever "maandag 19 oktober"?
 - 📧 Moet er nog iets anders in de mail, bijvoorbeeld je personeelsnummer?
+
+---
+
+## 📦 Afronding
+
+- ✅ Alles staat in **één PR** (dezelfde PR als de feedback). Niet zelf gemerged.
+- ✅ **APK** gebouwd: `Mijn dashboard` versie **0.2**. Claude heeft hem in de chat gestuurd.
+- 🔒 De app vraagt **geen internet-toestemming**. Je uren en afspraken blijven op je telefoon.
+- 🧪 In totaal **43 tests**, allemaal geslaagd. Android-lint: 0 fouten.
+- ⚠️ **Niets is op een echte telefoon getest.** Graag alles één keer proberen: klokken, widget, meldingen, inspreken, delen, Gmail.
+
+⚠️ **Installeren:** staat de app er al op via Android Studio? Verwijder hem dan eerst. Anders zegt Android "App niet geïnstalleerd", omdat de sleutel anders is. Er gaan geen echte gegevens verloren: stap 1 had alleen voorbeeld-getallen.
+Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude). Anders moet je bij elke wissel opnieuw verwijderen, en dan ben je je gegevens kwijt.
