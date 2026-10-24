@@ -78,7 +78,7 @@ In deze volgorde, tenzij Odelia iets anders kiest:
 ## Later (fase 2 en verder)
 
 Die schermen staan al in het ontwerp, maar komen pas na fase 1:
-Mensen, Mail-hulp (chat die voorbeeldmails schrijft), Advies, Leren, Cyclus, Geld (potjes, uitgaven, verdelen), Wachtwoorden (op slot met vingerafdruk/patroon), Wensen, Recepten, Zeilweer.
+Mensen, Mail-hulp (chat die voorbeeldmails schrijft), Advies, Leren, Cyclus, Geld (potjes, uitgaven, verdelen), Wensen, Recepten, Zeilweer.
 
 Wensen die nog uitgezocht moeten worden (eerlijk bespreken of het kan):
 - Geld: ING- en Google Pay-meldingen lezen en uitgaven automatisch invullen.
@@ -87,7 +87,7 @@ Wensen die nog uitgezocht moeten worden (eerlijk bespreken of het kan):
 
 ## Het ontwerp
 
-De map `ontwerp/` bevat het goedgekeurde ontwerp: 20 telefoonschermen (390 px breed).
+De map `ontwerp/` bevat het goedgekeurde ontwerp: 18 telefoonschermen (390 px breed).
 Het zijn `.dc.html`-bestanden uit een ontwerp-tool. Ze openen **niet** goed als gewone webpagina, maar de HTML en CSS laten precies zien hoe het eruit moet zien: kleuren, afmetingen, teksten, knoppen. `canvas.json` geeft de naam van elk scherm.
 
 | Bestand | Scherm |
@@ -97,7 +97,7 @@ Het zijn `.dc.html`-bestanden uit een ontwerp-tool. Ze openen **niet** goed als 
 | Toevoegen | Onthoud: snel vastleggen |
 | Navigatie / NavigatieOpen | Menu dicht / open |
 | Mensen | Mensen + afspraken + zoeken |
-| Cyclus, Geld*, Mail, Advies, Leren, Wensen, Wachtwoorden*, Recepten, Weer | Latere schermen |
+| Cyclus, Geld*, Mail, Advies, Leren, Wensen, Recepten, Weer | Latere schermen |
 
 De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een groot scherm.
 
@@ -118,11 +118,16 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 ## Gemaakte keuzes
 
 - **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; de 🎤- en ➕-knoppen daarvan komen terug bij stap 3.
+- **Zijbalk gedrag:** tik op een icoontje = meteen naar dat scherm, de zijbalk blijft smal. Alleen het oranje knopje bovenaan maakt hem breed (met namen); nog een keer = weer smal.
+- **Tik-effect:** geen standaard Android-vlek (ripple). Een knop wordt bij tikken heel even iets kleiner. Gebruik voor nieuwe knoppen `tik` of `kies` uit `ui/onderdelen/Tik.kt`.
+- **Icoontjes:** Geld is een munt met €-teken (in het ontwerp stond een $). Paden die in het ontwerp net uit het midden stonden, zijn rechtgezet met `verschuif`.
 - **Testen:** de broer bouwt in Android Studio en drukt op ▶️ (telefoon met kabel).
 - **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
-- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus nieuwere versies kon Claude niet controleren. Upgraden mag zodra het bouwen werkt.
+- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus nieuwere versies kon Claude niet controleren (24 okt 2026 nog steeds geblokkeerd in de cloud-sessie). Upgraden mag zodra het bouwen werkt.
 - **Checken in de cloud:** met `hulpmiddelen/voorproef/` (compileren + schermen als plaatje). Dat vervangt testen op de telefoon niet.
 
 ## Status
 
-- Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd. Nog niet getest op de telefoon.
+- Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd en getest op de telefoon. 👍
+- Verbeteringen na die test (zijbalk, tik-effect, icoontjes, Wachtwoorden weg): gebouwd. Nog niet getest op de telefoon.
+- Volgende: stap 2 (in- en uitklokken). Eerst plan, dan toestemming vragen.

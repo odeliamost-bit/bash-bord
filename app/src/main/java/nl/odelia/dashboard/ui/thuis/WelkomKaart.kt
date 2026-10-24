@@ -3,7 +3,6 @@ package nl.odelia.dashboard.ui.thuis
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,6 +42,7 @@ import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.glans
 import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.theme.Kleur
 
 /**
@@ -145,12 +145,12 @@ private fun Belletjes(modifier: Modifier) {
 fun VoorleesKnop(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier
+            .tik(onClick = onClick)
             .heightIn(min = 38.dp)
             .shadow(6.dp, CircleShape, ambientColor = Kleur.Koraal, spotColor = Kleur.Koraal)
             .clip(CircleShape)
             .background(hoekVerloop(Kleur.KoraalLicht, Kleur.Koraal))
             .glans(CircleShape, licht = 0.4f, donker = 0.1f, onder = 3.dp)
-            .clickable(onClick = onClick)
             .semantics { contentDescription = "Voorlezen" }
             .padding(start = 10.dp, end = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

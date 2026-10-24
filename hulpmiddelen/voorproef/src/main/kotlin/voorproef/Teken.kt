@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.Density
 import java.io.File
 import java.time.LocalDateTime
 import nl.odelia.dashboard.ui.DashboardApp
+import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.theme.DashboardThema
 import nl.odelia.dashboard.ui.thuis.Tab
 import org.jetbrains.skia.EncodedImageFormat
@@ -30,4 +31,6 @@ fun main(args: Array<String>) {
     teken("4-onthoud-heel", 411, 1560) { DashboardThema { DashboardApp({ true }, vrijdag, beginTab = Tab.Onthoud) } }
     teken("5-menu-open", 411, 870) { DashboardThema { DashboardApp({ true }, vrijdag, beginMenuOpen = true) } }
     teken("6-tablet", 800, 1200) { DashboardThema { DashboardApp({ true }, vrijdag) } }
+    teken("7-geld-komt-later", 411, 870) { DashboardThema { DashboardApp({ true }, vrijdag, beginPlek = Plek.Geld) } }
+    teken("8-wensen-komt-later", 411, 870) { DashboardThema { DashboardApp({ true }, vrijdag, beginPlek = Plek.Wensen) } }
 }

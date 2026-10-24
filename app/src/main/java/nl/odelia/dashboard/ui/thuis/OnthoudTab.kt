@@ -1,7 +1,6 @@
 package nl.odelia.dashboard.ui.thuis
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,9 +23,11 @@ import nl.odelia.dashboard.ui.onderdelen.IcoonBlok
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
+import nl.odelia.dashboard.ui.onderdelen.Vorm
 import nl.odelia.dashboard.ui.onderdelen.glans
 import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.onderdelen.voet
 import nl.odelia.dashboard.ui.theme.Kleur
 
@@ -47,11 +48,11 @@ fun OnthoudTab(onMelding: (String) -> Unit) {
                     "alles",
                     14.sp,
                     Modifier
+                        .tik { onMelding("De hele lijst komt in stap 3.") }
+                        .heightIn(min = 36.dp)
                         .clip(CircleShape)
                         .background(Kleur.KaartPil)
                         .glans(CircleShape, licht = 0.8f, donker = 0f, boven = 2.dp)
-                        .clickable { onMelding("De hele lijst komt in stap 3.") }
-                        .heightIn(min = 36.dp)
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     dikte = FontWeight.ExtraBold,
                     kleur = Kleur.InktZacht,
@@ -82,24 +83,24 @@ fun OnthoudTab(onMelding: (String) -> Unit) {
     }
 }
 
-/** Grote koraal knop met plusje en 3D-voetje. */
+/** Grote koraal knop met icoontje (standaard een plusje) en 3D-voetje. */
 @Composable
-fun GroteKnop(tekst: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun GroteKnop(tekst: String, onClick: () -> Unit, modifier: Modifier = Modifier, icoon: List<Vorm> = Icoontjes.plus) {
     val vorm = RoundedCornerShape(24.dp)
     Row(
         modifier
+            .tik(onClick = onClick)
             .fillMaxWidth()
             .heightIn(min = 60.dp)
             .voet(Kleur.KoraalDiep, vorm, 6.dp)
             .shadow(12.dp, vorm, ambientColor = Kleur.Koraal, spotColor = Kleur.Koraal)
             .clip(vorm)
             .background(hoekVerloop(Kleur.KoraalLicht, Kleur.Koraal))
-            .glans(vorm, licht = 0.4f, donker = 0f)
-            .clickable(onClick = onClick),
+            .glans(vorm, licht = 0.4f, donker = 0f),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
     ) {
-        Icoon(Icoontjes.plus, 24.dp)
+        Icoon(icoon, 24.dp)
         Tekst(tekst, 19.sp, kleur = Color.White)
     }
 }

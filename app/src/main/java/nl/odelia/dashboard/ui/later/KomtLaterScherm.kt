@@ -1,7 +1,6 @@
 package nl.odelia.dashboard.ui.later
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,11 +26,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nl.odelia.dashboard.ui.Plek
-import nl.odelia.dashboard.ui.menu.MenuIcoon
+import nl.odelia.dashboard.ui.menu.PlekRondje
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.GroteKnop
 
@@ -49,11 +49,11 @@ fun KomtLaterScherm(plek: Plek, onTerug: () -> Unit, modifier: Modifier = Modifi
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
                     Modifier
+                        .tik(onClick = onTerug)
                         .size(48.dp)
                         .shadow(6.dp, CircleShape, ambientColor = Kleur.KaartSchaduw, spotColor = Kleur.KaartSchaduw)
                         .clip(CircleShape)
                         .background(Kleur.Kaart)
-                        .clickable(onClick = onTerug)
                         .semantics { contentDescription = "Terug" },
                     contentAlignment = Alignment.Center,
                 ) {
@@ -70,10 +70,11 @@ fun KomtLaterScherm(plek: Plek, onTerug: () -> Unit, modifier: Modifier = Modifi
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                MenuIcoon(plek, 80.dp)
+                PlekRondje(plek, 96.dp, Modifier.padding(top = 4.dp, bottom = 6.dp))
                 Tekst("Komt later", 24.sp)
                 Tekst(
-                    "Dit scherm bouwen we na fase 1.",
+                    // Vaste spatie: "fase 1" blijft bij elkaar op één regel.
+                    "Dit scherm bouwen we na fase\u00A01.",
                     17.sp,
                     dikte = FontWeight.Bold,
                     kleur = Kleur.InktGrijs,
@@ -81,7 +82,7 @@ fun KomtLaterScherm(plek: Plek, onTerug: () -> Unit, modifier: Modifier = Modifi
                 )
             }
 
-            GroteKnop("Naar Thuis", onClick = onTerug)
+            GroteKnop("Naar Thuis", onClick = onTerug, icoon = Icoontjes.huis)
         }
     }
 }

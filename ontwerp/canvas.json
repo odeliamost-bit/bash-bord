@@ -153,24 +153,6 @@
       "is_interactive": true,
       "radius": 36
     },
-    "Wachtwoorden.dc.html": {
-      "x": 7520,
-      "y": 0,
-      "w": 390,
-      "h": 1150,
-      "title": "Wachtwoorden (op slot)",
-      "is_interactive": true,
-      "radius": 36
-    },
-    "WachtwoordenOpen.dc.html": {
-      "x": 7990,
-      "y": 0,
-      "w": 390,
-      "h": 1150,
-      "title": "Wachtwoorden: na vingerafdruk",
-      "is_interactive": true,
-      "radius": 36
-    },
     "Recepten.dc.html": {
       "x": 8460,
       "y": 0,
@@ -207,8 +189,6 @@
     "Leren.dc.html",
     "Wensen.dc.html",
     "GeldVerdelen.dc.html",
-    "Wachtwoorden.dc.html",
-    "WachtwoordenOpen.dc.html",
     "Recepten.dc.html",
     "Weer.dc.html"
   ],

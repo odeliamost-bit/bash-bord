@@ -2,7 +2,6 @@ package nl.odelia.dashboard.ui.menu
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -25,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -36,9 +34,13 @@ import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.Vorm
+import nl.odelia.dashboard.ui.onderdelen.cirkel
 import nl.odelia.dashboard.ui.onderdelen.glans
 import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
+import nl.odelia.dashboard.ui.onderdelen.kies
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.tik
+import nl.odelia.dashboard.ui.onderdelen.verschuif
 import nl.odelia.dashboard.ui.theme.Kleur
 
 /** Breedte van de dichte zijbalk plus de ruimte ernaast. De inhoud begint hierna. */
@@ -46,8 +48,9 @@ val ZijbalkRuimte = 88.dp
 
 /**
  * Menu aan de linkerkant (ontwerp/Navigatie.dc.html).
- * Dicht: alleen icoontjes. Tik op een icoontje of de pijl = menu open.
- * Open: icoontjes met naam. Tik op een naam = daarheen.
+ * Smal: alleen icoontjes. Tik op een icoontje = meteen daarheen, het menu blijft smal.
+ * Alleen het oranje knopje maakt het menu breed (met namen). Nog een keer = weer smal.
+ * Kies je iets in het brede menu, dan ga je daarheen en wordt het weer smal.
  */
 @Composable
 fun Zijbalk(
@@ -73,13 +76,13 @@ fun Zijbalk(
         Row(
             Modifier
                 .padding(bottom = 6.dp)
+                .tik(onClick = onWissel)
                 .fillMaxWidth()
                 .heightIn(min = 52.dp)
                 .shadow(6.dp, knopVorm, ambientColor = Kleur.Koraal, spotColor = Kleur.Koraal)
                 .clip(knopVorm)
                 .background(hoekVerloop(Kleur.KoraalLicht, Color(0xFFE07A62)))
                 .glans(knopVorm, licht = 0.45f, donker = 0.1f)
-                .clickable(onClick = onWissel)
                 .semantics { contentDescription = if (open) "Menu sluiten" else "Menu openen" }
                 .padding(start = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -100,11 +103,11 @@ private fun MenuRegel(plek: Plek, aan: Boolean, open: Boolean, onClick: () -> Un
     val vorm = RoundedCornerShape(20.dp)
     Row(
         Modifier
+            .kies(aan, onClick)
             .fillMaxWidth()
             .heightIn(min = 58.dp)
             .clip(vorm)
             .background(if (aan) Kleur.Kaart else Color.Transparent)
-            .selectable(selected = aan, onClick = onClick, role = Role.Tab)
             .semantics { if (!open) contentDescription = plek.label }
             .padding(start = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -124,6 +127,26 @@ fun MenuIcoon(plek: Plek, maat: Dp, modifier: Modifier = Modifier) {
     Icoon(vormen, maat, modifier, schaduw = menuKleuren(plek).second.copy(alpha = 0.45f))
 }
 
+/**
+ * Rond klei-knopje in de kleur van de plek met een wit icoontje erin,
+ * zoals rechtsboven op de schermen in het ontwerp (bv. ontwerp/Geld.dc.html).
+ */
+@Composable
+fun PlekRondje(plek: Plek, maat: Dp, modifier: Modifier = Modifier) {
+    val (licht, donker) = menuKleuren(plek)
+    val vormen = remember(plek) { witteVormen(plek) }
+    Box(
+        modifier
+            .size(maat)
+            .shadow(maat / 8, CircleShape, ambientColor = donker, spotColor = donker)
+            .background(hoekVerloop(licht, donker), CircleShape)
+            .glans(CircleShape, licht = 0.5f, donker = 0.08f, boven = maat / 24, onder = maat / 20),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icoon(vormen, maat * 0.54f)
+    }
+}
+
 /** Lichte en donkere kleur per plek (de "G"-lijst uit het ontwerp). */
 private fun menuKleuren(plek: Plek): Pair<Color, Color> = when (plek) {
     Plek.Thuis -> Color(0xFFC9B6F2) to Color(0xFF9C82DA)
@@ -136,7 +159,6 @@ private fun menuKleuren(plek: Plek): Pair<Color, Color> = when (plek) {
     Plek.Cyclus -> Color(0xFFF4B0C8) to Color(0xFFDE7FA1)
     Plek.Geld -> Color(0xFFB9DDB0) to Color(0xFF82B874)
     Plek.Wensen -> Color(0xFFF7B7AE) to Color(0xFFE8877A)
-    Plek.Wachtwoorden -> Color(0xFF9AD1D4) to Color(0xFF5FA8AD)
 }
 
 private fun menuPad(plek: Plek): String = when (plek) {
@@ -148,14 +170,36 @@ private fun menuPad(plek: Plek): String = when (plek) {
     Plek.Advies -> "M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3zM14.7 6.3l3-3a4 4 0 0 1 2 5"
     Plek.Leren -> "M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2"
     Plek.Cyclus -> "M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"
-    Plek.Geld -> "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12"
+    Plek.Geld -> MUNT
     Plek.Wensen -> "M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"
-    Plek.Wachtwoorden -> "M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"
 }
+
+/** Geld: een munt met euroteken (in het ontwerp een dollarteken met een streep erdoor). */
+private val MUNT = cirkel(12f, 12f, 9f)
+private const val EURO = "M15.6 8.4A4.6 4.6 0 1 0 15.6 15.6M7.6 10.3h5.2M7.6 13.7h5.2"
 
 private fun menuVormen(plek: Plek): List<Vorm> {
     val (licht, donker) = menuKleuren(plek)
-    // Bij Geld is het icoontje niet gevuld (anders zie je het muntteken niet).
-    val vul = if (plek == Plek.Geld) null else licht
-    return listOf(Vorm(menuPad(plek), vul = vul, lijn = donker, dikte = 2.3f))
+    val vormen = listOf(Vorm(menuPad(plek), vul = licht, lijn = donker, dikte = 2.3f))
+    return (if (plek == Plek.Geld) vormen + Vorm(EURO, lijn = donker, dikte = 1.9f) else vormen).recht(plek)
+}
+
+/** Wit icoontje voor op [PlekRondje]. Hartje en druppel gevuld, de rest lijntjes (zoals in het ontwerp). */
+private fun witteVormen(plek: Plek): List<Vorm> {
+    val wit = Color.White
+    return when (plek) {
+        Plek.Cyclus, Plek.Wensen -> listOf(Vorm(menuPad(plek), vul = wit))
+        Plek.Geld -> listOf(Vorm(MUNT, lijn = wit, dikte = 2.4f), Vorm(EURO, lijn = wit, dikte = 2f))
+        else -> listOf(Vorm(menuPad(plek), lijn = wit, dikte = 2.4f))
+    }.recht(plek)
+}
+
+/** Een paar paden uit het ontwerp staan net uit het midden van hun vakje. */
+private fun List<Vorm>.recht(plek: Plek): List<Vorm> = when (plek) {
+    Plek.Mensen -> verschuif(y = -0.25f)
+    Plek.Advies -> verschuif(x = -1.55f)
+    Plek.Leren -> verschuif(x = 0.5f)
+    Plek.Cyclus -> verschuif(y = 0.5f)
+    Plek.Wensen -> verschuif(y = -1f)
+    else -> this
 }

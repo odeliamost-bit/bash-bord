@@ -27,6 +27,12 @@ class Vorm(d: String, val vul: Color? = null, val lijn: Color? = null, val dikte
     val pad: Path = PathParser().parsePathString(d).toPath()
 }
 
+/**
+ * Zet een icoontje recht als het pad in het ontwerp niet precies in het midden
+ * van zijn 24×24-vak staat. Dan staat het ook netjes naast de tekst.
+ */
+fun List<Vorm>.verschuif(x: Float = 0f, y: Float = 0f): List<Vorm> = onEach { it.pad.translate(Offset(x, y)) }
+
 /** SVG `<circle>` als pad. */
 fun cirkel(cx: Float, cy: Float, r: Float) =
     "M${cx - r} ${cy}a$r $r 0 1 0 ${2 * r} 0a$r $r 0 1 0 ${-2 * r} 0z"

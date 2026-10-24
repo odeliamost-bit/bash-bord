@@ -2,7 +2,6 @@ package nl.odelia.dashboard.ui.thuis
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -37,6 +36,7 @@ import nl.odelia.dashboard.ui.onderdelen.Vorm
 import nl.odelia.dashboard.ui.onderdelen.glans
 import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.onderdelen.rondVerloop
+import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.onderdelen.voet
 import nl.odelia.dashboard.ui.theme.Pastel
 import nl.odelia.dashboard.ui.theme.Pastels
@@ -133,6 +133,7 @@ private fun KlokKnop(isIn: Boolean, k: KlokKleur, maat: Dp, onWissel: () -> Unit
     val rond: Shape = CircleShape
     Box(
         Modifier
+            .tik(onClick = onWissel)
             .size(maat)
             .voet(k.voet, rond, 10.dp)
             .shadow(14.dp, rond, ambientColor = k.voet, spotColor = k.voet)
@@ -140,7 +141,6 @@ private fun KlokKnop(isIn: Boolean, k: KlokKleur, maat: Dp, onWissel: () -> Unit
             .background(rondVerloop(0f to k.knop[0], 0.55f to k.knop[1], 1f to k.knop[2]))
             .glans(rond, licht = 0.35f, donker = 0.12f, boven = 4.dp, onder = 6.dp)
             .border(6.dp, k.ring, rond)
-            .clickable(onClick = onWissel)
             .semantics { contentDescription = if (isIn) "Uitklokken" else "Inklokken" },
         contentAlignment = Alignment.Center,
     ) {

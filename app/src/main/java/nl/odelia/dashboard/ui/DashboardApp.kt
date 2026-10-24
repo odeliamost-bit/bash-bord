@@ -47,10 +47,11 @@ import nl.odelia.dashboard.ui.thuis.ThuisScherm
 fun DashboardApp(
     onVoorlezen: (String) -> Boolean,
     nu: LocalDateTime = LocalDateTime.now(),
+    beginPlek: Plek = Plek.Thuis,
     beginTab: Tab = Tab.Vandaag,
     beginMenuOpen: Boolean = false,
 ) {
-    var plek by rememberSaveable { mutableStateOf(Plek.Thuis) }
+    var plek by rememberSaveable { mutableStateOf(beginPlek) }
     var tab by rememberSaveable { mutableStateOf(beginTab) }
     var menuOpen by rememberSaveable { mutableStateOf(beginMenuOpen) }
     var melding by remember { mutableStateOf<Melding?>(null) }
@@ -119,12 +120,8 @@ fun DashboardApp(
                 gekozen = gekozen,
                 onWissel = { menuOpen = !menuOpen },
                 onKies = { gekozenPlek ->
-                    if (!menuOpen) {
-                        menuOpen = true
-                    } else {
-                        gaNaar(gekozenPlek)
-                        menuOpen = false
-                    }
+                    gaNaar(gekozenPlek)
+                    menuOpen = false
                 },
                 modifier = Modifier.padding(12.dp),
             )

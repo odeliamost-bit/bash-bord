@@ -49,7 +49,7 @@ button{font-family:inherit;cursor:pointer}
 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{toggleIcon}}"></path></svg>
 <sc-if value="{{open}}" hint-placeholder-val="{{false}}"><span style="font-size: 18px; font-weight: 900;">Menu</span></sc-if>
 </button>
-<sc-for list="{{items}}" as="it" hint-placeholder-count="11">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="10">
 <button onClick="{{it.pick}}" aria-label="{{it.label}}" aria-current="{{it.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 58px; border: none; border-radius: 20px; background: {{it.rowBg}}; padding: 0 0 0 6px; text-align: left; color: #3A3046;">
 <span style="width: 46px; height: 46px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
 <svg width="34" height="34" viewBox="0 0 24 24" fill="{{it.soft}}" stroke="{{it.ink}}" stroke-width="2.3" style="filter: {{it.shadow}};" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.icon}}"></path></svg>
@@ -80,10 +80,9 @@ var list = [
 { id: 'leren', label: 'Leren', color: '#FFF1B8', ink: '#9A6F05', icon: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2' },
 { id: 'cyclus', label: 'Cyclus', color: '#FFD6E3', ink: '#C2457A', icon: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z' },
 { id: 'geld', label: 'Geld', color: '#D6EBDD', ink: '#3F7A58', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12' },
-{ id: 'wensen', label: 'Wensen', color: '#FFD6E3', ink: '#C2457A', icon: 'M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z' },
-{ id: 'slot', label: 'Wachtwoorden', color: '#D4EEF0', ink: '#3F8A8F', icon: 'M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11' }
+{ id: 'wensen', label: 'Wensen', color: '#FFD6E3', ink: '#C2457A', icon: 'M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z' }
 ];
-var G = { thuis: ['#C9B6F2', '#9C82DA', '156,130,218'], klok: ['#A8D6B4', '#6FAE84', '111,174,132'], onthoud: ['#F6B3BF', '#E58497', '229,132,151'], mensen: ['#AFCBEA', '#7FA5D2', '127,165,210'], mail: ['#D2BDF0', '#A88AD8', '168,138,216'], advies: ['#F8C29C', '#E9956A', '233,149,106'], leren: ['#F7DA8A', '#E5B54E', '229,181,78'], cyclus: ['#F4B0C8', '#DE7FA1', '222,127,161'], geld: ['#B9DDB0', '#82B874', '130,184,116'], wensen: ['#F7B7AE', '#E8877A', '232,135,122'], slot: ['#9AD1D4', '#5FA8AD', '95,168,173'] };
+var G = { thuis: ['#C9B6F2', '#9C82DA', '156,130,218'], klok: ['#A8D6B4', '#6FAE84', '111,174,132'], onthoud: ['#F6B3BF', '#E58497', '229,132,151'], mensen: ['#AFCBEA', '#7FA5D2', '127,165,210'], mail: ['#D2BDF0', '#A88AD8', '168,138,216'], advies: ['#F8C29C', '#E9956A', '233,149,106'], leren: ['#F7DA8A', '#E5B54E', '229,181,78'], cyclus: ['#F4B0C8', '#DE7FA1', '222,127,161'], geld: ['#B9DDB0', '#82B874', '130,184,116'], wensen: ['#F7B7AE', '#E8877A', '232,135,122'] };
 var items = list.map(function (it) {
 var on = s.sel === it.id;
 var g = G[it.id];

@@ -3,7 +3,10 @@ package nl.odelia.dashboard.ui.onderdelen
 import androidx.compose.ui.graphics.Color
 import nl.odelia.dashboard.ui.theme.Kleur
 
-/** Alle icoontjes van het hoofdscherm, overgenomen uit ontwerp/Main.dc.html. */
+/**
+ * Alle icoontjes van het hoofdscherm, overgenomen uit ontwerp/Main.dc.html.
+ * Een paar paden stonden in het ontwerp net uit het midden; die zijn met [verschuif] rechtgezet.
+ */
 object Icoontjes {
     private val creme = Kleur.Kaart
     private val wit = Color.White
@@ -11,7 +14,7 @@ object Icoontjes {
     val persoon = listOf(
         Vorm(cirkel(12f, 9f, 4.5f), vul = creme),
         Vorm("M3.5 21a8.5 8.5 0 0 1 17 0z", vul = creme),
-    )
+    ).verschuif(y = -0.75f)
     val bel = listOf(
         Vorm("M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z", vul = Color(0xFF5E9070)),
         Vorm(cirkel(12f, 20f, 2f), vul = Color(0xFF5E9070)),
@@ -25,6 +28,7 @@ object Icoontjes {
     )
     val afspelen = listOf(Vorm("M7 4.5v15l12-7.5z", vul = wit))
     val plus = listOf(Vorm("M12 5v14M5 12h14", lijn = wit, dikte = 3f))
+    val huis = listOf(Vorm("M3 11l9-7 9 7M5 10v10h14V10", lijn = wit, dikte = 2.6f))
 
     // Tabjes
     val tabVandaag = listOf(
@@ -58,7 +62,7 @@ object Icoontjes {
         Vorm(cirkel(8f, 14.5f, 1.6f), vul = Color(0xFFD39A2E)),
         Vorm(cirkel(12f, 14.5f, 1.6f), vul = Color(0xFFD39A2E)),
         Vorm(cirkel(16f, 14.5f, 1.6f), vul = Color(0xFFD39A2E)),
-    )
+    ).verschuif(y = -1f)
     val bladwijzer = listOf(Vorm("M6 3h12v18l-6-4.2L6 21z", vul = creme, lijn = creme, dikte = 1.5f))
     val mail = listOf(
         Vorm(rechthoek(3f, 5.5f, 18f, 13f, 3f), vul = creme),
@@ -70,7 +74,7 @@ object Icoontjes {
         Vorm("M6 3h8l5 5v13H6z", vul = creme),
         Vorm("M14 3v5h5", vul = Color(0xFFF3D9CC)),
         Vorm("M9 13h7M9 17h5", lijn = Color(0xFFDC7258), dikte = 2f),
-    )
+    ).verschuif(x = -0.5f)
     val telefoon = listOf(
         Vorm(
             "M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.7 2.8-1.8 3.4a16 16 0 0 0 6 6l3.4-1.8 2.8.7a2 2 0 0 1 1.7 2z",
@@ -80,34 +84,34 @@ object Icoontjes {
     val iemand = listOf(
         Vorm(cirkel(12f, 8f, 4.2f), vul = creme),
         Vorm("M4 21a8 8 0 0 1 16 0z", vul = creme),
-    )
+    ).verschuif(y = -0.4f)
 
     // Snel naar
     val sleutel = listOf(
         Vorm("M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3z", lijn = creme, dikte = 2.8f),
         Vorm("M14.7 6.3l3-3a4 4 0 0 1 2 5", lijn = creme, dikte = 2.8f),
-    )
+    ).verschuif(x = -1.55f)
     val praatwolk = listOf(
         Vorm("M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z", vul = creme),
         Vorm(cirkel(8.5f, 12f, 1.3f), vul = Color(0xFF9F84C9)),
         Vorm(cirkel(12f, 12f, 1.3f), vul = Color(0xFF9F84C9)),
         Vorm(cirkel(15.5f, 12f, 1.3f), vul = Color(0xFF9F84C9)),
-    )
+    ).verschuif(x = -0.5f, y = -0.75f)
     val mensen = listOf(
         Vorm(cirkel(9f, 8f, 3.6f), vul = creme),
         Vorm("M2.5 20a6.5 6.5 0 0 1 13 0z", vul = creme),
         Vorm(cirkel(17f, 9f, 2.6f), vul = Color(0xFFE3EFE3)),
         Vorm("M14.5 20a5 5 0 0 1 7.5-4.3V20z", vul = Color(0xFFE3EFE3)),
-    )
+    ).verschuif(x = -0.25f, y = -0.2f)
     val week = listOf(
         Vorm(rechthoek(3f, 5f, 18f, 16f, 3.5f), vul = creme),
         Vorm(rechthoek(3f, 5f, 18f, 5f, 2.5f), vul = wit),
         Vorm(cirkel(8f, 14.5f, 1.6f), vul = Color(0xFF6E95C3)),
         Vorm(cirkel(12f, 14.5f, 1.6f), vul = Color(0xFF6E95C3)),
-    )
+    ).verschuif(y = -1f)
     val hart = listOf(
         Vorm("M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z", vul = creme),
-    )
+    ).verschuif(y = -1f)
 
     // Menu-knop
     val pijlRechts = listOf(Vorm("M9 6l6 6-6 6", lijn = wit, dikte = 2.6f))

@@ -2,7 +2,6 @@ package nl.odelia.dashboard.ui.thuis
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -29,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +40,8 @@ import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.Vorm
 import nl.odelia.dashboard.ui.onderdelen.glans
 import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
+import nl.odelia.dashboard.ui.onderdelen.kies
+import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.theme.Kleur
 
 enum class Tab(val label: String) {
@@ -112,13 +111,13 @@ private fun Bovenbalk(datum: String, onBel: () -> Unit) {
         Box {
             Box(
                 Modifier
+                    .tik(onClick = onBel)
                     .size(52.dp)
                     .shadow(8.dp, CircleShape, ambientColor = Kleur.KaartSchaduw, spotColor = Kleur.KaartSchaduw)
                     .clip(CircleShape)
                     .background(Kleur.Kaart)
                     .glans(CircleShape, licht = 0.9f, donker = 0f, boven = 2.dp)
                     .border(1.dp, Color.White.copy(alpha = 0.7f), CircleShape)
-                    .clickable(onClick = onBel)
                     .semantics { contentDescription = "Meldingen, 2 nieuw" },
                 contentAlignment = Alignment.Center,
             ) {
@@ -132,7 +131,7 @@ private fun Bovenbalk(datum: String, onBel: () -> Unit) {
                     .background(hoekVerloop(Color(0xFFF09A84), Kleur.Koraal), CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Tekst("2", 13.sp, kleur = Color.White, regel = 13.sp)
+                Tekst("2", 13.sp, kleur = Color.White)
             }
         }
     }
@@ -161,6 +160,7 @@ private fun Tabjes(gekozen: Tab, onKies: (Tab) -> Unit) {
                 Box(
                     Modifier
                         .weight(1f)
+                        .kies(aan) { onKies(t) }
                         .heightIn(min = if (smal) 60.dp else 52.dp)
                         .then(
                             if (aan) {
@@ -171,9 +171,7 @@ private fun Tabjes(gekozen: Tab, onKies: (Tab) -> Unit) {
                             } else {
                                 Modifier
                             },
-                        )
-                        .clip(CircleShape)
-                        .selectable(selected = aan, onClick = { onKies(t) }, role = Role.Tab),
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     val kleur = if (aan) Kleur.Inkt else Kleur.InktZacht

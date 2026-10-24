@@ -1,6 +1,5 @@
 package nl.odelia.dashboard.ui.thuis
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +21,7 @@ import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.Vorm
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.theme.Pastel
 import nl.odelia.dashboard.ui.theme.Pastels
 
@@ -33,10 +32,9 @@ fun SnelNaar(onGaNaar: (Plek) -> Unit, onMelding: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(
             Modifier
+                .tik { onGaNaar(Plek.Advies) }
                 .fillMaxWidth()
                 .klei(Pastels.Abrikoos.kaart, vorm, Pastels.Abrikoos.donker, hoogte = 10.dp)
-                .clip(vorm)
-                .clickable { onGaNaar(Plek.Advies) }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -63,10 +61,9 @@ private fun Tegel(p: Pastel, icoon: List<Vorm>, naam: String, modifier: Modifier
     val vorm = RoundedCornerShape(26.dp)
     Column(
         modifier
+            .tik(onClick = onClick)
             .fillMaxHeight()
             .klei(p.kaart, vorm, p.donker, hoogte = 10.dp)
-            .clip(vorm)
-            .clickable(onClick = onClick)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
