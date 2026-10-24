@@ -1,0 +1,302 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "c88c002982f6f76c09dd8f8d521aa106",
+    "entities": [
+      {
+        "tableName": "werkblok",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `begin` TEXT NOT NULL, `eind` TEXT, `updated_at` INTEGER NOT NULL, `verwijderd` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "begin",
+            "columnName": "begin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eind",
+            "columnName": "eind",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verwijderd",
+            "columnName": "verwijderd",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_werkblok_begin",
+            "unique": false,
+            "columnNames": [
+              "begin"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_werkblok_begin` ON `${TABLE_NAME}` (`begin`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "dag",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `datum` TEXT NOT NULL, `soort` TEXT NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "datum",
+            "columnName": "datum",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "soort",
+            "columnName": "soort",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_dag_datum",
+            "unique": true,
+            "columnNames": [
+              "datum"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_dag_datum` ON `${TABLE_NAME}` (`datum`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "persoon",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `naam` TEXT NOT NULL, `groep` TEXT NOT NULL, `rol` TEXT NOT NULL, `kleur` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `verwijderd` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "naam",
+            "columnName": "naam",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groep",
+            "columnName": "groep",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rol",
+            "columnName": "rol",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kleur",
+            "columnName": "kleur",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verwijderd",
+            "columnName": "verwijderd",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "afspraak",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `wat` TEXT NOT NULL, `notitie` TEXT NOT NULL, `persoon_id` TEXT, `groep` TEXT, `project` TEXT, `soort` TEXT, `deadline` TEXT, `seintje` INTEGER NOT NULL, `klaar` INTEGER NOT NULL, `gemaakt` TEXT NOT NULL, `bron` TEXT NOT NULL, `updated_at` INTEGER NOT NULL, `verwijderd` INTEGER NOT NULL, `todo` INTEGER NOT NULL DEFAULT 0, `duur` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wat",
+            "columnName": "wat",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notitie",
+            "columnName": "notitie",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "persoonId",
+            "columnName": "persoon_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "groep",
+            "columnName": "groep",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "project",
+            "columnName": "project",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "soort",
+            "columnName": "soort",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "deadline",
+            "columnName": "deadline",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "seintje",
+            "columnName": "seintje",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "klaar",
+            "columnName": "klaar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gemaakt",
+            "columnName": "gemaakt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bron",
+            "columnName": "bron",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verwijderd",
+            "columnName": "verwijderd",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "todo",
+            "columnName": "todo",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "duur",
+            "columnName": "duur",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_afspraak_deadline",
+            "unique": false,
+            "columnNames": [
+              "deadline"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_afspraak_deadline` ON `${TABLE_NAME}` (`deadline`)"
+          },
+          {
+            "name": "index_afspraak_persoon_id",
+            "unique": false,
+            "columnNames": [
+              "persoon_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_afspraak_persoon_id` ON `${TABLE_NAME}` (`persoon_id`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c88c002982f6f76c09dd8f8d521aa106')"
+    ]
+  }
+}

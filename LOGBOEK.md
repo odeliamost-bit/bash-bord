@@ -331,3 +331,40 @@ Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude)
 - ✅ Echte Android-app gebouwd (versie 0.5, dezelfde sleutel).
 - ✅ 49 tests slagen. Android-lint: 0 fouten.
 - ❌ Niet op de telefoon getest.
+
+---
+
+## 9. 💡 Tips in het ochtendbericht (24 okt, avond, versie 0.6)
+
+✅ **Klaar**
+- ⏳ Bij "Onthoud dit" een nieuwe vraag: **"Hoe lang duurt het?"**
+  - 15 min · 1 uur · paar uur · 1 dag · 1 week · paar maanden. Mag leeg blijven.
+  - In de lijst staat het eronder, bijvoorbeeld "✓ To-do · 15 min · 🏠 Thuis".
+- 💡 **Tips in het ochtendbericht** als er tijd over is (max 3):
+  - eerst dingen met een datum na deze week (zodat je je kunt voorbereiden)
+  - dan dingen zonder datum, de oudste eerst
+  - iets van een dag of langer: "Begin alvast: …"
+- 📋 Onderaan: "Nog 3 dingen zonder datum." Zo vergeet je ze niet.
+
+Voorbeeld:
+```
+💡 Rustige dag. Je kunt dit al doen:
+• Begin alvast: Verslag schrijven – Dhr. Jansen (ma 2 nov · 1 week)
+• Kast opruimen (1 uur)
+
+📋 Nog 3 dingen zonder datum.
+```
+
+🖼️ **Plaatje**
+
+![](logboek/9-hoe-lang.png)
+
+🔍 **Getest**
+- ✅ Echte Android-app gebouwd (versie 0.6, dezelfde sleutel).
+- ✅ 53 tests slagen. Nieuw: tips op een rustige dag, tips die passen in de tijd, drukke dag zonder tips, en een update-test van 0.5 naar 0.6.
+- ✅ Android-lint: 0 fouten.
+- ❌ Niet op de telefoon getest.
+
+❓ **Voor jou** (mijn keuzes, je mag ze veranderen)
+- 🕑 Ik reken op **2 uur per dag** voor Onthoud-dingen. Klopt dat?
+- ❔ Niet gekozen hoe lang iets duurt? Dan reken ik een **half uur**.

@@ -108,6 +108,7 @@ object Icoontjes {
         Vorm("M3 10h18M8 3v4M16 3v4", lijn = Color(0xFF2F6DB5), dikte = 2.4f),
     )
     val kopWaar = listOf(Vorm("M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" + cirkel(12f, 9.5f, 2.5f), lijn = Color(0xFF3F7A58), dikte = 2.4f))
+    val kopDuur = listOf(Vorm(cirkel(12f, 12f, 9f) + "M12 7.5V12l3.2 2", lijn = Color(0xFF8A5CC2), dikte = 2.4f))
     val seintje = listOf(Vorm("M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9zM10 20.5a2 2 0 0 0 4 0", lijn = Color(0xFFB0820A), dikte = 2.4f))
     val mailWit = listOf(
         Vorm("M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3.5 7l8.5 6 8.5-6", lijn = wit, dikte = 2.4f),

@@ -25,6 +25,20 @@ enum class Soort(val label: String) {
 /** Hoe iets in de app kwam. */
 enum class Bron { Getypt, Ingesproken, Gedeeld, Geplakt }
 
+/** Hoe lang iets ongeveer duurt (keuze van Odelia). Voor de tips in het ochtendbericht. Mag ook leeg blijven. */
+enum class Duur(val label: String, val minuten: Int) {
+    Kwartier("15 min", 15),
+    Uur("1 uur", 60),
+    PaarUur("paar uur", 180),
+    Dag("1 dag", 8 * 60),
+    Week("1 week", 5 * 8 * 60),
+    Maanden("paar maanden", 60 * 8 * 60),
+    ;
+
+    /** Een dag of langer: dat doe je niet in één keer. */
+    val lang: Boolean get() = minuten >= Dag.minuten
+}
+
 data class Persoon(
     val id: String,
     val naam: String,
@@ -55,6 +69,7 @@ data class Afspraak(
     val bron: Bron = Bron.Getypt,
     /** To-do (iets om zelf te doen) in plaats van een afspraak. Kies je bovenaan bij "Onthoud dit". */
     val todo: Boolean = false,
+    val duur: Duur? = null,
 )
 
 /** Wanneer iets moet: om de lijst in stukjes te verdelen. */

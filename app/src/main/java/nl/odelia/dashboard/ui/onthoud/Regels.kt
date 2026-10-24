@@ -65,11 +65,11 @@ fun wanneerPil(a: Afspraak, staat: OnthoudStaat): Pair<String, Pastel>? {
 
 fun datumPil(d: LocalDate) = "${dagKort(d.dayOfWeek)}\n${d.dayOfMonth}"
 
-/** "To-do · Dhr. Jansen · PVB" (of de groep als er geen persoon is). Zonder [metPersoon]: alleen project of groep. */
+/** "To-do · 15 min · Dhr. Jansen · PVB" (of de groep als er geen persoon is). Zonder [metPersoon]: alleen project of groep. */
 fun onderregel(a: Afspraak, staat: OnthoudStaat, metPersoon: Boolean = true): String {
     val p = staat.persoon(a.persoonId)?.takeIf { metPersoon }
     val todo = if (a.todo) "✓ To-do" else null
-    return listOfNotNull(todo, p?.naam, a.project, if (p == null && metPersoon) staat.groep(a)?.let(::groepTekst) else null)
+    return listOfNotNull(todo, a.duur?.label, p?.naam, a.project, if (p == null && metPersoon) staat.groep(a)?.let(::groepTekst) else null)
         .joinToString(" · ")
         .ifEmpty { a.notitie.take(40) }
 }

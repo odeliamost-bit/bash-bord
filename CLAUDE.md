@@ -133,7 +133,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
   - schermen in `ui/` (krijgen gegevens en acties mee, zodat de voorproef ze kan tekenen)
   - Android-delen in `data/` (Room), `widget/` (Glance) en `meldingen/` (wekkers en meldingen). De voorproef slaat die over.
   - na elke wijziging in de gegevens: `Bijwerken.alles` (widgets verversen, oude meldingen weg)
-  - database-versie 3 (`todo` erbij). Verander je de database: versie omhoog, een `AutoMigration`, en `MigratieTest` laten zien dat oude gegevens blijven staan. Odelia heeft echte gegevens op haar telefoon.
+  - database-versie 4 (`todo` en `duur` erbij). Verander je de database: versie omhoog, een `AutoMigration`, en `MigratieTest` laten zien dat oude gegevens blijven staan. Odelia heeft echte gegevens op haar telefoon.
 - **Stap 2 (keuzes van 24 okt):**
   - Pauze: altijd 45 minuten eraf, ook op een korte dag.
   - Weekdoel: voorlopig 35 uur. Odelia weet het niet zeker, dus het moet aan te passen zijn.
@@ -152,13 +152,16 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
   - Mensen: naam, beschrijving en groep aanpassen, en een persoon weghalen (eerst "Weet je het zeker?"). De afspraken blijven staan, zonder naam; ze houden de groep van die persoon.
   - To-do: bij "Onthoud dit" kies je bovenaan **📅 Afspraak** of **✅ To-do**. In de lijst: Alles · Afspraken · To-do.
   - Geen einddatum: bij "Wanneer klaar?" een vijfde vakje **"geen ∞"** in de rij (gekozen door Odelia). Staat aan zolang er geen dag gekozen is.
+  - "Hoe lang duurt het?": 15 min · 1 uur · paar uur · 1 dag · 1 week · paar maanden (mag leeg).
+  - Ochtendbericht: **max 3 tips** als er tijd over is (eerst datum na deze week = voorbereiden, dan zonder datum, oudste eerst), en "📋 Nog N dingen zonder datum".
+  - Keuzes van Claude hierbij (nog te bevestigen): 2 uur per dag voor Onthoud-dingen, onbekend = half uur, een dag of langer = "Begin alvast" (telt als 1 uur). Zie `Ochtend.kt`.
 
 ## Status
 
 - Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd en getest op de telefoon. 👍
 - Verbeteringen na die test (zijbalk, tik-effect, icoontjes, Wachtwoorden weg): gebouwd. Nog niet getest op de telefoon.
 - Stap 2 t/m 5 van fase 1 (klokken, Onthoud, ochtendmelding, urenmail): gebouwd door Claude op 24 okt (zelfstandig, met toestemming). Echte app gebouwd en getest met unit-tests en Robolectric. **Nog niet getest op de telefoon.** Zie `LOGBOEK.md`.
-- Versie 0.4 (24 okt, avond): tegels weg, mensen aanpassen/weghalen, To-do. Versie 0.5: vakje "geen einddatum". Getest met unit-tests en Robolectric, **nog niet op de telefoon**.
+- Versie 0.4 (24 okt, avond): tegels weg, mensen aanpassen/weghalen, To-do. Versie 0.5: vakje "geen einddatum". Versie 0.6: hoe lang duurt het + tips in het ochtendbericht. Getest met unit-tests en Robolectric, **nog niet op de telefoon**.
 - Open vragen voor Odelia staan in `LOGBOEK.md` (bij ❓).
 - Let op bij installeren: de APK uit de cloud heeft een andere sleutel dan de versie uit Android Studio. Eerst de oude app verwijderen (zie README).
-- APK's 0.2 t/m 0.5 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.
+- APK's 0.2 t/m 0.6 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.

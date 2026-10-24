@@ -47,6 +47,7 @@ import java.util.UUID
 import nl.odelia.dashboard.onthoud.Afspraak
 import nl.odelia.dashboard.onthoud.Bron
 import nl.odelia.dashboard.onthoud.Concept
+import nl.odelia.dashboard.onthoud.Duur
 import nl.odelia.dashboard.onthoud.Groep
 import nl.odelia.dashboard.onthoud.OnthoudActies
 import nl.odelia.dashboard.onthoud.OnthoudStaat
@@ -96,6 +97,7 @@ fun ToevoegenScherm(
     var seintje by rememberSaveable { mutableStateOf(bestaand?.seintje ?: true) }
     var bron by rememberSaveable { mutableStateOf(bestaand?.bron ?: concept.bron) }
     var todo by rememberSaveable { mutableStateOf(bestaand?.todo ?: false) }
+    var duur by rememberSaveable { mutableStateOf(bestaand?.duur) }
     var nieuwePersoon by rememberSaveable { mutableStateOf(false) }
     var nieuwProject by rememberSaveable { mutableStateOf(false) }
     var leegMelding by rememberSaveable { mutableStateOf(false) }
@@ -118,7 +120,7 @@ fun ToevoegenScherm(
         acties.bewaar(
             (bestaand ?: Afspraak(id = UUID.randomUUID().toString(), wat = tekst, gemaakt = nu)).copy(
                 wat = tekst, notitie = notitie, persoonId = persoonId, groep = groep, project = project,
-                soort = soort, deadline = deadline, seintje = seintje && deadline != null, bron = bron, todo = todo,
+                soort = soort, deadline = deadline, seintje = seintje && deadline != null, bron = bron, todo = todo, duur = duur,
             ),
         )
         onBewaard(if (bestaand == null) "Bewaard ✓" else "Aangepast ✓")
@@ -212,6 +214,16 @@ fun ToevoegenScherm(
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Kopje(Icoontjes.kopWanneer, "Wanneer klaar?")
                 WanneerKeuze(nu.toLocalDate(), deadline) { deadline = it }
+            }
+
+            // Hoe lang duurt het? Mag leeg; nog een keer tikken = weer uit. Voor de tips in het ochtendbericht.
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Kopje(Icoontjes.kopDuur, "Hoe lang duurt het?")
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Duur.entries.forEach { d ->
+                        Keuze(d.label, aan = duur == d, onClick = { duur = if (duur == d) null else d })
+                    }
+                }
             }
 
             Invoerveld(notitie, { notitie = it }, "notitie (mag leeg)")

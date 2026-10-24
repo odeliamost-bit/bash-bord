@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import nl.odelia.dashboard.Bijwerken
 import nl.odelia.dashboard.onthoud.Afspraak
 import nl.odelia.dashboard.onthoud.Bron
+import nl.odelia.dashboard.onthoud.Duur
 import nl.odelia.dashboard.onthoud.Groep
 import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.onthoud.Persoon
@@ -34,6 +35,7 @@ class OnthoudOpslag(context: Context) {
                 groep = a.groep?.name, project = a.project?.trim()?.takeIf(String::isNotEmpty), soort = a.soort?.name,
                 deadline = a.deadline?.toString(), seintje = a.seintje, klaar = a.klaar,
                 gemaakt = a.gemaakt.toString(), bron = a.bron.name, updatedAt = System.currentTimeMillis(), todo = a.todo,
+                duur = a.duur?.name,
             ),
         )
         Bijwerken.alles(app)
@@ -88,6 +90,7 @@ class OnthoudOpslag(context: Context) {
         gemaakt = LocalDateTime.parse(r.gemaakt),
         bron = Bron.entries.firstOrNull { it.name == r.bron } ?: Bron.Getypt,
         todo = r.todo,
+        duur = r.duur?.let { d -> Duur.entries.firstOrNull { it.name == d } },
     )
 
     private fun alsPersoon(r: PersoonRij) = Persoon(

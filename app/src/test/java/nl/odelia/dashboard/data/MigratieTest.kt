@@ -8,6 +8,8 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -42,6 +44,28 @@ class MigratieTest {
             assertEquals("Verslag inleveren", a.wat)
             assertEquals("p1", a.persoonId)
             assertFalse(a.todo) // oude afspraken zijn geen to-do
+        } finally {
+            room.close()
+        }
+    }
+
+    @Test
+    fun `to-do van versie 0_5 blijft een to-do na de update`() = runBlocking {
+        val naam = "migratie3.db"
+        context.deleteDatabase(naam)
+        maakOud(naam, versie = 3) // zoals in app-versie 0.4 en 0.5
+        context.openOrCreateDatabase(naam, Context.MODE_PRIVATE, null).use { db ->
+            db.execSQL(
+                "INSERT INTO afspraak VALUES ('t1', 'Fietsband plakken', '', NULL, 'Thuis', NULL, NULL, NULL, 0, 0, " +
+                    "'2026-10-24T20:00', 'Getypt', 0, 0, 1)",
+            )
+        }
+        val room = Room.databaseBuilder(context, AppDatabase::class.java, naam).build()
+        try {
+            val a = room.onthoud().afsprakenNu().single()
+            assertEquals("Fietsband plakken", a.wat)
+            assertTrue(a.todo)
+            assertNull(a.duur) // nog niet gekozen
         } finally {
             room.close()
         }
