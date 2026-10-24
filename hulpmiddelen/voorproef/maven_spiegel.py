@@ -30,7 +30,7 @@ def haal(pad):
             except urllib.error.HTTPError as e:
                 if e.code == 404:
                     nietGevonden += 1
-                    if nietGevonden >= 5:
+                    if nietGevonden >= 10:
                         break
                 time.sleep(min(0.3 * (poging + 1), 3))
             except Exception:

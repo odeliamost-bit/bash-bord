@@ -123,12 +123,14 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Icoontjes:** Geld is een munt met €-teken (in het ontwerp stond een $). Paden die in het ontwerp net uit het midden stonden, zijn rechtgezet met `verschuif`.
 - **Testen:** de broer bouwt in Android Studio en drukt op ▶️ (telefoon met kabel).
 - **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
-- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus nieuwere versies kon Claude niet controleren (24 okt 2026 nog steeds geblokkeerd in de cloud-sessie). Upgraden mag zodra het bouwen werkt.
-- **Checken in de cloud:** met `hulpmiddelen/voorproef/` (compileren + schermen als plaatje). Dat vervangt testen op de telefoon niet.
+- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: eerst was `dl.google.com` in de cloud geblokkeerd. Sinds 24 okt werkt het wel. Upgraden mag later, als aparte stap.
+- **Bouwen in de cloud:** `hulpmiddelen/cloud/bouw.sh` zet de Android SDK klaar en bouwt de echte APK. Maven Central hapert hier soms, daarom gaan downloads via `maven_spiegel.py`.
+- **Plaatjes in de cloud:** met `hulpmiddelen/voorproef/` (computer-versie van de schermen). Een emulator kan hier niet (geen KVM). Het vervangt testen op de telefoon niet.
 - **Stap 2 (keuzes van 24 okt):**
   - Pauze: altijd 45 minuten eraf, ook op een korte dag.
   - Weekdoel: voorlopig 35 uur. Odelia weet het niet zeker, dus het moet aan te passen zijn.
   - Herinneringen ma–vr: 8:15 als ze nog niet is ingeklokt, 16:15 als ze nog niet is uitgeklokt.
+  - Bij de uitklok-herinnering: snooze-knoppen "over 10 min" en "over 20 min" (ze werkt soms tot 16:30).
 
 ## Status
 
