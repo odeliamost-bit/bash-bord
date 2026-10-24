@@ -85,6 +85,9 @@ Wensen die nog uitgezocht moeten worden (eerlijk bespreken of het kan):
 - Geld: ING- en Google Pay-meldingen lezen en uitgaven automatisch invullen.
 - Koppeling met Google Sheets.
 - Telefoon op stil zetten bij inklokken.
+- Wensen (24 okt, avond):
+  - Boodschappen/Wensen **per winkel** (Action, Albert Heijn, Lidl, Jumbo, …), met wat ze eerder al eens toevoegde om snel opnieuw te kiezen. Slimme suggesties hoeven niet.
+  - **Ingebouwde AI** (hoeft niet heel slim): helpen met leren (en zien hoe ze leert), pauzes nemen, recepten bedenken met ingrediënten die ze al heeft. Mag in een latere fase. Eerlijk: dit vraagt internet en een sleutel die niet in de app of git mag staan (dus via de backend), en kost een klein beetje geld per vraag.
 
 ## Het ontwerp
 
