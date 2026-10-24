@@ -114,3 +114,15 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 **Hoofdscherm-kaart bovenaan:** "Goedemorgen, Odelia!" met haar eigen meisje-plaatje links (hoofd steekt boven de kaartrand uit) en een plantje rechts op een hangend plankje. Haar plaatje staat in `plaatjes/`. Het plantje en de achtergrond in het ontwerp komen uit een voorbeeld van internet; voor de echte app is een eigen plaatje nodig.
 
 `plaatjes/mijn-wensen.png` is een overzicht van al haar wensen.
+
+## Gemaakte keuzes
+
+- **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; de 🎤- en ➕-knoppen daarvan komen terug bij stap 3.
+- **Testen:** de broer bouwt in Android Studio en drukt op ▶️ (telefoon met kabel).
+- **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
+- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus nieuwere versies kon Claude niet controleren. Upgraden mag zodra het bouwen werkt.
+- **Checken in de cloud:** met `hulpmiddelen/voorproef/` (compileren + schermen als plaatje). Dat vervangt testen op de telefoon niet.
+
+## Status
+
+- Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd. Nog niet getest op de telefoon.
