@@ -1,0 +1,6 @@
+<resources>
+    <!-- Perzik als achtergrond, zodat je bij het opstarten geen wit flitsje ziet. -->
+    <style name="Theme.Dashboard" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/perzik</item>
+    </style>
+</resources>
