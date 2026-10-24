@@ -67,7 +67,7 @@ De plaatjes staan in de map `logboek/`. Ze komen uit het voorproef-hulpje (compu
 
 ❓ **Keuzes die ik gemaakt heb** (zeg het als je het anders wilt)
 - 🔢 Tijdens het werk: "Vandaag" = tijd sinds inklokken (zoals in het ontwerp). Na het uitklokken: uren mét de pauze eraf.
-- 🌿 Vrije en zieke dagen tellen als 0 uur. Ze tellen niet mee voor je 35 uur. **Klopt dat?**
+- 🌿 Vrije en zieke dagen tellen als 0 uur. Ze tellen niet mee voor je 35 uur. ✅ *Beantwoord: klopt, maar zet ze erbij (zie stap 6).*
 - ⏰ Bij "vergeten uit te klokken" stelt de app 15:45 voor.
 
 ### 2c: widget op het startscherm 🏠
@@ -126,7 +126,7 @@ De plaatjes staan in de map `logboek/`. Ze komen uit het voorproef-hulpje (compu
 - 📊 **Samenvatting per onderwerp**: kies een project of groep. Je ziet dan hoeveel er nog moet, hoeveel klaar is, en wat het eerst moet. Met 🔊 voorlezen.
 - 👥 **Mensen** (zoals ontwerp/Mensen): School/Werk/Thuis, rondjes per persoon, "Wat hebben we afgesproken?", aantal "nog doen", + Afspraak, 🔊 voorlezen.
 - 🔎 Zoeken kijkt naar alles: wat, notitie, naam, rol, project, groep en soort. Hoofdletters en accenten maken niet uit.
-- 🔔 **Seintje de dag ervoor** om **16:30**.
+- 🔔 **Seintje de dag ervoor** (later aangepast: zit nu in het ochtendbericht, zie stap 6).
 - 📤 **Delen**: in WhatsApp, Gmail enz. kies je "Delen" › **Onthoud dit**. De tekst staat dan meteen klaar.
 - 🧩 **Widget "Onthoud"**: knop "+ Iets onthouden" en 🎤 (meteen inspreken).
 - 💾 Opslag: personen en afspraken in Room, elk met een UUID en `updated_at`. Je uren uit stap 2 blijven gewoon staan (database-versie 2).
@@ -153,7 +153,7 @@ Widget: ![Widget Onthoud](logboek/3-widget-onthoud.png)
 - ⚠️ Inspreken gebruikt de spraakherkenning van Google op je telefoon. Zonder internet werkt het misschien niet, tenzij Nederlands offline is gedownload.
 
 ❓ **Keuzes die ik gemaakt heb** (zeg het als je het anders wilt)
-- ⏰ Het seintje komt om **16:30** de dag ervoor (na je werk). Liever een andere tijd?
+- ⏰ Het seintje komt om 16:30 de dag ervoor. ✅ *Beantwoord: in het ochtendbericht, met "vanavond nog een keer" (zie stap 6).*
 - 📍 "Waar" heeft geen eigen vakje. Typ het in de tekst of in de notitie. Wil je toch een apart vakje?
 - 👥 Personen kun je toevoegen, maar nog niet aanpassen of weghalen. Komt later, als je dat wilt.
 - 🏷️ De groepen zijn vast: 🎒 School, 🏭 Werk, 🏠 Thuis. Projecten maak je zelf.
@@ -212,12 +212,12 @@ Widget: ![Widget Onthoud](logboek/3-widget-onthoud.png)
 In de mail zelf ziet het overzicht er zo uit (gewone regels, want een tabel kan Gmail op deze manier niet maken):
 
 ```
-ma 19-10-2026: 7:45 – 15:45 = 7,25 uur
-di 20-10-2026: 7:30 – 16:00 = 7,75 uur
+ma 19-10-2026: 7:45 – 15:45 = 7:15 uur
+di 20-10-2026: 7:30 – 16:00 = 7:45 uur
 wo 21-10-2026: vrij
 do 22-10-2026: ziek
-vr 23-10-2026: 7:45 – 15:50 = 7,33 uur
-Totaal: 22,33 uur
+vr 23-10-2026: 7:45 – 15:50 = 7:20 uur
+Totaal: 22:20 uur · 1 dag vrij · 1 dag ziek
 ```
 
 🔍 **Getest**
@@ -227,8 +227,8 @@ Totaal: 22,33 uur
 - ❌ Niet op de telefoon getest: of Gmail opent met alles ingevuld. De meeste Gmail-versies doen dat. Gebeurt het niet, gebruik dan Kopiëren.
 
 ❓ **Vragen voor jou**
-- 🔢 Wil Kim de uren als **7,25** (zoals nu) of als **7:15**?
-- 📅 Moet de **datum** zo: "19-10-2026"? Of liever "maandag 19 oktober"?
+- 🔢 Uren als 7,25 of 7:15? ✅ *Beantwoord: 7:15 (zie stap 6).*
+- 📅 Datum "19-10-2026" of "maandag 19 oktober"? ✅ *Beantwoord: 19-10-2026.*
 - 📧 Moet er nog iets anders in de mail, bijvoorbeeld je personeelsnummer?
 
 ---
@@ -243,3 +243,33 @@ Totaal: 22,33 uur
 
 ⚠️ **Installeren:** staat de app er al op via Android Studio? Verwijder hem dan eerst. Anders zegt Android "App niet geïnstalleerd", omdat de sleutel anders is. Er gaan geen echte gegevens verloren: stap 1 had alleen voorbeeld-getallen.
 Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude). Anders moet je bij elke wissel opnieuw verwijderen, en dan ben je je gegevens kwijt.
+
+---
+
+## 6. ✏️ Jouw antwoorden verwerkt (24 okt, versie 0.3)
+
+✅ **Klaar**
+- 🔢 **Urenmail: uren als 7:15** (uren:minuten), ook in de tabel en bij het totaal.
+- 🌿 **Vrij en ziek staan er nu bij**, maar tellen niet mee voor je 35 uur:
+  - Werk-tabje: "29 uur gewerkt · 1 dag ziek"
+  - tegel "Deze week": "van 35 uur + 1 dag ziek"
+  - urenmail: "Totaal: 29:05 uur · 1 dag ziek"
+- 🔔 **Seintje voor morgen zit in je ochtendbericht** (20 min na inklokken), onder "📌 Morgen".
+  - Met de knop **"Vanavond nog een keer"**. Tik erop, dan komt het seintje om **19:00** terug. Het ochtendbericht laat dan zien: "🌙 Vanavond om 19:00 krijg je het nog een keer."
+  - Klok je die dag niet in (weekend, vrij, ziek)? Dan komt het ochtendbericht om **10:00**, maar alleen als er iets voor morgen staat. Zo mis je het niet.
+  - Het oude seintje van 16:30 is weg.
+- 📅 Datum in de mail blijft **19-10-2026**.
+
+🖼️ **Plaatjes** (voorbeeld met een zieke woensdag)
+
+| Werk-tabje | Urenmail |
+|---|---|
+| ![](logboek/6-werk-met-ziek.png) | ![](logboek/5-urenmail.png) |
+
+🔍 **Getest**
+- ✅ Echte Android-app gebouwd (versie 0.3).
+- ✅ 46 tests slagen. Nieuw: uren als 7:15, vrij/ziek-tekst, "📌 Morgen" in het ochtendbericht, de knop "Vanavond nog een keer" en de wekker om 19:00, en de reserve om 10:00.
+- ❌ Nog steeds niet op de telefoon getest.
+
+❓ **Voor jou**
+- ⏰ Is **10:00** goed voor dagen zonder inklokken?

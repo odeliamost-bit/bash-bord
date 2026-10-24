@@ -32,6 +32,8 @@ object Herinneringen {
     const val LATER_20 = "nl.odelia.dashboard.LATER_20"
     const val CHECK_MORGEN = "nl.odelia.dashboard.CHECK_MORGEN"
     const val OCHTEND = "nl.odelia.dashboard.OCHTEND"
+    const val AVOND = "nl.odelia.dashboard.AVOND"
+    const val AVOND_SEINTJE = "nl.odelia.dashboard.AVOND_SEINTJE"
     const val URENMAIL = "nl.odelia.dashboard.URENMAIL"
 
     /** Stap 5: vrijdag 30 minuten na het uitklokken: "urenmail staat klaar". */
@@ -52,10 +54,28 @@ object Herinneringen {
     fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
         Meldingen.zetWekker(context, Seintje.Inklokken, CHECK_IN, Planning.volgende(nu, Planning.INKLOKKEN))
         Meldingen.zetWekker(context, Seintje.Uitklokken, CHECK_UIT, Planning.volgende(nu, Planning.UITKLOKKEN))
-        Meldingen.zetWekker(context, Seintje.MorgenTeDoen, CHECK_MORGEN, Planning.volgendeDag(nu, Planning.SEINTJE_MORGEN))
+        Meldingen.zetWekker(context, Seintje.MorgenTeDoen, CHECK_MORGEN, Planning.volgendeDag(nu, Planning.SEINTJE_RESERVE))
     }
 
-    /** "Morgen: Verslag inleveren (Dhr. Jansen)" voor alles met "seintje de dag ervoor". */
+    /**
+     * Het ochtendbericht (stap 4), met het seintje voor morgen erin.
+     * Staat er iets voor morgen? Dan de knop "Vanavond nog een keer". Na die knop: [avondGepland] = true.
+     */
+    fun toonOchtend(context: Context, staat: OnthoudStaat, avondGepland: Boolean = false) {
+        val b = Ochtend.bericht(staat)
+        val tekst = if (avondGepland) "${b.tekst}\n\n🌙 Vanavond om ${tijdTekst(Planning.SEINTJE_AVOND)} krijg je het nog een keer." else b.tekst
+        val knoppen = if (b.morgen && !avondGepland) listOf("Vanavond nog een keer" to AVOND) else emptyList()
+        Meldingen.toon(context, Seintje.Ochtend, Meldingen.KANAAL_ONTHOUD, b.titel, tekst, knoppen)
+        Instellingen.van(context).laatsteOchtendbericht = staat.vandaag.toString()
+    }
+
+    /** Knop "Vanavond nog een keer": om 19:00 (of over een uur, als het al later is). */
+    fun planAvond(context: Context, nu: LocalDateTime) {
+        val avond = nu.toLocalDate().atTime(Planning.SEINTJE_AVOND)
+        Meldingen.zetWekker(context, Seintje.Avond, AVOND_SEINTJE, if (avond.isAfter(nu)) avond else nu.plusHours(1))
+    }
+
+    /** "Morgen: Verslag inleveren (Dhr. Jansen)" voor alles met "seintje de dag ervoor" ('s avonds). */
     fun toonMorgen(context: Context, staat: OnthoudStaat) {
         val lijst = staat.seintjeVoorMorgen
         if (lijst.isEmpty()) return
@@ -121,10 +141,13 @@ class MeldingOntvanger : BroadcastReceiver() {
                 if (s.isIn) Herinneringen.toonUitklokken(context, s)
                 Herinneringen.plan(context, nu)
             }
-            Herinneringen.OCHTEND -> {
-                val (titel, tekst) = Ochtend.bericht(OnthoudOpslag(context).staat(nu.toLocalDate()))
-                Meldingen.toon(context, Seintje.Ochtend, Meldingen.KANAAL_ONTHOUD, titel, tekst)
+            Herinneringen.OCHTEND -> Herinneringen.toonOchtend(context, OnthoudOpslag(context).staat(nu.toLocalDate()))
+            Herinneringen.AVOND -> {
+                Herinneringen.planAvond(context, nu)
+                // Zelfde bericht nog eens, zonder knop en met "vanavond om 19:00": dan zie je dat het gelukt is.
+                Herinneringen.toonOchtend(context, OnthoudOpslag(context).staat(nu.toLocalDate()), avondGepland = true)
             }
+            Herinneringen.AVOND_SEINTJE -> Herinneringen.toonMorgen(context, OnthoudOpslag(context).staat(nu.toLocalDate()))
             Herinneringen.URENMAIL -> Meldingen.toon(
                 context, Seintje.Urenmail, Meldingen.KANAAL_ONTHOUD,
                 "📧 Urenmail voor Kim staat klaar",
@@ -132,7 +155,11 @@ class MeldingOntvanger : BroadcastReceiver() {
                 openActie = MainActivity.ACTIE_URENMAIL,
             )
             Herinneringen.CHECK_MORGEN -> {
-                Herinneringen.toonMorgen(context, OnthoudOpslag(context).staat(nu.toLocalDate()))
+                // Reserve om 10:00: nog geen ochtendbericht vandaag (niet ingeklokt) en wel iets voor morgen.
+                val staat = OnthoudOpslag(context).staat(nu.toLocalDate())
+                if (Instellingen.van(context).laatsteOchtendbericht != staat.vandaag.toString() && staat.seintjeVoorMorgen.isNotEmpty()) {
+                    Herinneringen.toonOchtend(context, staat)
+                }
                 Herinneringen.plan(context, nu)
             }
             Herinneringen.LATER_10, Herinneringen.LATER_20 -> {

@@ -78,7 +78,8 @@ fun VandaagTab(
                     Modifier.weight(1f).tik { onOpenDag(klok.nu.toLocalDate()) },
                 )
                 StatTegel(
-                    Pastels.Geel, Icoontjes.kalender, "Deze week", "${alsBreuk(klok.weekTotaal)} u", "van ${alsBreuk(klok.weekdoel)} uur",
+                    Pastels.Geel, Icoontjes.kalender, "Deze week", "${alsBreuk(klok.weekTotaal)} u",
+                    "van ${alsBreuk(klok.weekdoel)} uur" + (klok.weekVrijZiek?.let { "\n+ $it" } ?: ""),
                     Modifier.weight(1f).tik(onClick = onWeek),
                 )
             }

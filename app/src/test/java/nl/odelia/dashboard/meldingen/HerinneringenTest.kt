@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import nl.odelia.dashboard.ui.thuis.Voorbeeld
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,16 +41,36 @@ class HerinneringenTest {
     }
 
     @Test
-    fun `wekkers staan op 8_15 en 16_15 op de volgende werkdag, en elke dag 16_30 voor morgen`() {
+    fun `wekkers staan op 8_15 en 16_15 op de volgende werkdag, en elke dag 10_00 als reserve voor morgen`() {
         val vrijdagAvond = LocalDateTime.of(2026, 10, 23, 18, 0)
         Herinneringen.plan(context, vrijdagAvond)
 
         val wekkers = shadowOf(context.getSystemService(AlarmManager::class.java)).scheduledAlarms
         val tijden = wekkers.map { LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(it.triggerAtMs), ZoneId.systemDefault()) }.sorted()
         assertEquals(
-            listOf(LocalDateTime.of(2026, 10, 24, 16, 30), LocalDateTime.of(2026, 10, 26, 8, 15), LocalDateTime.of(2026, 10, 26, 16, 15)),
+            listOf(LocalDateTime.of(2026, 10, 24, 10, 0), LocalDateTime.of(2026, 10, 26, 8, 15), LocalDateTime.of(2026, 10, 26, 16, 15)),
             tijden,
         )
+    }
+
+    @Test
+    fun `ochtendbericht met iets voor morgen heeft de knop vanavond nog een keer`() {
+        shadowOf(context as Application).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        // Voorbeeld op vrijdag: "Boek meenemen" (Dhr. Jansen) is morgen, met seintje aan.
+        Herinneringen.toonOchtend(context, Voorbeeld.onthoud(LocalDateTime.of(2026, 10, 23, 8, 5)))
+        var melding = shadowOf(context.getSystemService(NotificationManager::class.java)).allNotifications.single()
+        assertEquals(listOf("Vanavond nog een keer"), melding.actions.map { it.title.toString() })
+        assertTrue(melding.extras.getCharSequence("android.text").toString().contains("📌 Morgen:\n• Boek meenemen – Dhr. Jansen"))
+
+        // Na de knop: zelfde bericht zonder knop, met "vanavond om 19:00", en een wekker om 19:00.
+        Herinneringen.planAvond(context, LocalDateTime.of(2026, 10, 23, 8, 10))
+        Herinneringen.toonOchtend(context, Voorbeeld.onthoud(LocalDateTime.of(2026, 10, 23, 8, 10)), avondGepland = true)
+        melding = shadowOf(context.getSystemService(NotificationManager::class.java)).allNotifications.single()
+        assertTrue(melding.actions.isNullOrEmpty())
+        assertTrue(melding.extras.getCharSequence("android.text").toString().endsWith("🌙 Vanavond om 19:00 krijg je het nog een keer."))
+        val wekkers = shadowOf(context.getSystemService(AlarmManager::class.java)).scheduledAlarms
+        val tijden = wekkers.map { LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(it.triggerAtMs), ZoneId.systemDefault()) }
+        assertTrue(LocalDateTime.of(2026, 10, 23, 19, 0) in tijden)
     }
 
     @Test

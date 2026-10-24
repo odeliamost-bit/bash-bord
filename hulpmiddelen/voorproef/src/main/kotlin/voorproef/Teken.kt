@@ -64,5 +64,9 @@ fun main(args: Array<String>) {
     teken("16-mensen", 411, 1300, app(plek = Plek.Mensen))
     teken("17-afspraak-aanpassen", 411, 1500, app(scherm = "bewerk/a1"))
     teken("18-urenmail", 411, 1700, app(k = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50"), scherm = "urenmail", adres = "kim@voorbeeld.nl"))
+    val ziek = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50", ziek = true)
+    teken("19-werk-met-ziek", 411, 1100, app(k = ziek, tab = Tab.Werk))
+    teken("20-urenmail-met-ziek", 411, 1700, app(k = ziek, scherm = "urenmail", adres = "kim@voorbeeld.nl"))
+    teken("21-vandaag-met-ziek", 411, 1300, app(k = ziek))
     teken("12-klaar-voor-vandaag", 411, 870, app(k = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50")))
 }

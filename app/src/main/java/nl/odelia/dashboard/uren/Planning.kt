@@ -12,8 +12,14 @@ object Planning {
     /** Nog niet uitgeklokt? Dan om 16:15 een seintje (met "over 10 min" en "over 20 min"). */
     val UITKLOKKEN: LocalTime = LocalTime.of(16, 15)
 
-    /** Seintje voor afspraken van morgen: na het werk, elke dag (keuze van Claude; zie LOGBOEK). */
-    val SEINTJE_MORGEN: LocalTime = LocalTime.of(16, 30)
+    /** "Vanavond nog een keer": het seintje voor morgen nog eens om 19:00 (keuze van Odelia). */
+    val SEINTJE_AVOND: LocalTime = LocalTime.of(19, 0)
+
+    /**
+     * Het seintje voor morgen zit in het ochtendbericht (20 min na inklokken).
+     * Op een dag zonder inklokken (weekend, vrij, ziek) komt het om 10:00 (keuze van Claude).
+     */
+    val SEINTJE_RESERVE: LocalTime = LocalTime.of(10, 0)
 
     fun isWerkdag(dag: DayOfWeek) = dag != DayOfWeek.SATURDAY && dag != DayOfWeek.SUNDAY
 

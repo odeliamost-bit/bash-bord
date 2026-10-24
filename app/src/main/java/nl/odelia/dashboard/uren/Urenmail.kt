@@ -5,7 +5,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.Locale
+import kotlin.math.roundToInt
 
 /**
  * De wekelijkse urenmail voor Kim (Randstad). Alleen een CONCEPT: de app verstuurt nooit zelf.
@@ -38,24 +38,30 @@ object Urenmail {
         if (opmerking.isNotBlank()) append(opmerking.trim()).append("\n")
         append("\nMet hartelijke groet,\nOdelia van der Most\n\n")
         regels.forEach { append(regel(it)).append("\n") }
-        append("Totaal: ${getal(regels.sumOf { (it.uren ?: 0f).toDouble() }.toFloat())} uur\n")
+        append("Totaal: ${totaal(regels)}\n")
     }
 
-    /** "ma 19-10-2026: 7:45 – 15:45 = 7,25 uur", of "wo 21-10-2026: vrij". */
+    /** "22:20 uur", met vrije en zieke dagen erachter: "22:20 uur · 1 dag vrij · 1 dag ziek" (keuze van Odelia). */
+    fun totaal(regels: List<Regel>): String {
+        val gewerkt = "${uurMin(regels.sumOf { (it.uren ?: 0f).toDouble() }.toFloat())} uur"
+        return listOfNotNull(gewerkt, Uren.vrijZiek(regels.map { it.soort })).joinToString(" · ")
+    }
+
+    /** "ma 19-10-2026: 7:45 – 15:45 = 7:15 uur", of "wo 21-10-2026: vrij". */
     fun regel(r: Regel): String {
         val datum = "${DAGEN[r.datum.dayOfWeek.value - 1]} ${"%02d-%02d-%d".format(r.datum.dayOfMonth, r.datum.monthValue, r.datum.year)}"
         val rest = when {
             r.soort != DagSoort.Werk -> r.soort.tekst
             r.uren == null || r.begin == null -> "–"
-            else -> "${tijd(r.begin)} – ${r.eind?.let(::tijd) ?: "…"} = ${getal(r.uren)} uur"
+            else -> "${tijd(r.begin)} – ${r.eind?.let(::tijd) ?: "…"} = ${uurMin(r.uren)} uur"
         }
         return "$datum: $rest"
     }
 
-    /** 7.25 → "7,25"; 7.0 → "7". Op twee cijfers na de komma. */
-    fun getal(uren: Float): String {
-        val tekst = String.format(Locale.ROOT, "%.2f", uren).replace('.', ',')
-        return tekst.removeSuffix(",00")
+    /** Uren als uren en minuten (keuze van Odelia): 7.25 → "7:15", 7.0 → "7:00". */
+    fun uurMin(uren: Float): String {
+        val minuten = (uren * 60).roundToInt()
+        return "${minuten / 60}:${(minuten % 60).toString().padStart(2, '0')}"
     }
 
     /** Vrijdag na het uitklokken, of later in het weekend: dan "staat de urenmail klaar". */

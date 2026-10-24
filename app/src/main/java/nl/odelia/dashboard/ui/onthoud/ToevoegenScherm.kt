@@ -227,7 +227,10 @@ fun ToevoegenScherm(
                     Box(Modifier.size(44.dp).background(Color.White, RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
                         Icoon(Icoontjes.seintje, 24.dp)
                     }
-                    Tekst("Seintje de dag ervoor", 16.sp, Modifier.weight(1f), dikte = FontWeight.ExtraBold, kleur = Color(0xFF4E3B08))
+                    Column(Modifier.weight(1f)) {
+                        Tekst("Seintje de dag ervoor", 16.sp, dikte = FontWeight.ExtraBold, kleur = Color(0xFF4E3B08))
+                        Tekst("in je ochtendbericht", 13.sp, dikte = FontWeight.Bold, kleur = Color(0xFF8A6A10))
+                    }
                     Schakelaar(seintje)
                 }
             }

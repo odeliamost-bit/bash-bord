@@ -33,12 +33,12 @@ class UrenmailTest {
             Met hartelijke groet,
             Odelia van der Most
 
-            ma 19-10-2026: 7:45 – 15:45 = 7,25 uur
-            di 20-10-2026: 7:30 – 16:00 = 7,75 uur
+            ma 19-10-2026: 7:45 – 15:45 = 7:15 uur
+            di 20-10-2026: 7:30 – 16:00 = 7:45 uur
             wo 21-10-2026: vrij
             do 22-10-2026: ziek
-            vr 23-10-2026: 7:45 – 15:50 = 7,33 uur
-            Totaal: 22,33 uur
+            vr 23-10-2026: 7:45 – 15:50 = 7:20 uur
+            Totaal: 22:20 uur · 1 dag vrij · 1 dag ziek
 
             """.trimIndent(),
             tekst,
@@ -58,10 +58,11 @@ class UrenmailTest {
     }
 
     @Test
-    fun `getallen met een komma`() {
-        assertEquals("7,25", Urenmail.getal(7.25f))
-        assertEquals("7", Urenmail.getal(7f))
-        assertEquals("7,33", Urenmail.getal(7f + 20f / 60f))
+    fun `uren als uren en minuten`() {
+        assertEquals("7:15", Urenmail.uurMin(7.25f))
+        assertEquals("7:00", Urenmail.uurMin(7f))
+        assertEquals("7:20", Urenmail.uurMin(7f + 20f / 60f))
+        assertEquals("36:05", Urenmail.uurMin(36f + 5f / 60f))
     }
 
     @Test

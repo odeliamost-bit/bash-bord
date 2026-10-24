@@ -65,6 +65,17 @@ object Uren {
         if (weekend && vanDag.isEmpty()) null else Dag(datum, soorten[datum] ?: DagSoort.Werk, vanDag)
     }
 
+    /**
+     * "1 dag vrij · 2 dagen ziek", of `null` als er geen vrije of zieke dagen zijn.
+     * Ze tellen niet mee voor het weekdoel, maar staan er wel bij (keuze van Odelia).
+     */
+    fun vrijZiek(soorten: List<DagSoort>): String? {
+        fun stuk(soort: DagSoort): String? = soorten.count { it == soort }.takeIf { it > 0 }?.let { n ->
+            "$n ${if (n == 1) "dag" else "dagen"} ${soort.tekst}"
+        }
+        return listOfNotNull(stuk(DagSoort.Vrij), stuk(DagSoort.Ziek)).joinToString(" · ").ifEmpty { null }
+    }
+
     /** Netto uren van een dag. Vrij of ziek = 0 (telt niet mee voor het weekdoel). */
     fun dagUren(dag: Dag, nu: LocalDateTime): Float =
         if (dag.soort == DagSoort.Werk) alsUren(netto(bruto(dag.blokken, nu))) else 0f

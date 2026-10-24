@@ -3,18 +3,30 @@ package nl.odelia.dashboard.onthoud
 import java.time.DayOfWeek
 import java.time.Duration
 
-/** De ochtendmelding: 20 minuten na het eerste inklokken van de dag (CLAUDE.md stap 4). */
+/** De melding van het ochtendbericht. [morgen]: er staat iets voor morgen met "seintje de dag ervoor". */
+data class Bericht(val titel: String, val tekst: String, val morgen: Boolean)
+
+/**
+ * Het ochtendbericht: 20 minuten na het eerste inklokken van de dag (CLAUDE.md stap 4).
+ * Hierin staat ook het seintje voor afspraken van morgen (keuze van Odelia), met de knop "Vanavond nog een keer".
+ */
 object Ochtend {
     val NA_INKLOKKEN: Duration = Duration.ofMinutes(20)
 
-    /** Titel en tekst van de melding: wat staat er vandaag en deze week. */
-    fun bericht(staat: OnthoudStaat): Pair<String, String> {
+    /** Wat er vandaag, morgen (seintje) en de rest van de week staat. */
+    fun bericht(staat: OnthoudStaat): Bericht {
         val vandaag = staat.vandaagTeDoen
-        val week = staat.restVanDeWeek
+        val morgen = staat.seintjeVoorMorgen
+        val week = staat.restVanDeWeek - morgen.toSet()
         val regels = buildList {
             if (vandaag.isNotEmpty()) {
                 add("Vandaag:")
                 vandaag.forEach { add("• ${it.wat}${wie(it, staat)}${if (staat.wanneer(it) == Wanneer.TeLaat) " (te laat)" else ""}") }
+            }
+            if (morgen.isNotEmpty()) {
+                if (isNotEmpty()) add("")
+                add("📌 Morgen:")
+                morgen.forEach { add("• ${it.wat}${wie(it, staat)}") }
             }
             if (week.isNotEmpty()) {
                 if (isNotEmpty()) add("")
@@ -27,12 +39,14 @@ object Ochtend {
             }
         }
         val titel = when {
-            vandaag.isEmpty() && week.isEmpty() -> "Goedemorgen! ☀️ Vandaag staat er niets."
-            vandaag.isEmpty() -> "Goedemorgen! ☀️ Vandaag niets, deze week ${week.size}."
             vandaag.size == 1 -> "Goedemorgen! ☀️ Vandaag: ${vandaag[0].wat}"
-            else -> "Goedemorgen! ☀️ Vandaag ${vandaag.size} dingen"
+            vandaag.size > 1 -> "Goedemorgen! ☀️ Vandaag ${vandaag.size} dingen"
+            morgen.size == 1 -> "Goedemorgen! ☀️ Morgen: ${morgen[0].wat}"
+            morgen.size > 1 -> "Goedemorgen! ☀️ Morgen ${morgen.size} dingen"
+            week.isNotEmpty() -> "Goedemorgen! ☀️ Vandaag niets, deze week ${week.size}."
+            else -> "Goedemorgen! ☀️ Vandaag staat er niets."
         }
-        return titel to regels.joinToString("\n").ifEmpty { "Fijne werkdag!" }
+        return Bericht(titel, regels.joinToString("\n").ifEmpty { "Fijne werkdag!" }, morgen = morgen.isNotEmpty())
     }
 
     /** Kort, om voor te lezen bij de welkomkaart. */

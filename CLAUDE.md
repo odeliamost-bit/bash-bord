@@ -138,11 +138,13 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
   - Bij de uitklok-herinnering: snooze-knoppen "over 10 min" en "over 20 min" (ze werkt soms tot 16:30).
 - **Keuzes van Claude bij stap 2–5** (24 okt; Odelia moet ze nog bevestigen, zie LOGBOEK.md):
   - Tegel "Vandaag": tijdens het werk de tijd sinds inklokken (zoals het ontwerp), na uitklokken de uren min pauze.
-  - Vrij en ziek = 0 uur, telt niet mee voor het weekdoel.
   - Vergeten uit te klokken: de app stelt 15:45 voor.
-  - Seintje voor afspraken: de dag ervoor om 16:30.
   - "Waar" heeft geen eigen veld (komt in de tekst of notitie). Groepen vast: School, Werk, Thuis. Projecten maakt ze zelf.
-  - Urenmail: Gmail openen met de tekst, of kopiëren voor een antwoord in de draad. Uren als "7,25", datum "19-10-2026". Het adres van Kim staat alleen op de telefoon. Echte Gmail-koppeling: zie `GMAIL-KOPPELING.md`.
+  - Urenmail: Gmail openen met de tekst, of kopiëren voor een antwoord in de draad. Het adres van Kim staat alleen op de telefoon. Echte Gmail-koppeling: zie `GMAIL-KOPPELING.md`.
+- **Bevestigd door Odelia (24 okt):**
+  - Urenmail: uren als **7:15** (uren:minuten), datum **19-10-2026**.
+  - Vrij en ziek tellen **niet** mee voor het weekdoel, maar staan er wel bij: "29 uur gewerkt · 1 dag ziek" (Werk-tabje, tegel "Deze week", urenmail).
+  - Seintje voor afspraken van morgen: **in het ochtendbericht** (20 min na inklokken), met de knop "Vanavond nog een keer" → **19:00**. Op een dag zonder inklokken komt het om **10:00** (keuze van Claude, zodat het niet gemist wordt).
 
 ## Status
 
@@ -151,3 +153,4 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Stap 2 t/m 5 van fase 1 (klokken, Onthoud, ochtendmelding, urenmail): gebouwd door Claude op 24 okt (zelfstandig, met toestemming). Echte app gebouwd en getest met unit-tests en Robolectric. **Nog niet getest op de telefoon.** Zie `LOGBOEK.md`.
 - Open vragen voor Odelia staan in `LOGBOEK.md` (bij ❓).
 - Let op bij installeren: de APK uit de cloud heeft een andere sleutel dan de versie uit Android Studio. Eerst de oude app verwijderen (zie README).
+- APK's 0.2 en 0.3 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.

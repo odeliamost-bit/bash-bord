@@ -126,6 +126,10 @@ private fun UrenRingKaart(klok: KlokStaat, acties: KlokActies, onOpenDag: (Local
                 }
             }
         }
+        // Vrije en zieke dagen tellen niet mee voor het doel, maar staan er wel bij (keuze van Odelia).
+        klok.weekVrijZiek?.let {
+            Tekst("${alsBreuk(totaal)} uur gewerkt · $it", 16.sp, dikte = FontWeight.ExtraBold, kleur = Kleur.InktZacht)
+        }
     }
 }
 

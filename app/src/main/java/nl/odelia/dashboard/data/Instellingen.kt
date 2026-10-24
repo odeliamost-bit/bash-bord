@@ -23,6 +23,11 @@ class Instellingen private constructor(context: Context) {
         _kimAdres.value = adres.trim()
     }
 
+    /** Op welke dag het ochtendbericht het laatst kwam ("2026-10-23"), zodat het niet twee keer komt. */
+    var laatsteOchtendbericht: String
+        get() = prefs.getString(LAATSTE_OCHTEND, "") ?: ""
+        set(datum) = prefs.edit().putString(LAATSTE_OCHTEND, datum).apply()
+
     fun zetWeekdoel(uren: Float) {
         val goed = uren.coerceIn(1f, 60f)
         prefs.edit().putFloat(WEEKDOEL, goed).apply()
@@ -32,6 +37,7 @@ class Instellingen private constructor(context: Context) {
     companion object {
         private const val WEEKDOEL = "weekdoel"
         private const val KIM_ADRES = "kim_adres"
+        private const val LAATSTE_OCHTEND = "laatste_ochtendbericht"
 
         @Volatile private var enige: Instellingen? = null
 

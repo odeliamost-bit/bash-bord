@@ -15,7 +15,7 @@ Tip: vul één keer het e-mailadres van Kim in. Het blijft alleen op je telefoon
 
 ⚠️ Wat nu nog niet kan:
 - Het concept vanzelf **in de bestaande draad** zetten (daarom de Kopiëren-knop).
-- Een echte **tabel** in de mail. Het worden nette regels: `ma 19-10-2026: 7:45 – 15:45 = 7,25 uur`.
+- Een echte **tabel** in de mail. Het worden nette regels: `ma 19-10-2026: 7:45 – 15:45 = 7:15 uur`.
 
 ## 🔧 Later: echte Gmail-koppeling
 

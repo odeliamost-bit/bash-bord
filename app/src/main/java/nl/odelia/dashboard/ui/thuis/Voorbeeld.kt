@@ -39,9 +39,9 @@ class DagKleur(val ring: Color, val staaf: List<Color>) {
 object Voorbeeld {
     /**
      * Een week zoals in het ontwerp: ma–do gewerkt, vrijdag nog bezig.
-     * [vergeten]: woensdag niet uitgeklokt. [vrijdagUit]: vrijdag al klaar (bv. "15:50").
+     * [vergeten]: woensdag niet uitgeklokt. [vrijdagUit]: vrijdag al klaar (bv. "15:50"). [ziek]: woensdag ziek.
      */
-    fun klok(nu: LocalDateTime, vergeten: Boolean = false, vrijdagUit: String? = null): KlokStaat {
+    fun klok(nu: LocalDateTime, vergeten: Boolean = false, vrijdagUit: String? = null, ziek: Boolean = false): KlokStaat {
         val maandag = Uren.maandag(nu.toLocalDate())
         fun blok(dag: Long, van: String, tot: String?) = maandag.plusDays(dag).let { d ->
             Blok("voorbeeld-$dag-$van", d.atTime(LocalTime.parse(van)), tot?.let { d.atTime(LocalTime.parse(it)) })
@@ -51,8 +51,9 @@ object Voorbeeld {
             blok(1, "07:45", "15:45"),
             blok(2, "07:45", if (vergeten) null else "15:30"),
             blok(3, "07:45", "15:45"),
-        ) + if (nu.dayOfWeek == DayOfWeek.FRIDAY && nu.toLocalTime() > LocalTime.of(7, 45)) listOf(blok(4, "07:45", vrijdagUit)) else emptyList()
-        return KlokStaat.maak(blokken, emptyMap<LocalDate, DagSoort>(), nu)
+        ).filter { !ziek || it.datum != maandag.plusDays(2) } + if (nu.dayOfWeek == DayOfWeek.FRIDAY && nu.toLocalTime() > LocalTime.of(7, 45)) listOf(blok(4, "07:45", vrijdagUit)) else emptyList()
+        val soorten: Map<LocalDate, DagSoort> = if (ziek) mapOf(maandag.plusDays(2) to DagSoort.Ziek) else emptyMap()
+        return KlokStaat.maak(blokken, soorten, nu)
     }
 
     /** Verzonnen mensen en afspraken (uit het ontwerp), geen echte gegevens. */

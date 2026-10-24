@@ -26,6 +26,8 @@ data class KlokStaat(
     val weekUren: List<Float>,
     val weekTotaal: Float,
     val weekdoel: Float,
+    /** "1 dag vrij · 1 dag ziek" van deze week (telt niet mee, staat er wel bij), of `null`. */
+    val weekVrijZiek: String?,
     /** Een blok van een eerdere dag dat nooit is uitgeklokt. */
     val vergeten: Blok?,
     /** Alle blokken en bijzondere dagen die geladen zijn (ongeveer 6 weken). */
@@ -64,6 +66,7 @@ data class KlokStaat(
                 weekUren = weekUren,
                 weekTotaal = weekUren.sum(),
                 weekdoel = weekdoel,
+                weekVrijZiek = Uren.vrijZiek(week.map { it.soort }),
                 vergeten = blokken.filter { it.eind == null && it.datum < datum }.maxByOrNull { it.begin },
                 blokken = blokken,
                 soorten = soorten,

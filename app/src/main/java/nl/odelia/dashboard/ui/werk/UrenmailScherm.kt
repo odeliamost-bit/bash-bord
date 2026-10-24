@@ -146,10 +146,14 @@ private fun UrenTabel(regels: List<Urenmail.Regel>) {
             when {
                 r.soort != DagSoort.Werk -> Rij(datum, r.soort.tekst, "", "")
                 r.uren == null || r.begin == null -> Rij(datum, "–", "", "")
-                else -> Rij(datum, tijdTekst(r.begin), r.eind?.let(::tijdTekst) ?: "…", Urenmail.getal(r.uren))
+                else -> Rij(datum, tijdTekst(r.begin), r.eind?.let(::tijdTekst) ?: "…", Urenmail.uurMin(r.uren))
             }
         }
-        Rij("Totaal", "", "", Urenmail.getal(regels.sumOf { (it.uren ?: 0f).toDouble() }.toFloat()), vet = true)
+        Rij("Totaal", "", "", Urenmail.uurMin(regels.sumOf { (it.uren ?: 0f).toDouble() }.toFloat()), vet = true)
+        // Vrije en zieke dagen tellen niet mee, maar staan er wel bij.
+        Uren.vrijZiek(regels.map { it.soort })?.let {
+            Tekst("+ $it", 15.sp, Modifier.fillMaxWidth(), dikte = FontWeight.ExtraBold, kleur = Kleur.InktZacht, uitlijning = TextAlign.End)
+        }
     }
 }
 

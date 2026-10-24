@@ -80,6 +80,15 @@ class UrenTest {
     }
 
     @Test
+    fun `vrij en ziek erbij zetten`() {
+        assertEquals(null, Uren.vrijZiek(listOf(DagSoort.Werk, DagSoort.Werk)))
+        assertEquals("1 dag ziek", Uren.vrijZiek(listOf(DagSoort.Werk, DagSoort.Ziek)))
+        assertEquals("2 dagen vrij · 1 dag ziek", Uren.vrijZiek(listOf(DagSoort.Vrij, DagSoort.Ziek, DagSoort.Vrij)))
+        val staat = KlokStaat.maak(emptyList(), mapOf(vrijdag.minusDays(1) to DagSoort.Ziek), vrijdag.atTime(12, 0))
+        assertEquals("1 dag ziek", staat.weekVrijZiek)
+    }
+
+    @Test
     fun `begin en eind van een dag`() {
         val dag = Dag(vrijdag, DagSoort.Werk, listOf(blok(vrijdag, "12:30", "16:00"), blok(vrijdag, "07:30", "12:00")))
         assertEquals(LocalTime.of(7, 30), dag.begin)
