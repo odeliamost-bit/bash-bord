@@ -13,6 +13,7 @@ Odelia heeft licht autisme. Lezen en typen kosten haar veel energie, luisteren e
 - Plaatjes, emoji en lijstjes in plaats van lange lappen tekst.
 - Leg uit wat je gaat doen voordat je het doet.
 - Wees eerlijk. Heb je iets niet geprobeerd of getest? Zeg dat. Zeg nooit dat iets niet kan als je het niet geprobeerd hebt.
+- Klaar met een taak? Stuur een **pushmelding** (vraag van Odelia, 24 okt).
 
 ## Belangrijkste regels
 
