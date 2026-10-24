@@ -91,7 +91,7 @@ class OpslagTest {
 
         val dag = LocalDateTime.of(2026, 10, 23, 9, 0)
         onthoud.bewaar(Afspraak("j1", "Verslag inleveren", persoonId = p.id, gemaakt = dag))
-        onthoud.bewaar(Afspraak("j2", "Rooster vragen", persoonId = p.id, groep = Groep.Thuis, gemaakt = dag))
+        onthoud.bewaar(Afspraak("j2", "Rooster vragen", persoonId = p.id, groep = Groep.Thuis, gemaakt = dag, todo = true))
         onthoud.verwijderPersoon(p.id)
         staat = onthoud.staat(LocalDate.of(2026, 10, 23))
         assertEquals(null, staat.persoon(p.id))
@@ -100,6 +100,8 @@ class OpslagTest {
         assertTrue(van.all { it.persoonId == null })
         // Zonder eigen groep krijgt de afspraak de groep van de persoon; een eigen groep blijft.
         assertEquals(listOf(Groep.Werk, Groep.Thuis), van.map { it.groep })
+        // To-do blijft bewaard.
+        assertEquals(listOf(false, true), van.map { it.todo })
 
         onthoud.verwijder("j1")
         onthoud.verwijder("j2")

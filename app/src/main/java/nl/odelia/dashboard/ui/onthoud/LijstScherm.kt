@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -34,6 +35,7 @@ import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Invoerveld
 import nl.odelia.dashboard.ui.onderdelen.Keuze
+import nl.odelia.dashboard.ui.onderdelen.KeuzeBalk
 import nl.odelia.dashboard.ui.onderdelen.Knop
 import nl.odelia.dashboard.ui.onderdelen.RondKnopje
 import nl.odelia.dashboard.ui.onderdelen.SchermKop
@@ -44,7 +46,7 @@ import nl.odelia.dashboard.ui.theme.Pastels
 import nl.odelia.dashboard.ui.thuis.VoorleesKnop
 import nl.odelia.dashboard.ui.thuis.datumTekst
 
-/** Alles wat je onthouden hebt: zoeken, filteren per groep of project, en afvinken. */
+/** Alles wat je onthouden hebt: zoeken, alleen afspraken of to-do's, filteren per groep of project, en afvinken. */
 @Composable
 fun LijstScherm(
     staat: OnthoudStaat,
@@ -57,8 +59,10 @@ fun LijstScherm(
     beginFilter: String? = null,
 ) {
     var zoek by rememberSaveable { mutableStateOf("") }
+    // 0 = alles, 1 = alleen afspraken, 2 = alleen to-do's
+    var welke by rememberSaveable { mutableIntStateOf(if (beginFilter == "todo") 2 else 0) }
     // "groep:School" of "project:PVB"; leeg = alles
-    var filter by rememberSaveable { mutableStateOf(beginFilter) }
+    var filter by rememberSaveable { mutableStateOf(beginFilter?.takeIf { it != "todo" }) }
     var toonKlaar by rememberSaveable { mutableStateOf(false) }
 
     Box(modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
@@ -77,8 +81,10 @@ fun LijstScherm(
                 return@Column
             }
 
+            KeuzeBalk(listOf("Alles", "Afspraken", "To-do"), welke) { welke = it }
+
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Keuze("Alles", aan = filter == null, onClick = { filter = null })
+                Keuze("Alle groepen", aan = filter == null, onClick = { filter = null })
                 Groep.entries.forEach { g ->
                     val sleutel = "groep:${g.name}"
                     Keuze(groepTekst(g), aan = filter == sleutel, onClick = { filter = if (filter == sleutel) null else sleutel })
@@ -90,16 +96,22 @@ fun LijstScherm(
             }
 
             val lijst = staat.afspraken.filter { a ->
-                when {
+                val type = when (welke) {
+                    1 -> !a.todo
+                    2 -> a.todo
+                    else -> true
+                }
+                type && when {
                     filter == null -> true
                     filter!!.startsWith("groep:") -> staat.groep(a)?.name == filter!!.removePrefix("groep:")
                     else -> a.project == filter!!.removePrefix("project:")
                 }
             }
-            filter?.let { f ->
-                val titel = if (f.startsWith("groep:")) groepTekst(Groep.valueOf(f.removePrefix("groep:"))) else f.removePrefix("project:")
-                SamenvattingKaart(titel, staat.samenvatting(lijst), onVoorlezen)
-            }
+            val titel = listOfNotNull(
+                listOf(null, "📅 Afspraken", "✅ To-do")[welke],
+                filter?.let { f -> if (f.startsWith("groep:")) groepTekst(Groep.valueOf(f.removePrefix("groep:"))) else f.removePrefix("project:") },
+            ).joinToString(" · ")
+            if (titel.isNotEmpty()) SamenvattingKaart(titel, staat.samenvatting(lijst), onVoorlezen)
 
             val open = lijst.filter { !it.klaar }
             if (open.isEmpty()) {

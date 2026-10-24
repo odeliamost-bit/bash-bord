@@ -1,6 +1,5 @@
 package nl.odelia.dashboard.ui.onthoud
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,10 +38,10 @@ import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.menu.PlekRondje
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Invoerveld
+import nl.odelia.dashboard.ui.onderdelen.KeuzeBalk
 import nl.odelia.dashboard.ui.onderdelen.Knop
 import nl.odelia.dashboard.ui.onderdelen.SchermKop
 import nl.odelia.dashboard.ui.onderdelen.Tekst
-import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.kies
 import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.theme.Kleur
@@ -127,36 +125,8 @@ fun MensenScherm(
 
 /** 🎒 School · 🏭 Werk · 🏠 Thuis */
 @Composable
-private fun GroepTabjes(gekozen: Groep, onKies: (Groep) -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(Kleur.Kaart.copy(alpha = 0.7f), CircleShape)
-            .padding(6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Groep.entries.forEach { g ->
-            val aan = g == gekozen
-            Box(
-                Modifier
-                    .weight(1f)
-                    .kies(aan) { onKies(g) }
-                    .heightIn(min = 48.dp)
-                    .then(
-                        if (aan) {
-                            Modifier.shadow(4.dp, CircleShape, ambientColor = Kleur.Koraal, spotColor = Kleur.Koraal)
-                                .background(hoekVerloop(Kleur.KoraalLicht, Kleur.Koraal), CircleShape)
-                        } else {
-                            Modifier
-                        },
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Tekst(groepTekst(g), 15.sp, kleur = if (aan) Color.White else Color(0xFF7A4A38), eenRegel = true)
-            }
-        }
-    }
-}
+private fun GroepTabjes(gekozen: Groep, onKies: (Groep) -> Unit) =
+    KeuzeBalk(Groep.entries.map(::groepTekst), gekozen.ordinal) { onKies(Groep.entries[it]) }
 
 @Composable
 private fun PersoonKnop(p: Persoon, aan: Boolean, onClick: () -> Unit) {

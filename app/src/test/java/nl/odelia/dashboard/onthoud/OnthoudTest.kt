@@ -37,6 +37,14 @@ class OnthoudTest {
     }
 
     @Test
+    fun `zoeken op to-do`() {
+        val metTodo = staat.copy(afspraken = staat.afspraken + afspraak("t1", "Fietsband plakken").copy(todo = true))
+        assertEquals(listOf("t1"), metTodo.zoek("todo").map { it.id })
+        assertEquals(listOf("t1"), metTodo.zoek("To-do fiets").map { it.id })
+        assertTrue("t1" !in metTodo.zoek("afspraak").map { it.id })
+    }
+
+    @Test
     fun `zoeken let niet op hoofdletters en accenten, alle woorden moeten passen`() {
         assertEquals(listOf("a3"), staat.zoek("CAFE").map { it.id })
         assertEquals(listOf("a3"), staat.zoek("cafe").map { it.id })

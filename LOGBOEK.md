@@ -273,3 +273,42 @@ Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude)
 
 ❓ **Voor jou**
 - ⏰ Is **10:00** goed voor dagen zonder inklokken?
+
+---
+
+## 7. 📝 Jouw briefje verwerkt (24 okt, avond, versie 0.4)
+
+✅ **Klaar**
+- 🗑️ **Tegels onderaan weg** (Advies, Mail-hulp, Mensen, Week, Wensen). Ze staan al in de zijbalk. Week = het Werk-tabje.
+- ✏️ **Mensen aanpassen**: op de kaart van een persoon staat de knop **"Persoon aanpassen"**. Je kunt de naam, de beschrijving en de groep veranderen.
+- 🗑️ **Mensen weghalen**: in hetzelfde scherm staat **"Persoon weghalen"**. Eerst vraagt de app: "Weet je het zeker? Tik nog een keer".
+  - De afspraken blijven staan, maar zonder naam.
+  - Ze blijven bij dezelfde groep (School, Werk of Thuis), zodat je ze terugvindt.
+- ✅ **To-do**: bij "Onthoud dit" kies je bovenaan **📅 Afspraak** of **✅ To-do**.
+  - In de lijst kies je bovenaan: **Alles · Afspraken · To-do**.
+  - Onder een to-do staat "✓ To-do".
+  - Zoeken op "todo" werkt ook.
+- ✂️ "Enter-knop bij Onthoud dit" was doorgestreept: niets aan gedaan.
+- ⏱️ "Uren": volgens jou hoeft er niets te gebeuren.
+
+🖼️ **Plaatjes**
+
+| Werk-tabje zonder tegels | Persoon aanpassen |
+|---|---|
+| ![](logboek/7-werk-zonder-tegels.png) | ![](logboek/7-persoon-aanpassen.png) |
+
+| Onthoud dit: Afspraak of To-do | Lijst: alleen to-do's |
+|---|---|
+| ![](logboek/7-onthoud-dit-todo.png) | ![](logboek/7-todo-lijst.png) |
+
+🔍 **Getest**
+- ✅ Echte Android-app gebouwd (versie 0.4). Dezelfde sleutel als 0.2 en 0.3: je kunt hem eroverheen zetten.
+- ✅ 49 tests slagen. Nieuw:
+  - persoon aanpassen en weghalen in de echte database
+  - zoeken op to-do
+  - **update-test**: een database van versie 0.3 met (verzonnen) uren, mensen en afspraken. Na de update staat alles er nog.
+- ✅ Android-lint: 0 fouten.
+- ❌ Nog steeds niet op de telefoon getest.
+
+❓ **Voor jou**
+- ⏰ Nog open van 0.3: is **10:00** goed voor dagen zonder inklokken?

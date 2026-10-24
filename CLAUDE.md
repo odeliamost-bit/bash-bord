@@ -118,6 +118,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 ## Gemaakte keuzes
 
 - **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; de 🎤- en ➕-knoppen daarvan staan nu onder het Onthoud-tabje.
+- **Geen tegels onderaan het hoofdscherm** (Advies, Mail-hulp, Mensen, Week, Wensen): ze staan al in de zijbalk (Week = Werk-tabje). Niet dubbel tonen.
 - **Zijbalk gedrag:** tik op een icoontje = meteen naar dat scherm, de zijbalk blijft smal. Alleen het oranje knopje bovenaan maakt hem breed (met namen); nog een keer = weer smal.
 - **Tik-effect:** geen standaard Android-vlek (ripple). Een knop wordt bij tikken heel even iets kleiner. Gebruik voor nieuwe knoppen `tik` of `kies` uit `ui/onderdelen/Tik.kt`.
 - **Icoontjes:** Geld is een munt met €-teken (in het ontwerp stond een $). Paden die in het ontwerp net uit het midden stonden, zijn rechtgezet met `verschuif`.
@@ -131,6 +132,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
   - schermen in `ui/` (krijgen gegevens en acties mee, zodat de voorproef ze kan tekenen)
   - Android-delen in `data/` (Room), `widget/` (Glance) en `meldingen/` (wekkers en meldingen). De voorproef slaat die over.
   - na elke wijziging in de gegevens: `Bijwerken.alles` (widgets verversen, oude meldingen weg)
+  - database-versie 3 (`todo` erbij). Verander je de database: versie omhoog, een `AutoMigration`, en `MigratieTest` laten zien dat oude gegevens blijven staan. Odelia heeft echte gegevens op haar telefoon.
 - **Stap 2 (keuzes van 24 okt):**
   - Pauze: altijd 45 minuten eraf, ook op een korte dag.
   - Weekdoel: voorlopig 35 uur. Odelia weet het niet zeker, dus het moet aan te passen zijn.
@@ -145,12 +147,16 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
   - Urenmail: uren als **7:15** (uren:minuten), datum **19-10-2026**.
   - Vrij en ziek tellen **niet** mee voor het weekdoel, maar staan er wel bij: "29 uur gewerkt · 1 dag ziek" (Werk-tabje, tegel "Deze week", urenmail).
   - Seintje voor afspraken van morgen: **in het ochtendbericht** (20 min na inklokken), met de knop "Vanavond nog een keer" → **19:00**. Op een dag zonder inklokken komt het om **10:00** (keuze van Claude, zodat het niet gemist wordt).
+- **Wensen van Odelia na het testen van 0.3 (24 okt, avond):**
+  - Mensen: naam, beschrijving en groep aanpassen, en een persoon weghalen (eerst "Weet je het zeker?"). De afspraken blijven staan, zonder naam; ze houden de groep van die persoon.
+  - To-do: bij "Onthoud dit" kies je bovenaan **📅 Afspraak** of **✅ To-do**. In de lijst: Alles · Afspraken · To-do.
 
 ## Status
 
 - Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd en getest op de telefoon. 👍
 - Verbeteringen na die test (zijbalk, tik-effect, icoontjes, Wachtwoorden weg): gebouwd. Nog niet getest op de telefoon.
 - Stap 2 t/m 5 van fase 1 (klokken, Onthoud, ochtendmelding, urenmail): gebouwd door Claude op 24 okt (zelfstandig, met toestemming). Echte app gebouwd en getest met unit-tests en Robolectric. **Nog niet getest op de telefoon.** Zie `LOGBOEK.md`.
+- Versie 0.4 (24 okt, avond): tegels weg, mensen aanpassen/weghalen, To-do. Getest met unit-tests en Robolectric, **nog niet op de telefoon**.
 - Open vragen voor Odelia staan in `LOGBOEK.md` (bij ❓).
 - Let op bij installeren: de APK uit de cloud heeft een andere sleutel dan de versie uit Android Studio. Eerst de oude app verwijderen (zie README).
-- APK's 0.2 en 0.3 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.
+- APK's 0.2 t/m 0.4 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.

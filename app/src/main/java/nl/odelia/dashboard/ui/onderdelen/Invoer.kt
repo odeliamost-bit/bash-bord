@@ -117,6 +117,39 @@ fun Keuze(
     }
 }
 
+/** Balk met een paar keuzes naast elkaar; de gekozen keuze is koraal (bv. School · Werk · Thuis). */
+@Composable
+fun KeuzeBalk(opties: List<String>, gekozen: Int, onKies: (Int) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(Kleur.Kaart.copy(alpha = 0.7f), CircleShape)
+            .padding(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        opties.forEachIndexed { i, tekst ->
+            val aan = i == gekozen
+            Box(
+                Modifier
+                    .weight(1f)
+                    .kies(aan) { onKies(i) }
+                    .heightIn(min = 48.dp)
+                    .then(
+                        if (aan) {
+                            Modifier.shadow(4.dp, CircleShape, ambientColor = Kleur.Koraal, spotColor = Kleur.Koraal)
+                                .background(hoekVerloop(Kleur.KoraalLicht, Kleur.Koraal), CircleShape)
+                        } else {
+                            Modifier
+                        },
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Tekst(tekst, 15.sp, kleur = if (aan) Color.White else Color(0xFF7A4A38), eenRegel = true)
+            }
+        }
+    }
+}
+
 /** Aan/uit-schakelaar zoals in het ontwerp: groen = aan. */
 @Composable
 fun Schakelaar(aan: Boolean, modifier: Modifier = Modifier) {

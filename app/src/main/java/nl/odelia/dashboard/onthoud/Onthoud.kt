@@ -53,6 +53,8 @@ data class Afspraak(
     val klaar: Boolean = false,
     val gemaakt: LocalDateTime,
     val bron: Bron = Bron.Getypt,
+    /** To-do (iets om zelf te doen) in plaats van een afspraak. Kies je bovenaan bij "Onthoud dit". */
+    val todo: Boolean = false,
 )
 
 /** Wanneer iets moet: om de lijst in stukjes te verdelen. */
@@ -107,7 +109,7 @@ data class OnthoudStaat(val afspraken: List<Afspraak>, val personen: List<Persoo
     fun vanPersoon(id: String): List<Afspraak> = afspraken.filter { it.persoonId == id }.sortedWith(volgorde)
 
     /**
-     * Zoeken in alles: wat, notitie, persoon (naam en rol), project, groep en soort.
+     * Zoeken in alles: wat, notitie, persoon (naam en rol), project, groep, soort en "to-do"/"afspraak".
      * Hoofdletters en accenten maken niet uit. Meerdere woorden = alle woorden moeten erin staan.
      */
     fun zoek(vraag: String): List<Afspraak> {
@@ -115,7 +117,8 @@ data class OnthoudStaat(val afspraken: List<Afspraak>, val personen: List<Persoo
         if (woorden.isEmpty()) return emptyList()
         return afspraken.filter { a ->
             val p = persoon(a.persoonId)
-            val tekst = plat(listOfNotNull(a.wat, a.notitie, p?.naam, p?.rol, a.project, groep(a)?.label, a.soort?.label).joinToString(" "))
+            val type = if (a.todo) "to-do todo" else "afspraak"
+            val tekst = plat(listOfNotNull(a.wat, a.notitie, p?.naam, p?.rol, a.project, groep(a)?.label, a.soort?.label, type).joinToString(" "))
             woorden.all { it in tekst }
         }.sortedWith(compareBy<Afspraak> { it.klaar }.then(volgorde))
     }

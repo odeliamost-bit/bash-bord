@@ -55,6 +55,7 @@ import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Invoerveld
 import nl.odelia.dashboard.ui.onderdelen.Keuze
+import nl.odelia.dashboard.ui.onderdelen.KeuzeBalk
 import nl.odelia.dashboard.ui.onderdelen.Knop
 import nl.odelia.dashboard.ui.onderdelen.Kopje
 import nl.odelia.dashboard.ui.onderdelen.RondKnopje
@@ -94,6 +95,7 @@ fun ToevoegenScherm(
     var deadline by rememberSaveable { mutableStateOf(bestaand?.deadline) }
     var seintje by rememberSaveable { mutableStateOf(bestaand?.seintje ?: true) }
     var bron by rememberSaveable { mutableStateOf(bestaand?.bron ?: concept.bron) }
+    var todo by rememberSaveable { mutableStateOf(bestaand?.todo ?: false) }
     var nieuwePersoon by rememberSaveable { mutableStateOf(false) }
     var nieuwProject by rememberSaveable { mutableStateOf(false) }
     var leegMelding by rememberSaveable { mutableStateOf(false) }
@@ -116,7 +118,7 @@ fun ToevoegenScherm(
         acties.bewaar(
             (bestaand ?: Afspraak(id = UUID.randomUUID().toString(), wat = tekst, gemaakt = nu)).copy(
                 wat = tekst, notitie = notitie, persoonId = persoonId, groep = groep, project = project,
-                soort = soort, deadline = deadline, seintje = seintje && deadline != null, bron = bron,
+                soort = soort, deadline = deadline, seintje = seintje && deadline != null, bron = bron, todo = todo,
             ),
         )
         onBewaard(if (bestaand == null) "Bewaard ✓" else "Aangepast ✓")
@@ -134,10 +136,13 @@ fun ToevoegenScherm(
                 MicKnop(onClick = ::inspreken)
             }
 
+            // Afspraak of to-do (keuze van Odelia): in de lijst kun je ze los bekijken.
+            KeuzeBalk(listOf("📅 Afspraak", "✅ To-do"), if (todo) 1 else 0) { todo = it == 1 }
+
             // Wat?
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Kopje(Icoontjes.kopWat, "Wat?")
-                Invoerveld(wat, { wat = it; leegMelding = false }, "Wat wil je onthouden?", minHoogte = 72.dp)
+                Invoerveld(wat, { wat = it; leegMelding = false }, if (todo) "Wat moet je doen?" else "Wat wil je onthouden?", minHoogte = 72.dp)
                 if (leegMelding) {
                     Tekst("Schrijf of spreek eerst wat je wilt onthouden.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.Koraal)
                 }

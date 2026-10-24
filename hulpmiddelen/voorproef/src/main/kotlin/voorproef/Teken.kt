@@ -76,6 +76,7 @@ fun main(args: Array<String>) {
     teken("19-werk-met-ziek", 411, 1100, app(k = ziek, tab = Tab.Werk))
     teken("20-urenmail-met-ziek", 411, 1700, app(k = ziek, scherm = "urenmail", adres = "kim@voorbeeld.nl"))
     teken("21-vandaag-met-ziek", 411, 1300, app(k = ziek))
+    teken("23-onthoud-todo", 411, 1100, app(scherm = "lijst/todo"))
     teken("22-persoon-aanpassen", 411, 1100) {
         DashboardThema {
             Box(Modifier.fillMaxSize().background(Kleur.Achtergrond)) {

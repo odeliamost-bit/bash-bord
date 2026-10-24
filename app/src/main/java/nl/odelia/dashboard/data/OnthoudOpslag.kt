@@ -33,7 +33,7 @@ class OnthoudOpslag(context: Context) {
                 id = a.id, wat = a.wat.trim(), notitie = a.notitie.trim(), persoonId = a.persoonId,
                 groep = a.groep?.name, project = a.project?.trim()?.takeIf(String::isNotEmpty), soort = a.soort?.name,
                 deadline = a.deadline?.toString(), seintje = a.seintje, klaar = a.klaar,
-                gemaakt = a.gemaakt.toString(), bron = a.bron.name, updatedAt = System.currentTimeMillis(),
+                gemaakt = a.gemaakt.toString(), bron = a.bron.name, updatedAt = System.currentTimeMillis(), todo = a.todo,
             ),
         )
         Bijwerken.alles(app)
@@ -87,6 +87,7 @@ class OnthoudOpslag(context: Context) {
         deadline = r.deadline?.let(LocalDate::parse), seintje = r.seintje, klaar = r.klaar,
         gemaakt = LocalDateTime.parse(r.gemaakt),
         bron = Bron.entries.firstOrNull { it.name == r.bron } ?: Bron.Getypt,
+        todo = r.todo,
     )
 
     private fun alsPersoon(r: PersoonRij) = Persoon(

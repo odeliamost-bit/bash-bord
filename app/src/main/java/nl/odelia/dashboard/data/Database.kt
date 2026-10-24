@@ -93,6 +93,8 @@ data class AfspraakRij(
     val bron: String,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     val verwijderd: Boolean = false,
+    // Nieuw in versie 3; oude afspraken worden geen to-do.
+    @ColumnInfo(defaultValue = "0") val todo: Boolean = false,
 )
 
 @Dao
@@ -128,9 +130,9 @@ interface OnthoudDao {
 
 @Database(
     entities = [WerkblokRij::class, DagRij::class, PersoonRij::class, AfspraakRij::class],
-    version = 2,
-    // Versie 2 voegt alleen tabellen toe: dat kan Room zelf (de gegevens van versie 1 blijven staan).
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    version = 3,
+    // Versie 2 voegt tabellen toe, versie 3 de kolom "todo": dat kan Room zelf (de gegevens blijven staan).
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun klok(): KlokDao

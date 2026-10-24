@@ -69,11 +69,12 @@ object Voorbeeld {
         val maandag = Uren.maandag(vandaag).plusWeeks(1)
         val afspraken = listOf(
             Afspraak("a1", "Verslag inleveren", persoonId = "p1", project = "PVB", soort = Soort.Inleveren, deadline = maandag, seintje = true, gemaakt = gemaakt),
-            Afspraak("a2", "Tandarts bellen", notitie = "voor 17:00", groep = Groep.Thuis, soort = Soort.Bellen, deadline = vandaag, gemaakt = gemaakt),
+            Afspraak("a2", "Tandarts bellen", notitie = "voor 17:00", groep = Groep.Thuis, soort = Soort.Bellen, deadline = vandaag, gemaakt = gemaakt, todo = true),
             Afspraak("a3", "Formulier stage", persoonId = "p2", project = "PVB", soort = Soort.Maken, deadline = maandag.plusDays(3), gemaakt = gemaakt),
             Afspraak("a4", "Boek meenemen", persoonId = "p1", soort = Soort.Meenemen, deadline = vandaag.plusDays(1), seintje = true, gemaakt = gemaakt),
             Afspraak("a5", "Vrije dag doorgeven", persoonId = "p4", soort = Soort.Vragen, gemaakt = gemaakt),
             Afspraak("a6", "Mail sturen over toets", persoonId = "p1", soort = Soort.Mailen, klaar = true, gemaakt = gemaakt.minusDays(7)),
+            Afspraak("a7", "Fietsband plakken", groep = Groep.Thuis, gemaakt = gemaakt, todo = true),
         )
         return OnthoudStaat(afspraken, personen, vandaag)
     }
