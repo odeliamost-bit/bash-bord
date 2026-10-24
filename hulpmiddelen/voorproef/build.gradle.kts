@@ -18,8 +18,11 @@ val app = rootDir.resolve("../../app/src/main")
 
 sourceSets.main {
     kotlin.srcDir(app.resolve("java"))
-    // Alleen de Compose-schermen; dit deel bestaat alleen op Android.
-    kotlin.exclude("**/MainActivity.kt", "**/Voorlezer.kt", "**/Voorbeelden.kt")
+    // Alleen de Compose-schermen en de rekenregels; dit deel bestaat alleen op Android.
+    kotlin.exclude(
+        "**/MainActivity.kt", "**/Voorlezer.kt", "**/Voorbeelden.kt", "**/DashboardModel.kt", "**/Bijwerken.kt",
+        "**/dashboard/data/**", "**/dashboard/widget/**", "**/dashboard/meldingen/**",
+    )
 }
 
 tasks.register<JavaExec>("teken") {

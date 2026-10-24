@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDateTime
+import java.time.LocalDate
 import kotlinx.coroutines.delay
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
@@ -37,28 +37,41 @@ import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
+import nl.odelia.dashboard.ui.werk.DagScherm
+import nl.odelia.dashboard.uren.KlokActies
+import nl.odelia.dashboard.uren.KlokStaat
 
 /**
  * De hele app: zijbalk links, het gekozen scherm rechts.
  *
+ * @param klok alles over in- en uitklokken, uitgerekend voor nu.
  * @param onVoorlezen leest tekst voor; geeft `false` als dat (nog) niet lukt.
+ * @param beginDag opent meteen het scherm om die dag aan te passen (voor voorbeelden).
  */
 @Composable
 fun DashboardApp(
+    klok: KlokStaat,
+    klokActies: KlokActies,
     onVoorlezen: (String) -> Boolean,
-    nu: LocalDateTime = LocalDateTime.now(),
     beginPlek: Plek = Plek.Thuis,
     beginTab: Tab = Tab.Vandaag,
     beginMenuOpen: Boolean = false,
+    beginDag: LocalDate? = null,
 ) {
     var plek by rememberSaveable { mutableStateOf(beginPlek) }
     var tab by rememberSaveable { mutableStateOf(beginTab) }
     var menuOpen by rememberSaveable { mutableStateOf(beginMenuOpen) }
+    // Een dag die je aan het aanpassen bent (als tekst, zodat hij een draai van het scherm overleeft).
+    var openDag by rememberSaveable { mutableStateOf(beginDag?.toString()) }
     var melding by remember { mutableStateOf<Melding?>(null) }
 
-    // Terug-knop van de telefoon: eerst menu dicht, daarna terug naar Thuis.
-    BackHandler(enabled = menuOpen || plek != Plek.Thuis) {
-        if (menuOpen) menuOpen = false else plek = Plek.Thuis
+    // Terug-knop van de telefoon: eerst menu dicht, dan de dag dicht, daarna terug naar Thuis.
+    BackHandler(enabled = menuOpen || openDag != null || plek != Plek.Thuis) {
+        when {
+            menuOpen -> menuOpen = false
+            openDag != null -> openDag = null
+            else -> plek = Plek.Thuis
+        }
     }
 
     // Werk & uren en Onthoud zijn tabjes op het hoofdscherm.
@@ -70,6 +83,7 @@ fun DashboardApp(
     }
 
     fun gaNaar(naar: Plek) {
+        openDag = null
         when (naar) {
             Plek.Thuis -> { plek = Plek.Thuis; tab = Tab.Vandaag }
             Plek.Werk -> { plek = Plek.Thuis; tab = Tab.Werk }
@@ -85,20 +99,30 @@ fun DashboardApp(
     Box(Modifier.fillMaxSize().background(Kleur.Achtergrond)) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             val inhoud = Modifier.padding(start = ZijbalkRuimte)
-            if (plek == Plek.Thuis) {
-                ThuisScherm(
+            val dag = openDag?.let { klok.dag(LocalDate.parse(it)) }
+            when {
+                dag != null -> DagScherm(
+                    dag = dag,
+                    uren = klok.uren(dag),
+                    nu = klok.nu,
+                    acties = klokActies,
+                    onTerug = { openDag = null },
+                    modifier = inhoud,
+                )
+                plek == Plek.Thuis -> ThuisScherm(
                     tab = tab,
                     onTab = { tab = it },
-                    nu = nu,
+                    klok = klok,
+                    klokActies = klokActies,
                     onVoorlezen = { tekst ->
                         if (!onVoorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
                     },
                     onMelding = ::toon,
                     onGaNaar = ::gaNaar,
+                    onOpenDag = { openDag = it.toString() },
                     modifier = inhoud,
                 )
-            } else {
-                KomtLaterScherm(plek, onTerug = { gaNaar(Plek.Thuis) }, modifier = inhoud)
+                else -> KomtLaterScherm(plek, onTerug = { gaNaar(Plek.Thuis) }, modifier = inhoud)
             }
 
             // Waas achter het open menu: tik = menu dicht

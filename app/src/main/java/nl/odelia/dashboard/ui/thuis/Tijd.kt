@@ -1,15 +1,32 @@
 package nl.odelia.dashboard.ui.thuis
 
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.math.roundToInt
 
 private val dagen = listOf("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
 private val maanden = listOf("jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec")
 
 /** "zaterdag 24 okt" */
-fun datumTekst(nu: LocalDateTime): String =
-    "${dagen[nu.dayOfWeek.value - 1]} ${nu.dayOfMonth} ${maanden[nu.monthValue - 1]}"
+fun datumTekst(nu: LocalDateTime): String = datumTekst(nu.toLocalDate())
+
+fun datumTekst(datum: LocalDate): String =
+    "${dagNaam(datum.dayOfWeek)} ${datum.dayOfMonth} ${maanden[datum.monthValue - 1]}"
+
+/** "za 24 okt" */
+fun datumKort(datum: LocalDate): String =
+    "${dagKort(datum.dayOfWeek)} ${datum.dayOfMonth} ${maanden[datum.monthValue - 1]}"
+
+/** "zaterdag" */
+fun dagNaam(dag: DayOfWeek): String = dagen[dag.value - 1]
+
+/** "za" */
+fun dagKort(dag: DayOfWeek): String = dagen[dag.value - 1].take(2)
+
+/** "7:45" */
+fun tijdTekst(tijd: LocalTime): String = "${tijd.hour}:${tijd.minute.toString().padStart(2, '0')}"
 
 /** "Goedemorgen", "Goedemiddag", "Goedenavond" of "Goedenacht". */
 fun groet(nu: LocalDateTime): String = when (nu.hour) {

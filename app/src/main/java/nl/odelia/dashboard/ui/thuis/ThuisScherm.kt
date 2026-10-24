@@ -18,10 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,7 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDateTime
+import java.time.LocalDate
 import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
@@ -43,6 +39,8 @@ import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.kies
 import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.theme.Kleur
+import nl.odelia.dashboard.uren.KlokActies
+import nl.odelia.dashboard.uren.KlokStaat
 
 enum class Tab(val label: String) {
     Vandaag("Vandaag"),
@@ -55,14 +53,15 @@ enum class Tab(val label: String) {
 fun ThuisScherm(
     tab: Tab,
     onTab: (Tab) -> Unit,
-    nu: LocalDateTime,
+    klok: KlokStaat,
+    klokActies: KlokActies,
     onVoorlezen: (String) -> Unit,
     onMelding: (String) -> Unit,
     onGaNaar: (Plek) -> Unit,
+    onOpenDag: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Oefenknop: wisselt alleen van kleur. Echt klokken (en onthouden) komt in stap 2.
-    var isIn by rememberSaveable { mutableStateOf(true) }
+    val nu = klok.nu
     val groet = groet(nu)
     val onder = onderregel(nu)
 
@@ -78,11 +77,8 @@ fun ThuisScherm(
             WelkomKaart(groet, onder, onVoorlezen = { onVoorlezen("$groet, Odelia! $onder.") })
             Tabjes(tab, onTab)
             when (tab) {
-                Tab.Vandaag -> VandaagTab(isIn, onWissel = {
-                    isIn = !isIn
-                    onMelding("Oefenknop. Echt klokken komt in stap 2.")
-                })
-                Tab.Werk -> WerkTab()
+                Tab.Vandaag -> VandaagTab(klok, klokActies, onOpenDag, onWeek = { onTab(Tab.Werk) })
+                Tab.Werk -> WerkTab(klok, klokActies, onOpenDag)
                 Tab.Onthoud -> OnthoudTab(onMelding)
             }
             SnelNaar(onGaNaar, onMelding)

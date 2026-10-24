@@ -28,9 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.time.LocalDate
+import java.time.LocalTime
 import nl.odelia.dashboard.ui.onderdelen.IcoonBlok
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
+import nl.odelia.dashboard.ui.onderdelen.Knop
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.Vorm
 import nl.odelia.dashboard.ui.onderdelen.glans
@@ -40,16 +43,39 @@ import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.onderdelen.voet
 import nl.odelia.dashboard.ui.theme.Pastel
 import nl.odelia.dashboard.ui.theme.Pastels
+import nl.odelia.dashboard.uren.Blok
+import nl.odelia.dashboard.uren.DagSoort
+import nl.odelia.dashboard.uren.KlokActies
+import nl.odelia.dashboard.uren.KlokStaat
 
 /** Tabje "Vandaag": grote in/uit-knop en vier tegels. */
 @Composable
-fun VandaagTab(isIn: Boolean, onWissel: () -> Unit) {
+fun VandaagTab(
+    klok: KlokStaat,
+    acties: KlokActies,
+    onOpenDag: (LocalDate) -> Unit,
+    onWeek: () -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        KlokKaart(isIn, onWissel)
+        klok.vergeten?.let { VergetenKaart(it, acties, onOpenDag) }
+        KlokKaart(klok, acties.wissel)
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                StatTegel(Pastels.Salie, Icoontjes.klok, "Vandaag", "5½ u", "nog bezig", Modifier.weight(1f))
-                StatTegel(Pastels.Geel, Icoontjes.kalender, "Deze week", "34¼ u", "van 35 uur", Modifier.weight(1f))
+                // Tijdens het werk hetzelfde getal als "al 5½ uur gewerkt" (zoals in het ontwerp);
+                // na het uitklokken de uren met de pauze eraf.
+                val (uren, onder) = when {
+                    klok.isIn -> klok.brutoVandaag to "nog bezig"
+                    klok.gewerktVandaag -> klok.nettoVandaag to "na de pauze"
+                    else -> 0f to "nog niet gestart"
+                }
+                StatTegel(
+                    Pastels.Salie, Icoontjes.klok, "Vandaag", "${alsBreuk(uren)} u", onder,
+                    Modifier.weight(1f).tik { onOpenDag(klok.nu.toLocalDate()) },
+                )
+                StatTegel(
+                    Pastels.Geel, Icoontjes.kalender, "Deze week", "${alsBreuk(klok.weekTotaal)} u", "van ${alsBreuk(klok.weekdoel)} uur",
+                    Modifier.weight(1f).tik(onClick = onWeek),
+                )
             }
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 StatTegel(Pastels.Koraal, Icoontjes.bladwijzer, "Onthoud", "3", "1 vandaag", Modifier.weight(1f))
@@ -78,7 +104,8 @@ private val Roze = KlokKleur(
 )
 
 @Composable
-private fun KlokKaart(isIn: Boolean, onWissel: () -> Unit) {
+private fun KlokKaart(klok: KlokStaat, onWissel: () -> Unit) {
+    val isIn = klok.isIn
     val k = if (isIn) Groen else Roze
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val smal = maxWidth < 340.dp
@@ -92,28 +119,47 @@ private fun KlokKaart(isIn: Boolean, onWissel: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 KlokKnop(isIn, k, if (smal) 112.dp else 124.dp, onWissel)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    if (isIn) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Box(
-                                Modifier.size(20.dp).background(Color(0x383F9A64), CircleShape),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Box(Modifier.size(12.dp).background(Color(0xFF3F9A64), CircleShape))
+                    when {
+                        isIn -> {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(
+                                    Modifier.size(20.dp).background(Color(0x383F9A64), CircleShape),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Box(Modifier.size(12.dp).background(Color(0xFF3F9A64), CircleShape))
+                                }
+                                Tekst("Aan het werk", 16.sp, dikte = FontWeight.ExtraBold, kleur = k.tekst)
                             }
-                            Tekst("Aan het werk", 16.sp, dikte = FontWeight.ExtraBold, kleur = k.tekst)
+                            Tekst("sinds", 15.sp, dikte = FontWeight.Bold, kleur = Color(0xFF3D5E4A))
+                            Tekst(klok.sinds?.let(::tijdTekst) ?: "", 44.sp, kleur = k.tekstDiep, regel = 44.sp)
                         }
-                        Tekst("sinds", 15.sp, dikte = FontWeight.Bold, kleur = Color(0xFF3D5E4A))
-                        Tekst("7:45", 44.sp, kleur = k.tekstDiep, regel = 44.sp)
-                    } else {
-                        Tekst("Klaar voor vandaag", 16.sp, dikte = FontWeight.ExtraBold, kleur = k.tekst)
-                        Tekst("gewerkt", 15.sp, dikte = FontWeight.Bold, kleur = k.tekst)
-                        Tekst("7¼ u", 44.sp, kleur = k.tekstDiep, regel = 44.sp)
+                        klok.gewerktVandaag -> {
+                            Tekst("Klaar voor vandaag", 16.sp, dikte = FontWeight.ExtraBold, kleur = k.tekst)
+                            Tekst("gewerkt", 15.sp, dikte = FontWeight.Bold, kleur = k.tekst)
+                            Tekst("${alsBreuk(klok.nettoVandaag)} u", 44.sp, kleur = k.tekstDiep, regel = 44.sp)
+                        }
+                        else -> {
+                            Tekst(
+                                when (klok.vandaag.soort) {
+                                    DagSoort.Vrij -> "Vandaag vrij 🌿"
+                                    DagSoort.Ziek -> "Beterschap 💐"
+                                    DagSoort.Werk -> "Nog niet gestart"
+                                },
+                                16.sp, dikte = FontWeight.ExtraBold, kleur = k.tekst,
+                            )
+                            Tekst("tik op IN als je begint", 15.sp, dikte = FontWeight.Bold, kleur = k.tekst)
+                        }
                     }
                 }
             }
-            if (isIn) {
+            val pil = when {
+                isIn -> "al ${alsBreuk(klok.brutoVandaag)} uur gewerkt"
+                klok.uitVandaag != null -> "uitgeklokt om ${tijdTekst(klok.uitVandaag)}"
+                else -> null
+            }
+            if (pil != null) {
                 Tekst(
-                    "al 5½ uur gewerkt",
+                    pil,
                     15.sp,
                     Modifier
                         .shadow(3.dp, CircleShape, ambientColor = k.schaduw, spotColor = k.schaduw)
@@ -171,5 +217,39 @@ private fun StatTegel(
         Tekst(label, 15.sp, dikte = FontWeight.ExtraBold, kleur = p.label)
         Tekst(groot, 32.sp, kleur = p.groot, regel = 34.sp)
         Tekst(klein, 14.sp, dikte = FontWeight.ExtraBold, kleur = p.klein)
+    }
+}
+
+/** "Vergeten uit te klokken?" met een snelle knop voor de gewone eindtijd. */
+@Composable
+private fun VergetenKaart(blok: Blok, acties: KlokActies, onOpenDag: (LocalDate) -> Unit) {
+    val p = Pastels.Geel
+    val eind = maxOf(LocalTime.of(15, 45), blok.begin.toLocalTime().plusMinutes(5))
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .klei(p.kaart, RoundedCornerShape(30.dp), p.donker)
+            .padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            IcoonBlok(p.licht, p.donker, Icoontjes.klok)
+            Column(Modifier.weight(1f)) {
+                Tekst("Vergeten uit te klokken?", 18.sp, kleur = p.groot)
+                Tekst(
+                    "${dagNaam(blok.datum.dayOfWeek).replaceFirstChar { it.uppercase() }} om ${tijdTekst(blok.begin.toLocalTime())} begonnen. Hoe laat ben je gestopt?",
+                    15.sp, dikte = FontWeight.Bold, kleur = p.label,
+                )
+            }
+        }
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Knop(
+                "om ${tijdTekst(eind)}",
+                onClick = { acties.bewaar(blok.copy(eind = blok.datum.atTime(eind))) },
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                hoofd = true,
+            )
+            Knop("andere tijd", onClick = { onOpenDag(blok.datum) }, modifier = Modifier.weight(1f).fillMaxHeight())
+        }
     }
 }
