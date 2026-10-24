@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
+import nl.odelia.dashboard.onthoud.Afspraak
+import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
@@ -55,10 +57,14 @@ fun ThuisScherm(
     onTab: (Tab) -> Unit,
     klok: KlokStaat,
     klokActies: KlokActies,
+    onthoud: OnthoudStaat,
     onVoorlezen: (String) -> Unit,
     onMelding: (String) -> Unit,
     onGaNaar: (Plek) -> Unit,
     onOpenDag: (LocalDate) -> Unit,
+    onOpenAfspraak: (Afspraak) -> Unit,
+    onAlles: () -> Unit,
+    onNieuw: (inspreken: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val nu = klok.nu
@@ -77,9 +83,9 @@ fun ThuisScherm(
             WelkomKaart(groet, onder, onVoorlezen = { onVoorlezen("$groet, Odelia! $onder.") })
             Tabjes(tab, onTab)
             when (tab) {
-                Tab.Vandaag -> VandaagTab(klok, klokActies, onOpenDag, onWeek = { onTab(Tab.Werk) })
+                Tab.Vandaag -> VandaagTab(klok, klokActies, onthoud, onOpenDag, onWeek = { onTab(Tab.Werk) }, onOnthoud = { onTab(Tab.Onthoud) })
                 Tab.Werk -> WerkTab(klok, klokActies, onOpenDag)
-                Tab.Onthoud -> OnthoudTab(onMelding)
+                Tab.Onthoud -> OnthoudTab(onthoud, onOpenAfspraak, onAlles, onNieuw = { onNieuw(false) }, onInspreken = { onNieuw(true) })
             }
             SnelNaar(onGaNaar, onMelding)
         }

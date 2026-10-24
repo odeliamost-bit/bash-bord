@@ -6,11 +6,13 @@ import nl.odelia.dashboard.data.Instellingen
 import nl.odelia.dashboard.data.KlokOpslag
 import nl.odelia.dashboard.meldingen.Herinneringen
 import nl.odelia.dashboard.widget.KlokWidget
+import nl.odelia.dashboard.widget.OnthoudWidget
 
 /** Na elke wijziging in de gegevens: alles wat buiten de app zichtbaar is bijwerken. */
 object Bijwerken {
     suspend fun alles(context: Context) {
         KlokWidget.ververs(context)
+        OnthoudWidget.ververs(context)
         val staat = KlokOpslag(context).nu().staat(LocalDateTime.now(), Instellingen.van(context).weekdoel.value)
         Herinneringen.ruimOp(context, staat)
     }

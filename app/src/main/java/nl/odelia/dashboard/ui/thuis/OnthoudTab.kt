@@ -16,12 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import nl.odelia.dashboard.ui.onderdelen.IcoonBlok
+import nl.odelia.dashboard.onthoud.Afspraak
+import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
+import nl.odelia.dashboard.ui.onderdelen.RondKnopje
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.Vorm
 import nl.odelia.dashboard.ui.onderdelen.glans
@@ -29,11 +30,18 @@ import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.onderdelen.tik
 import nl.odelia.dashboard.ui.onderdelen.voet
+import nl.odelia.dashboard.ui.onthoud.AfspraakRegel
 import nl.odelia.dashboard.ui.theme.Kleur
 
-/** Tabje "Onthoud": lijstje afspraken en de knop "Iets onthouden". */
+/** Tabje "Onthoud": de eerstvolgende afspraken, en knoppen om iets nieuws te onthouden. */
 @Composable
-fun OnthoudTab(onMelding: (String) -> Unit) {
+fun OnthoudTab(
+    onthoud: OnthoudStaat,
+    onOpen: (Afspraak) -> Unit,
+    onAlles: () -> Unit,
+    onNieuw: () -> Unit,
+    onInspreken: () -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Column(
             Modifier
@@ -48,7 +56,7 @@ fun OnthoudTab(onMelding: (String) -> Unit) {
                     "alles",
                     14.sp,
                     Modifier
-                        .tik { onMelding("De hele lijst komt in stap 3.") }
+                        .tik(onClick = onAlles)
                         .heightIn(min = 36.dp)
                         .clip(CircleShape)
                         .background(Kleur.KaartPil)
@@ -58,28 +66,22 @@ fun OnthoudTab(onMelding: (String) -> Unit) {
                     kleur = Kleur.InktZacht,
                 )
             }
-            Voorbeeld.afspraken.forEach { a ->
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    IcoonBlok(a.kleur.licht, a.kleur.donker, a.icoon, icoonMaat = 26.dp)
-                    Column(Modifier.weight(1f)) {
-                        Tekst(a.wat, 17.sp)
-                        Tekst(a.wie, 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
-                    }
-                    Tekst(
-                        a.wanneer,
-                        14.sp,
-                        Modifier
-                            .background(a.kleur.kaart, RoundedCornerShape(14.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                        kleur = a.kleur.label,
-                        regel = 16.sp,
-                        uitlijning = TextAlign.Center,
-                    )
-                }
+            val eerst = onthoud.open.take(5)
+            if (eerst.isEmpty()) {
+                Tekst(
+                    "Nog niets om te onthouden. Tik op \"Iets onthouden\" of op de 🎤.",
+                    16.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs,
+                )
             }
+            eerst.forEach { a -> AfspraakRegel(a, onthoud, onOpen = { onOpen(a) }) }
+            val meer = onthoud.open.size - eerst.size
+            if (meer > 0) Tekst("en nog $meer…", 15.sp, Modifier.tik(onClick = onAlles), dikte = FontWeight.ExtraBold, kleur = Kleur.InktZacht)
         }
 
-        GroteKnop("Iets onthouden", onClick = { onMelding("Snel vastleggen komt in stap 3.") })
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            GroteKnop("Iets onthouden", onClick = onNieuw, modifier = Modifier.weight(1f))
+            RondKnopje(Icoontjes.microfoon, "Inspreken", onClick = onInspreken, maat = 60.dp)
+        }
     }
 }
 

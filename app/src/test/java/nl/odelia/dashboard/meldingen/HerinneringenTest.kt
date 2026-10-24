@@ -40,12 +40,25 @@ class HerinneringenTest {
     }
 
     @Test
-    fun `wekkers staan op 8_15 en 16_15 op de volgende werkdag`() {
+    fun `wekkers staan op 8_15 en 16_15 op de volgende werkdag, en elke dag 16_30 voor morgen`() {
         val vrijdagAvond = LocalDateTime.of(2026, 10, 23, 18, 0)
         Herinneringen.plan(context, vrijdagAvond)
 
         val wekkers = shadowOf(context.getSystemService(AlarmManager::class.java)).scheduledAlarms
         val tijden = wekkers.map { LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(it.triggerAtMs), ZoneId.systemDefault()) }.sorted()
-        assertEquals(listOf(LocalDateTime.of(2026, 10, 26, 8, 15), LocalDateTime.of(2026, 10, 26, 16, 15)), tijden)
+        assertEquals(
+            listOf(LocalDateTime.of(2026, 10, 24, 16, 30), LocalDateTime.of(2026, 10, 26, 8, 15), LocalDateTime.of(2026, 10, 26, 16, 15)),
+            tijden,
+        )
+    }
+
+    @Test
+    fun `seintje voor morgen noemt de afspraak en de persoon`() {
+        shadowOf(context as Application).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        // Voorbeeld: "Boek meenemen" bij Dhr. Jansen is morgen, met seintje aan.
+        Herinneringen.toonMorgen(context, Voorbeeld.onthoud(LocalDateTime.of(2026, 10, 23, 16, 30)))
+        val melding = shadowOf(context.getSystemService(NotificationManager::class.java)).allNotifications.single()
+        assertEquals("Morgen: Boek meenemen 📌", melding.extras.getString("android.title"))
+        assertEquals("• Boek meenemen (Dhr. Jansen)", melding.extras.getCharSequence("android.text").toString())
     }
 }

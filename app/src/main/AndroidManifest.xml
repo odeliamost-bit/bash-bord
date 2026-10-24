@@ -21,10 +21,17 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- "Delen" vanuit een andere app (bv. WhatsApp, Gmail): tekst komt in "Onthoud dit". -->
+            <intent-filter android:label="Onthoud dit">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 
@@ -41,6 +48,19 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
+        </receiver>
+
+        <!-- Widget op het startscherm: snel iets onthouden -->
+        <receiver
+            android:name=".widget.OnthoudWidgetOntvanger"
+            android:exported="true"
+            android:label="Onthoud">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/onthoud_widget" />
         </receiver>
 
         <!-- Widget op het startscherm: in- en uitklokken -->

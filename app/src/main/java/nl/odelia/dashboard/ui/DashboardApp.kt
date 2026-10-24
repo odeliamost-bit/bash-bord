@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,11 +30,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import kotlinx.coroutines.delay
+import nl.odelia.dashboard.onthoud.Concept
+import nl.odelia.dashboard.onthoud.OnthoudActies
+import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onthoud.LijstScherm
+import nl.odelia.dashboard.ui.onthoud.MensenScherm
+import nl.odelia.dashboard.ui.onthoud.ToevoegenScherm
 import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
@@ -45,37 +52,67 @@ import nl.odelia.dashboard.uren.KlokStaat
  * De hele app: zijbalk links, het gekozen scherm rechts.
  *
  * @param klok alles over in- en uitklokken, uitgerekend voor nu.
+ * @param onthoud alle afspraken en personen.
  * @param onVoorlezen leest tekst voor; geeft `false` als dat (nog) niet lukt.
- * @param beginDag opent meteen het scherm om die dag aan te passen (voor voorbeelden).
+ * @param verzoek iets van buiten de app (gedeelde tekst, widget): opent "Onthoud dit".
+ * @param beginScherm opent meteen een scherm, bv. "dag/2026-10-22" of "nieuw" (voor voorbeelden).
  */
 @Composable
 fun DashboardApp(
     klok: KlokStaat,
     klokActies: KlokActies,
+    onthoud: OnthoudStaat,
+    onthoudActies: OnthoudActies,
     onVoorlezen: (String) -> Boolean,
+    verzoek: Concept? = null,
+    onVerzoekGezien: () -> Unit = {},
     beginPlek: Plek = Plek.Thuis,
     beginTab: Tab = Tab.Vandaag,
     beginMenuOpen: Boolean = false,
-    beginDag: LocalDate? = null,
+    beginScherm: String? = null,
 ) {
     var plek by rememberSaveable { mutableStateOf(beginPlek) }
     var tab by rememberSaveable { mutableStateOf(beginTab) }
     var menuOpen by rememberSaveable { mutableStateOf(beginMenuOpen) }
-    // Een dag die je aan het aanpassen bent (als tekst, zodat hij een draai van het scherm overleeft).
-    var openDag by rememberSaveable { mutableStateOf(beginDag?.toString()) }
+    // Schermen die over het hoofdscherm heen open staan, bv. "lijst|bewerk/123". Terug = de laatste dicht.
+    var stapel by rememberSaveable { mutableStateOf(beginScherm ?: "") }
+    var concept by remember { mutableStateOf(Concept()) }
     var melding by remember { mutableStateOf<Melding?>(null) }
 
-    // Terug-knop van de telefoon: eerst menu dicht, dan de dag dicht, daarna terug naar Thuis.
-    BackHandler(enabled = menuOpen || openDag != null || plek != Plek.Thuis) {
+    val scherm = stapel.split("|").lastOrNull { it.isNotEmpty() }
+    fun open(s: String) {
+        stapel = if (stapel.isEmpty()) s else "$stapel|$s"
+    }
+    fun terug() {
+        stapel = stapel.split("|").dropLast(1).joinToString("|")
+    }
+    fun nieuw(c: Concept) {
+        concept = c
+        open("nieuw")
+    }
+
+    // Terug-knop van de telefoon: eerst menu dicht, dan het bovenste scherm dicht, daarna terug naar Thuis.
+    BackHandler(enabled = menuOpen || stapel.isNotEmpty() || plek != Plek.Thuis) {
         when {
             menuOpen -> menuOpen = false
-            openDag != null -> openDag = null
+            stapel.isNotEmpty() -> terug()
             else -> plek = Plek.Thuis
+        }
+    }
+
+    // Tekst gedeeld vanuit een andere app, of de knop van de widget: meteen "Onthoud dit".
+    LaunchedEffect(verzoek) {
+        if (verzoek != null) {
+            menuOpen = false
+            nieuw(verzoek)
+            onVerzoekGezien()
         }
     }
 
     // Werk & uren en Onthoud zijn tabjes op het hoofdscherm.
     val gekozen = when {
+        scherm?.startsWith("dag/") == true -> Plek.Werk
+        scherm != null -> Plek.Onthoud
         plek != Plek.Thuis -> plek
         tab == Tab.Werk -> Plek.Werk
         tab == Tab.Onthoud -> Plek.Onthoud
@@ -83,7 +120,7 @@ fun DashboardApp(
     }
 
     fun gaNaar(naar: Plek) {
-        openDag = null
+        stapel = ""
         when (naar) {
             Plek.Thuis -> { plek = Plek.Thuis; tab = Tab.Vandaag }
             Plek.Werk -> { plek = Plek.Thuis; tab = Tab.Werk }
@@ -96,30 +133,66 @@ fun DashboardApp(
         melding = Melding(tekst)
     }
 
+    val voorlezen: (String) -> Unit = { tekst ->
+        if (!onVoorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
+    }
+
     Box(Modifier.fillMaxSize().background(Kleur.Achtergrond)) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             val inhoud = Modifier.padding(start = ZijbalkRuimte)
-            val dag = openDag?.let { klok.dag(LocalDate.parse(it)) }
             when {
-                dag != null -> DagScherm(
-                    dag = dag,
-                    uren = klok.uren(dag),
-                    nu = klok.nu,
-                    acties = klokActies,
-                    onTerug = { openDag = null },
+                scherm?.startsWith("dag/") == true -> {
+                    val dag = klok.dag(LocalDate.parse(scherm.removePrefix("dag/")))
+                    DagScherm(dag, klok.uren(dag), klok.nu, klokActies, onTerug = ::terug, modifier = inhoud)
+                }
+                scherm == "nieuw" || scherm?.startsWith("bewerk/") == true -> {
+                    val bestaand = onthoud.afspraken.firstOrNull { it.id == scherm.removePrefix("bewerk/") }
+                    if (scherm != "nieuw" && bestaand == null) {
+                        // Net weggehaald: dit scherm bestaat niet meer.
+                        LaunchedEffect(scherm) { terug() }
+                    } else {
+                        // Elk scherm zijn eigen invulvelden (anders blijft de vorige afspraak staan).
+                        key(scherm) {
+                            ToevoegenScherm(
+                                onthoud, onthoudActies, bestaand, concept, klok.nu,
+                                onBewaard = { toon(it); terug() },
+                                onTerug = ::terug,
+                                modifier = inhoud,
+                            )
+                        }
+                    }
+                }
+                scherm?.startsWith("lijst") == true -> LijstScherm(
+                    onthoud, onthoudActies,
+                    onOpen = { open("bewerk/${it.id}") },
+                    onNieuw = { nieuw(Concept()) },
+                    onVoorlezen = voorlezen,
+                    onTerug = ::terug,
                     modifier = inhoud,
+                    // "lijst/project:PVB" = meteen gefilterd (voor voorbeelden)
+                    beginFilter = scherm.removePrefix("lijst").removePrefix("/").ifEmpty { null },
                 )
                 plek == Plek.Thuis -> ThuisScherm(
                     tab = tab,
                     onTab = { tab = it },
                     klok = klok,
                     klokActies = klokActies,
-                    onVoorlezen = { tekst ->
-                        if (!onVoorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
-                    },
+                    onthoud = onthoud,
+                    onVoorlezen = voorlezen,
                     onMelding = ::toon,
                     onGaNaar = ::gaNaar,
-                    onOpenDag = { openDag = it.toString() },
+                    onOpenDag = { open("dag/$it") },
+                    onOpenAfspraak = { open("bewerk/${it.id}") },
+                    onAlles = { open("lijst") },
+                    onNieuw = { inspreken -> nieuw(Concept(inspreken = inspreken)) },
+                    modifier = inhoud,
+                )
+                plek == Plek.Mensen -> MensenScherm(
+                    onthoud, onthoudActies,
+                    onOpen = { open("bewerk/${it.id}") },
+                    onNieuweAfspraak = { nieuw(Concept(persoonId = it)) },
+                    onVoorlezen = voorlezen,
+                    onTerug = { gaNaar(Plek.Thuis) },
                     modifier = inhoud,
                 )
                 else -> KomtLaterScherm(plek, onTerug = { gaNaar(Plek.Thuis) }, modifier = inhoud)

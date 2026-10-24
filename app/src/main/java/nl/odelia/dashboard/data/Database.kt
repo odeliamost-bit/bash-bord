@@ -1,6 +1,7 @@
 package nl.odelia.dashboard.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -63,9 +64,70 @@ interface KlokDao {
     suspend fun bewaar(dag: DagRij)
 }
 
-@Database(entities = [WerkblokRij::class, DagRij::class], version = 1)
+/** Iemand met wie Odelia afspraken maakt. */
+@Entity(tableName = "persoon")
+data class PersoonRij(
+    @PrimaryKey val id: String,
+    val naam: String,
+    val groep: String,
+    val rol: String,
+    val kleur: Int,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val verwijderd: Boolean = false,
+)
+
+/** Iets om te onthouden (stap 3). */
+@Entity(tableName = "afspraak", indices = [Index("deadline"), Index("persoon_id")])
+data class AfspraakRij(
+    @PrimaryKey val id: String,
+    val wat: String,
+    val notitie: String,
+    @ColumnInfo(name = "persoon_id") val persoonId: String?,
+    val groep: String?,
+    val project: String?,
+    val soort: String?,
+    val deadline: String?,
+    val seintje: Boolean,
+    val klaar: Boolean,
+    val gemaakt: String,
+    val bron: String,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    val verwijderd: Boolean = false,
+)
+
+@Dao
+interface OnthoudDao {
+    @Query("SELECT * FROM afspraak WHERE verwijderd = 0")
+    fun afspraken(): Flow<List<AfspraakRij>>
+
+    @Query("SELECT * FROM afspraak WHERE verwijderd = 0")
+    suspend fun afsprakenNu(): List<AfspraakRij>
+
+    @Query("SELECT * FROM afspraak WHERE id = :id")
+    suspend fun afspraak(id: String): AfspraakRij?
+
+    @Upsert
+    suspend fun bewaar(afspraak: AfspraakRij)
+
+    @Query("SELECT * FROM persoon WHERE verwijderd = 0 ORDER BY naam")
+    fun personen(): Flow<List<PersoonRij>>
+
+    @Query("SELECT * FROM persoon WHERE verwijderd = 0 ORDER BY naam")
+    suspend fun personenNu(): List<PersoonRij>
+
+    @Upsert
+    suspend fun bewaar(persoon: PersoonRij)
+}
+
+@Database(
+    entities = [WerkblokRij::class, DagRij::class, PersoonRij::class, AfspraakRij::class],
+    version = 2,
+    // Versie 2 voegt alleen tabellen toe: dat kan Room zelf (de gegevens van versie 1 blijven staan).
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun klok(): KlokDao
+    abstract fun onthoud(): OnthoudDao
 
     companion object {
         @Volatile private var enige: AppDatabase? = null

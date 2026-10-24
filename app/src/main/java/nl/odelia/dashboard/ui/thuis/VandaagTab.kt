@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import java.time.LocalTime
+import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.onderdelen.IcoonBlok
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
@@ -53,8 +54,10 @@ import nl.odelia.dashboard.uren.KlokStaat
 fun VandaagTab(
     klok: KlokStaat,
     acties: KlokActies,
+    onthoud: OnthoudStaat,
     onOpenDag: (LocalDate) -> Unit,
     onWeek: () -> Unit,
+    onOnthoud: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         klok.vergeten?.let { VergetenKaart(it, acties, onOpenDag) }
@@ -78,7 +81,10 @@ fun VandaagTab(
                 )
             }
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                StatTegel(Pastels.Koraal, Icoontjes.bladwijzer, "Onthoud", "3", "1 vandaag", Modifier.weight(1f))
+                StatTegel(
+                    Pastels.Koraal, Icoontjes.bladwijzer, "Onthoud", onthoud.open.size.toString(), "${onthoud.vandaagTeDoen.size} vandaag",
+                    Modifier.weight(1f).tik(onClick = onOnthoud),
+                )
                 StatTegel(Pastels.Blauw, Icoontjes.mail, "Mail Kim", "vr", "klaar om 16:15", Modifier.weight(1f))
             }
         }

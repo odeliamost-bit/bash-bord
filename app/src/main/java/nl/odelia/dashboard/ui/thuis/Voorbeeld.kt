@@ -5,10 +5,11 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import nl.odelia.dashboard.ui.onderdelen.Icoontjes
-import nl.odelia.dashboard.ui.onderdelen.Vorm
-import nl.odelia.dashboard.ui.theme.Pastel
-import nl.odelia.dashboard.ui.theme.Pastels
+import nl.odelia.dashboard.onthoud.Afspraak
+import nl.odelia.dashboard.onthoud.Groep
+import nl.odelia.dashboard.onthoud.OnthoudStaat
+import nl.odelia.dashboard.onthoud.Persoon
+import nl.odelia.dashboard.onthoud.Soort
 import nl.odelia.dashboard.uren.Blok
 import nl.odelia.dashboard.uren.DagSoort
 import nl.odelia.dashboard.uren.KlokStaat
@@ -54,11 +55,25 @@ object Voorbeeld {
         return KlokStaat.maak(blokken, emptyMap<LocalDate, DagSoort>(), nu)
     }
 
-    class Afspraak(val wat: String, val wie: String, val wanneer: String, val kleur: Pastel, val icoon: List<Vorm>)
-
-    val afspraken = listOf(
-        Afspraak("Verslag inleveren", "Dhr. Jansen", "ma\n26", Pastels.Koraal, Icoontjes.document),
-        Afspraak("Tandarts bellen", "voor 17:00", "vandaag", Pastels.Geel, Icoontjes.telefoon),
-        Afspraak("Formulier stage", "Mevr. Bakker", "do\n29", Pastels.Lila, Icoontjes.iemand),
-    )
+    /** Verzonnen mensen en afspraken (uit het ontwerp), geen echte gegevens. */
+    fun onthoud(nu: LocalDateTime): OnthoudStaat {
+        val vandaag = nu.toLocalDate()
+        val gemaakt = nu.minusDays(3)
+        val personen = listOf(
+            Persoon("p1", "Dhr. Jansen", Groep.School, "leraar Nederlands", 0),
+            Persoon("p2", "Mevr. Bakker", Groep.School, "stagebegeleider", 1),
+            Persoon("p3", "Kim", Groep.Werk, "Randstad", 2),
+            Persoon("p4", "Teamleider", Groep.Werk, "Cargill", 3),
+        )
+        val maandag = Uren.maandag(vandaag).plusWeeks(1)
+        val afspraken = listOf(
+            Afspraak("a1", "Verslag inleveren", persoonId = "p1", project = "PVB", soort = Soort.Inleveren, deadline = maandag, seintje = true, gemaakt = gemaakt),
+            Afspraak("a2", "Tandarts bellen", notitie = "voor 17:00", groep = Groep.Thuis, soort = Soort.Bellen, deadline = vandaag, gemaakt = gemaakt),
+            Afspraak("a3", "Formulier stage", persoonId = "p2", project = "PVB", soort = Soort.Maken, deadline = maandag.plusDays(3), gemaakt = gemaakt),
+            Afspraak("a4", "Boek meenemen", persoonId = "p1", soort = Soort.Meenemen, deadline = vandaag.plusDays(1), seintje = true, gemaakt = gemaakt),
+            Afspraak("a5", "Vrije dag doorgeven", persoonId = "p4", soort = Soort.Vragen, gemaakt = gemaakt),
+            Afspraak("a6", "Mail sturen over toets", persoonId = "p1", soort = Soort.Mailen, klaar = true, gemaakt = gemaakt.minusDays(7)),
+        )
+        return OnthoudStaat(afspraken, personen, vandaag)
+    }
 }

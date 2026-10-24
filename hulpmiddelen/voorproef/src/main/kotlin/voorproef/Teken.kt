@@ -5,6 +5,7 @@ import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.unit.Density
 import java.io.File
 import java.time.LocalDateTime
+import nl.odelia.dashboard.onthoud.OnthoudActies
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.theme.DashboardThema
@@ -34,9 +35,14 @@ fun main(args: Array<String>) {
         plek: Plek = Plek.Thuis,
         tab: Tab = Tab.Vandaag,
         menu: Boolean = false,
-        dag: java.time.LocalDate? = null,
+        scherm: String? = null,
     ): @Composable () -> Unit = {
-        DashboardThema { DashboardApp(k, KlokActies.niets, { true }, beginPlek = plek, beginTab = tab, beginMenuOpen = menu, beginDag = dag) }
+        DashboardThema {
+            DashboardApp(
+                k, KlokActies.niets, Voorbeeld.onthoud(k.nu), OnthoudActies.niets, { true },
+                beginPlek = plek, beginTab = tab, beginMenuOpen = menu, beginScherm = scherm,
+            )
+        }
     }
     teken("1-vandaag-scherm", 411, 870, app())
     teken("2-vandaag-heel", 411, 1560, app())
@@ -46,9 +52,14 @@ fun main(args: Array<String>) {
     teken("6-tablet", 800, 1200, app())
     teken("7-geld-komt-later", 411, 870, app(plek = Plek.Geld))
     teken("8-wensen-komt-later", 411, 870, app(plek = Plek.Wensen))
-    teken("9-dag-aanpassen", 411, 1400, app(dag = vrijdag.toLocalDate().minusDays(1)))
-    teken("10-dag-vandaag-bezig", 411, 1100, app(dag = vrijdag.toLocalDate()))
+    teken("9-dag-aanpassen", 411, 1400, app(scherm = "dag/${vrijdag.toLocalDate().minusDays(1)}"))
+    teken("10-dag-vandaag-bezig", 411, 1100, app(scherm = "dag/${vrijdag.toLocalDate()}"))
     val ochtend = LocalDateTime.of(2026, 10, 23, 8, 5)
     teken("11-vergeten-uitklokken", 411, 1100, app(k = Voorbeeld.klok(ochtend, vergeten = true)))
+    teken("13-onthoud-dit", 411, 1500, app(scherm = "nieuw"))
+    teken("14-onthoud-lijst", 411, 1500, app(scherm = "lijst"))
+    teken("15-onthoud-project", 411, 1300, app(scherm = "lijst/project:PVB"))
+    teken("16-mensen", 411, 1300, app(plek = Plek.Mensen))
+    teken("17-afspraak-aanpassen", 411, 1500, app(scherm = "bewerk/a1"))
     teken("12-klaar-voor-vandaag", 411, 870, app(k = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50")))
 }

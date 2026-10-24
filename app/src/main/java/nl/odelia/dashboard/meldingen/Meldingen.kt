@@ -22,11 +22,13 @@ enum class Seintje(val nummer: Int) {
     Inklokken(1),
     Uitklokken(2),
     UitklokkenLater(3),
+    MorgenTeDoen(4),
 }
 
 /** Meldingen tonen en wekkers zetten. */
 object Meldingen {
     const val KANAAL_KLOKKEN = "klokken"
+    const val KANAAL_ONTHOUD = "onthoud"
 
     /** Moet één keer gebeuren voordat je een melding kunt tonen (Android 8+). */
     fun maakKanalen(context: Context) {
@@ -34,6 +36,11 @@ object Meldingen {
         beheer.createNotificationChannel(
             NotificationChannel(KANAAL_KLOKKEN, "In- en uitklokken", NotificationManager.IMPORTANCE_HIGH).apply {
                 description = "Herinnering om in of uit te klokken"
+            },
+        )
+        beheer.createNotificationChannel(
+            NotificationChannel(KANAAL_ONTHOUD, "Onthoud", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = "Seintje de dag voor een afspraak, en wat er vandaag staat"
             },
         )
     }

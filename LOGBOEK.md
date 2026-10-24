@@ -109,3 +109,51 @@ De plaatjes staan in de map `logboek/`. Ze komen uit het voorproef-hulpje (compu
 
 ❓ **Voor jou**
 - 🔕 Komen de meldingen niet? Kijk dan bij Instellingen › Apps › Mijn dashboard › Meldingen. Op de Nothing Phone ook bij Batterij › "Niet beperken".
+
+---
+
+## 3. 🧠 Onthoud
+
+✅ **Klaar**
+- ✍️ **Onthoud dit** (zoals ontwerp/Toevoegen): wat · soort · wie · waar hoort het bij · wanneer klaar · notitie · seintje.
+  - Alleen "wat" is nodig. De rest mag leeg blijven (vrij, geen strak lijstje).
+  - 🎤 **Inspreken**: de grote koraal knop rechtsboven. Dat gebruikt de spraakherkenning van je telefoon (Nederlands).
+  - 📋 **Plakken**: zet de tekst van het klembord erin.
+  - 👤 Nieuwe persoon toevoegen met **+** (naam + School/Werk/Thuis).
+  - 📁 Projecten (zoals PVB, keuzedeel) maak je zelf aan met **+ project**.
+- 🏠 **Onthoud-tabje**: de eerstvolgende 5 afspraken, met de knoppen **Iets onthouden** en 🎤.
+- 📋 **Alles**: zoekbalk (ook met 🎤), filters per groep en per project, en een indeling in te laat / vandaag / morgen / deze week / later / geen datum. Afvinken met het rondje.
+- 📊 **Samenvatting per onderwerp**: kies een project of groep. Je ziet dan hoeveel er nog moet, hoeveel klaar is, en wat het eerst moet. Met 🔊 voorlezen.
+- 👥 **Mensen** (zoals ontwerp/Mensen): School/Werk/Thuis, rondjes per persoon, "Wat hebben we afgesproken?", aantal "nog doen", + Afspraak, 🔊 voorlezen.
+- 🔎 Zoeken kijkt naar alles: wat, notitie, naam, rol, project, groep en soort. Hoofdletters en accenten maken niet uit.
+- 🔔 **Seintje de dag ervoor** om **16:30**.
+- 📤 **Delen**: in WhatsApp, Gmail enz. kies je "Delen" › **Onthoud dit**. De tekst staat dan meteen klaar.
+- 🧩 **Widget "Onthoud"**: knop "+ Iets onthouden" en 🎤 (meteen inspreken).
+- 💾 Opslag: personen en afspraken in Room, elk met een UUID en `updated_at`. Je uren uit stap 2 blijven gewoon staan (database-versie 2).
+
+🖼️ **Plaatjes** (met verzonnen voorbeelden uit het ontwerp)
+
+| Onthoud-tabje | Onthoud dit | Aanpassen |
+|---|---|---|
+| ![](logboek/3-onthoud-tabje.png) | ![](logboek/3-onthoud-dit.png) | ![](logboek/3-aanpassen.png) |
+
+| Alles | Project PVB | Mensen |
+|---|---|---|
+| ![](logboek/3-lijst.png) | ![](logboek/3-project-pvb.png) | ![](logboek/3-mensen.png) |
+
+Widget: ![Widget Onthoud](logboek/3-widget-onthoud.png)
+
+🔍 **Getest**
+- ✅ Echte Android-app gebouwd. Lint: 0 fouten.
+- ✅ 9 tests voor zoeken, indelen, samenvatting en seintje.
+- ✅ 3 tests die echt opslaan in de database en weer teruglezen (klokken, vrij/ziek, afspraak met persoon, afvinken, weghalen).
+- ✅ Een test voor de melding "Morgen: Boek meenemen (Dhr. Jansen)".
+- ✅ Plaatjes bekeken en vergeleken met het ontwerp.
+- ❌ Niet op de telefoon getest: inspreken, delen vanuit andere apps, plakken, de widget-knoppen en de meldingen.
+- ⚠️ Inspreken gebruikt de spraakherkenning van Google op je telefoon. Zonder internet werkt het misschien niet, tenzij Nederlands offline is gedownload.
+
+❓ **Keuzes die ik gemaakt heb** (zeg het als je het anders wilt)
+- ⏰ Het seintje komt om **16:30** de dag ervoor (na je werk). Liever een andere tijd?
+- 📍 "Waar" heeft geen eigen vakje. Typ het in de tekst of in de notitie. Wil je toch een apart vakje?
+- 👥 Personen kun je toevoegen, maar nog niet aanpassen of weghalen. Komt later, als je dat wilt.
+- 🏷️ De groepen zijn vast: 🎒 School, 🏭 Werk, 🏠 Thuis. Projecten maak je zelf.

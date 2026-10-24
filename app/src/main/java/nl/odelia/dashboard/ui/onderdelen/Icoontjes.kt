@@ -113,6 +113,31 @@ object Icoontjes {
         Vorm("M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z", vul = creme),
     ).verschuif(y = -1f)
 
+    // Onthoud (ontwerp/Toevoegen.dc.html en Mensen.dc.html)
+    val microfoon = listOf(
+        Vorm(rechthoek(9f, 3f, 6f, 11f, 3f), lijn = wit, dikte = 2.4f),
+        Vorm("M5 11a7 7 0 0 0 14 0M12 18v3", lijn = wit, dikte = 2.4f),
+    )
+    val microfoonPaars = listOf(
+        Vorm(rechthoek(9f, 3f, 6f, 11f, 3f), lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+        Vorm("M5 11a7 7 0 0 0 14 0M12 18v3", lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+    )
+    val zoek = listOf(Vorm(cirkel(11f, 11f, 7f) + "M20 20l-4-4", lijn = Color(0xFF9A7A6A), dikte = 2.6f))
+    val plakken = listOf(
+        Vorm(rechthoek(8f, 2.5f, 8f, 4f, 1.5f), lijn = Color(0xFF6A4BC4), dikte = 2.2f),
+        Vorm("M16 4.5h2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2h2", lijn = Color(0xFF6A4BC4), dikte = 2.2f),
+    )
+    val vinkje = listOf(Vorm("M5 12.5l4.5 4.5L19 7.5", lijn = wit, dikte = 3f))
+    val kopWie = listOf(Vorm(cirkel(12f, 8f, 4f) + "M4 21a8 8 0 0 1 16 0", lijn = Color(0xFF6A4BC4), dikte = 2.4f))
+    val kopWat = listOf(Vorm("M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6", lijn = Color(0xFFC2457A), dikte = 2.4f))
+    val kopWanneer = listOf(
+        Vorm(rechthoek(3f, 5f, 18f, 16f, 3f), lijn = Color(0xFF2F6DB5), dikte = 2.4f),
+        Vorm("M3 10h18M8 3v4M16 3v4", lijn = Color(0xFF2F6DB5), dikte = 2.4f),
+    )
+    val kopWaar = listOf(Vorm("M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" + cirkel(12f, 9.5f, 2.5f), lijn = Color(0xFF3F7A58), dikte = 2.4f))
+    val seintje = listOf(Vorm("M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9zM10 20.5a2 2 0 0 0 4 0", lijn = Color(0xFFB0820A), dikte = 2.4f))
+    val plusPaars = listOf(Vorm("M12 5v14M5 12h14", lijn = Color(0xFF6A4BC4), dikte = 2.8f))
+
     // Menu-knop
     val pijlRechts = listOf(Vorm("M9 6l6 6-6 6", lijn = wit, dikte = 2.6f))
     val pijlLinks = listOf(Vorm("M15 6l-6 6 6 6", lijn = wit, dikte = 2.6f))

@@ -1,6 +1,7 @@
 package nl.odelia.dashboard.widget
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.View
@@ -44,10 +45,11 @@ class WidgetPlaatjeTest {
         }
     }
 
+    private fun teken(naam: String, staat: KlokStaat) = teken(naam, Voorbeeldwidget(staat), DpSize(320.dp, 160.dp))
+
     @OptIn(ExperimentalGlanceApi::class)
-    private fun teken(naam: String, staat: KlokStaat) = runBlocking {
-        val maat = DpSize(320.dp, 160.dp)
-        val views = Voorbeeldwidget(staat).compose(context, size = maat)
+    private fun teken(naam: String, widget: GlanceAppWidget, maat: DpSize) = runBlocking {
+        val views = widget.compose(context, size = maat)
         val dichtheid = context.resources.displayMetrics.density
         val b = (maat.width.value * dichtheid).toInt()
         val h = (maat.height.value * dichtheid).toInt()
@@ -64,6 +66,15 @@ class WidgetPlaatjeTest {
         File(map, "$naam.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
         assertTrue(File(map, "$naam.png").length() > 0)
     }
+
+    private class Onthoudvoorbeeld : GlanceAppWidget() {
+        override suspend fun provideGlance(context: Context, id: GlanceId) {
+            provideContent { OnthoudWidgetInhoud(5, 1, Intent(), Intent()) }
+        }
+    }
+
+    @Test
+    fun onthoudWidget() = teken("widget-onthoud", Onthoudvoorbeeld(), DpSize(250.dp, 100.dp))
 
     @Test
     fun widgetAanHetWerk() = teken("widget-aan-het-werk", Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 13, 15)))
