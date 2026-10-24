@@ -125,9 +125,15 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
 - **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus nieuwere versies kon Claude niet controleren (24 okt 2026 nog steeds geblokkeerd in de cloud-sessie). Upgraden mag zodra het bouwen werkt.
 - **Checken in de cloud:** met `hulpmiddelen/voorproef/` (compileren + schermen als plaatje). Dat vervangt testen op de telefoon niet.
+- **Stap 2 (keuzes van 24 okt):**
+  - Pauze: altijd 45 minuten eraf, ook op een korte dag.
+  - Weekdoel: voorlopig 35 uur. Odelia weet het niet zeker, dus het moet aan te passen zijn.
+  - Herinneringen ma–vr: 8:15 als ze nog niet is ingeklokt, 16:15 als ze nog niet is uitgeklokt.
 
 ## Status
 
 - Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd en getest op de telefoon. 👍
 - Verbeteringen na die test (zijbalk, tik-effect, icoontjes, Wachtwoorden weg): gebouwd. Nog niet getest op de telefoon.
-- Volgende: stap 2 (in- en uitklokken). Eerst plan, dan toestemming vragen.
+- Volgende: stap 2 (in- en uitklokken). Plan goedgekeurd, in 4 stukjes:
+  2a echt klokken (opslaan in Room), 2b overzicht + tijd verbeteren + vrij/ziek, 2c widget, 2d herinneringen.
+  Eerst `dl.google.com` openzetten (nieuwe cloud-sessie), dan beginnen met 2a.
