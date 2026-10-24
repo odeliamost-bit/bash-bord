@@ -147,7 +147,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Bevestigd door Odelia (24 okt):**
   - Urenmail: uren als **7:15** (uren:minuten), datum **19-10-2026**.
   - Vrij en ziek tellen **niet** mee voor het weekdoel, maar staan er wel bij: "29 uur gewerkt · 1 dag ziek" (Werk-tabje, tegel "Deze week", urenmail).
-  - Seintje voor afspraken van morgen: **in het ochtendbericht** (20 min na inklokken), met de knop "Vanavond nog een keer" → **19:00**. Op een dag zonder inklokken komt het om **10:00** (keuze van Claude, zodat het niet gemist wordt).
+  - Seintje voor afspraken van morgen: **in het ochtendbericht** (20 min na inklokken), met de knop "Vanavond nog een keer" → **19:00**. Op een dag zonder inklokken komt het om **10:00**, zodat het niet gemist wordt (ook bevestigd).
 - **Wensen van Odelia na het testen van 0.3 (24 okt, avond):**
   - Mensen: naam, beschrijving en groep aanpassen, en een persoon weghalen (eerst "Weet je het zeker?"). De afspraken blijven staan, zonder naam; ze houden de groep van die persoon.
   - To-do: bij "Onthoud dit" kies je bovenaan **📅 Afspraak** of **✅ To-do**. In de lijst: Alles · Afspraken · To-do.

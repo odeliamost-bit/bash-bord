@@ -272,7 +272,7 @@ Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude)
 - ❌ Nog steeds niet op de telefoon getest.
 
 ❓ **Voor jou**
-- ⏰ Is **10:00** goed voor dagen zonder inklokken?
+- ✅ ~~Is **10:00** goed voor dagen zonder inklokken?~~ Ja, 10:00 is goed (Odelia, 24 okt).
 
 ---
 
@@ -311,4 +311,4 @@ Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude)
 - ❌ Nog steeds niet op de telefoon getest.
 
 ❓ **Voor jou**
-- ⏰ Nog open van 0.3: is **10:00** goed voor dagen zonder inklokken?
+- ✅ 10:00 voor dagen zonder inklokken is goed (Odelia, 24 okt). Er staan nu geen open vragen meer.
