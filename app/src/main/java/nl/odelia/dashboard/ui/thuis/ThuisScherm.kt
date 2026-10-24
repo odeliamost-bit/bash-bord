@@ -32,7 +32,6 @@ import java.time.LocalDate
 import nl.odelia.dashboard.onthoud.Afspraak
 import nl.odelia.dashboard.onthoud.Ochtend
 import nl.odelia.dashboard.onthoud.OnthoudStaat
-import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -60,8 +59,6 @@ fun ThuisScherm(
     klokActies: KlokActies,
     onthoud: OnthoudStaat,
     onVoorlezen: (String) -> Unit,
-    onMelding: (String) -> Unit,
-    onGaNaar: (Plek) -> Unit,
     onOpenDag: (LocalDate) -> Unit,
     onOpenAfspraak: (Afspraak) -> Unit,
     onAlles: () -> Unit,
@@ -89,7 +86,6 @@ fun ThuisScherm(
                 Tab.Werk -> WerkTab(klok, klokActies, onOpenDag)
                 Tab.Onthoud -> OnthoudTab(onthoud, onOpenAfspraak, onAlles, onNieuw = { onNieuw(false) }, onInspreken = { onNieuw(true) })
             }
-            SnelNaar(onGaNaar, onMelding)
         }
     }
 }

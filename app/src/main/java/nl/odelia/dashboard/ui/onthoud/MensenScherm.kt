@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -37,6 +38,7 @@ import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.onthoud.Persoon
 import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.menu.PlekRondje
+import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Invoerveld
 import nl.odelia.dashboard.ui.onderdelen.Knop
 import nl.odelia.dashboard.ui.onderdelen.SchermKop
@@ -59,11 +61,14 @@ fun MensenScherm(
     onVoorlezen: (String) -> Unit,
     onTerug: () -> Unit,
     modifier: Modifier = Modifier,
+    // Meteen de aanpas-kaart open (voor voorbeelden)
+    beginAanpassen: Boolean = false,
 ) {
     var zoek by rememberSaveable { mutableStateOf("") }
     var groep by rememberSaveable { mutableStateOf(staat.personen.firstOrNull()?.groep ?: Groep.School) }
     var gekozen by rememberSaveable { mutableStateOf<String?>(null) }
     var nieuw by rememberSaveable { mutableStateOf(false) }
+    var aanpassen by rememberSaveable { mutableStateOf(beginAanpassen) }
 
     val inGroep = staat.personen.filter { it.groep == groep }
     val persoon = inGroep.firstOrNull { it.id == gekozen } ?: inGroep.firstOrNull()
@@ -80,24 +85,40 @@ fun MensenScherm(
             Zoekbalk(zoek, { zoek = it }, acties)
             if (zoek.isNotBlank()) Gevonden(staat, staat.zoek(zoek), acties, onOpen, onWissen = { zoek = "" })
 
-            GroepTabjes(groep) { groep = it; gekozen = null; nieuw = false }
+            GroepTabjes(groep) { groep = it; gekozen = null; nieuw = false; aanpassen = false }
 
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(4.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 inGroep.forEach { p ->
-                    PersoonKnop(p, aan = p.id == persoon?.id) { gekozen = p.id; nieuw = false }
+                    PersoonKnop(p, aan = p.id == persoon?.id) { gekozen = p.id; nieuw = false; aanpassen = false }
                 }
-                NieuwKnop { nieuw = !nieuw }
+                NieuwKnop { nieuw = !nieuw; aanpassen = false }
             }
 
             if (nieuw) {
-                NieuwePersoonKaart(groep) { naam, rol ->
+                PersoonInvullen("Nieuw bij ${groepTekst(groep)}", "Toevoegen", begin = null) { naam, rol, _ ->
                     acties.nieuwePersoon(naam, groep, rol) { p -> gekozen = p.id }
                     nieuw = false
                 }
             }
 
             when {
-                persoon != null -> PersoonKaart(persoon, staat, acties, onOpen, onNieuweAfspraak, onVoorlezen)
+                persoon != null && aanpassen -> key(persoon.id) {
+                    PersoonInvullen(
+                        "${persoon.naam} aanpassen", "Bewaren", begin = persoon,
+                        onAnnuleer = { aanpassen = false },
+                        onVerwijder = {
+                            acties.verwijderPersoon(persoon.id)
+                            gekozen = null
+                            aanpassen = false
+                        },
+                    ) { naam, rol, nieuweGroep ->
+                        acties.pasPersoonAan(persoon.copy(naam = naam.trim(), rol = rol.trim(), groep = nieuweGroep))
+                        groep = nieuweGroep
+                        gekozen = persoon.id
+                        aanpassen = false
+                    }
+                }
+                persoon != null -> PersoonKaart(persoon, staat, acties, onOpen, onNieuweAfspraak, onVoorlezen, onAanpassen = { aanpassen = true; nieuw = false })
                 !nieuw -> LegeKaart("Nog niemand bij ${groepTekst(groep)}. Tik op + om iemand toe te voegen.")
             }
         }
@@ -174,15 +195,52 @@ private fun NieuwKnop(onClick: () -> Unit) {
     }
 }
 
+/**
+ * Naam en beschrijving invullen: voor een nieuwe persoon, of om [begin] aan te passen.
+ * Bij aanpassen kun je ook de groep kiezen en de persoon weghalen (eerst "weet je het zeker?").
+ */
 @Composable
-private fun NieuwePersoonKaart(groep: Groep, onKlaar: (naam: String, rol: String) -> Unit) {
-    var naam by rememberSaveable { mutableStateOf("") }
-    var rol by rememberSaveable { mutableStateOf("") }
+private fun PersoonInvullen(
+    titel: String,
+    knop: String,
+    begin: Persoon?,
+    onAnnuleer: (() -> Unit)? = null,
+    onVerwijder: (() -> Unit)? = null,
+    onKlaar: (naam: String, rol: String, groep: Groep) -> Unit,
+) {
+    var naam by rememberSaveable { mutableStateOf(begin?.naam ?: "") }
+    var rol by rememberSaveable { mutableStateOf(begin?.rol ?: "") }
+    var groep by rememberSaveable { mutableStateOf(begin?.groep ?: Groep.School) }
+    // Bij aanpassen staan de velden al vol: dan een kopje erboven, zodat je ziet wat wat is.
+    val kopjes = begin != null
     Kaart {
-        Tekst("Nieuw bij ${groepTekst(groep)}", 19.sp)
-        Invoerveld(naam, { naam = it }, "Naam, bv. Mevr. de Boer", eenRegel = true)
-        Invoerveld(rol, { rol = it }, "Wie is het? bv. mentor (mag leeg)", eenRegel = true)
-        Knop("Toevoegen", onClick = { if (naam.isNotBlank()) onKlaar(naam, rol) }, modifier = Modifier.fillMaxWidth(), hoofd = true)
+        Tekst(titel, 19.sp)
+        MetKopje("Naam".takeIf { kopjes }) { Invoerveld(naam, { naam = it }, "Naam, bv. Mevr. de Boer", eenRegel = true) }
+        MetKopje("Beschrijving".takeIf { kopjes }) {
+            Invoerveld(rol, { rol = it }, "Beschrijving, bv. mentor (mag leeg)", eenRegel = true)
+        }
+        if (begin != null) MetKopje("Groep") { GroepTabjes(groep) { groep = it } }
+        Knop(knop, onClick = { if (naam.isNotBlank()) onKlaar(naam, rol, groep) }, modifier = Modifier.fillMaxWidth(), hoofd = true)
+        if (onAnnuleer != null) Knop("Annuleren", onClick = onAnnuleer, modifier = Modifier.fillMaxWidth())
+        if (onVerwijder != null) {
+            var zeker by rememberSaveable { mutableStateOf(false) }
+            Knop(
+                if (zeker) "Weet je het zeker? Tik nog een keer" else "Persoon weghalen",
+                onClick = { if (zeker) onVerwijder() else zeker = true },
+                modifier = Modifier.fillMaxWidth(),
+                hoofd = zeker,
+            )
+            if (zeker) Tekst("De afspraken blijven staan, zonder naam.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
+        }
+    }
+}
+
+/** Invulveld met een klein kopje erboven (of zonder, als [kopje] leeg is). */
+@Composable
+private fun MetKopje(kopje: String?, veld: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (kopje != null) Tekst(kopje, 15.sp, Modifier.padding(start = 6.dp), dikte = FontWeight.ExtraBold, kleur = Color(0xFF8A6A5A))
+        veld()
     }
 }
 
@@ -195,6 +253,7 @@ private fun PersoonKaart(
     onOpen: (Afspraak) -> Unit,
     onNieuweAfspraak: (String) -> Unit,
     onVoorlezen: (String) -> Unit,
+    onAanpassen: () -> Unit,
 ) {
     val lijst = staat.vanPersoon(p.id).sortedBy { it.klaar }
     val s = staat.samenvatting(lijst)
@@ -233,5 +292,6 @@ private fun PersoonKaart(
             }
             VoorleesKnop({ onVoorlezen(zin) })
         }
+        Knop("Persoon aanpassen", onClick = onAanpassen, modifier = Modifier.fillMaxWidth(), icoon = Icoontjes.potlood)
     }
 }

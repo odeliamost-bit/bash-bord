@@ -115,8 +115,15 @@ interface OnthoudDao {
     @Query("SELECT * FROM persoon WHERE verwijderd = 0 ORDER BY naam")
     suspend fun personenNu(): List<PersoonRij>
 
+    @Query("SELECT * FROM persoon WHERE id = :id")
+    suspend fun persoon(id: String): PersoonRij?
+
     @Upsert
     suspend fun bewaar(persoon: PersoonRij)
+
+    /** Afspraken los van een persoon die weg is. Zonder eigen groep krijgen ze de groep van die persoon. */
+    @Query("UPDATE afspraak SET persoon_id = NULL, groep = COALESCE(groep, :groep), updated_at = :nu WHERE persoon_id = :id")
+    suspend fun losVanPersoon(id: String, groep: String, nu: Long)
 }
 
 @Database(

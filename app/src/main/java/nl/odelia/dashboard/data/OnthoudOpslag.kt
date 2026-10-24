@@ -1,6 +1,7 @@
 package nl.odelia.dashboard.data
 
 import android.content.Context
+import androidx.room.withTransaction
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -56,6 +57,26 @@ class OnthoudOpslag(context: Context) {
         val p = Persoon(UUID.randomUUID().toString(), naam.trim(), groep, rol.trim(), kleur = aantal)
         dao.bewaar(PersoonRij(p.id, p.naam, p.groep.name, p.rol, p.kleur, System.currentTimeMillis()))
         return p
+    }
+
+    /** Naam, beschrijving of groep van een persoon veranderen. */
+    suspend fun pasPersoonAan(p: Persoon) {
+        dao.bewaar(PersoonRij(p.id, p.naam.trim(), p.groep.name, p.rol.trim(), p.kleur, System.currentTimeMillis()))
+        Bijwerken.alles(app)
+    }
+
+    /**
+     * Persoon weghalen. De afspraken blijven staan, zonder naam (keuze van Odelia, 24 okt).
+     * Ze houden wel de groep van die persoon, zodat ze bij School, Werk of Thuis te vinden blijven.
+     */
+    suspend fun verwijderPersoon(id: String) {
+        val rij = dao.persoon(id) ?: return
+        val nu = System.currentTimeMillis()
+        AppDatabase.van(app).withTransaction {
+            dao.losVanPersoon(id, rij.groep, nu)
+            dao.bewaar(rij.copy(verwijderd = true, updatedAt = nu))
+        }
+        Bijwerken.alles(app)
     }
 
     private fun alsAfspraak(r: AfspraakRij) = Afspraak(

@@ -1,6 +1,11 @@
 package voorproef
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.unit.Density
 import java.io.File
@@ -8,6 +13,9 @@ import java.time.LocalDateTime
 import nl.odelia.dashboard.onthoud.OnthoudActies
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.Plek
+import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
+import nl.odelia.dashboard.ui.onthoud.MensenScherm
+import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.theme.DashboardThema
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.Voorbeeld
@@ -68,5 +76,15 @@ fun main(args: Array<String>) {
     teken("19-werk-met-ziek", 411, 1100, app(k = ziek, tab = Tab.Werk))
     teken("20-urenmail-met-ziek", 411, 1700, app(k = ziek, scherm = "urenmail", adres = "kim@voorbeeld.nl"))
     teken("21-vandaag-met-ziek", 411, 1300, app(k = ziek))
+    teken("22-persoon-aanpassen", 411, 1100) {
+        DashboardThema {
+            Box(Modifier.fillMaxSize().background(Kleur.Achtergrond)) {
+                MensenScherm(
+                    Voorbeeld.onthoud(klok.nu), OnthoudActies.niets, {}, {}, {}, {},
+                    Modifier.padding(start = ZijbalkRuimte), beginAanpassen = true,
+                )
+            }
+        }
+    }
     teken("12-klaar-voor-vandaag", 411, 870, app(k = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50")))
 }

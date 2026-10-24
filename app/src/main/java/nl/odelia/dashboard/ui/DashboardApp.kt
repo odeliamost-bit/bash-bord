@@ -186,8 +186,6 @@ fun DashboardApp(
                     klokActies = klokActies,
                     onthoud = onthoud,
                     onVoorlezen = voorlezen,
-                    onMelding = ::toon,
-                    onGaNaar = ::gaNaar,
                     onOpenDag = { open("dag/$it") },
                     onOpenAfspraak = { open("bewerk/${it.id}") },
                     onAlles = { open("lijst") },

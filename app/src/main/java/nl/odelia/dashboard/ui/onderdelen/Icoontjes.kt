@@ -86,33 +86,6 @@ object Icoontjes {
         Vorm("M4 21a8 8 0 0 1 16 0z", vul = creme),
     ).verschuif(y = -0.4f)
 
-    // Snel naar
-    val sleutel = listOf(
-        Vorm("M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3z", lijn = creme, dikte = 2.8f),
-        Vorm("M14.7 6.3l3-3a4 4 0 0 1 2 5", lijn = creme, dikte = 2.8f),
-    ).verschuif(x = -1.55f)
-    val praatwolk = listOf(
-        Vorm("M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z", vul = creme),
-        Vorm(cirkel(8.5f, 12f, 1.3f), vul = Color(0xFF9F84C9)),
-        Vorm(cirkel(12f, 12f, 1.3f), vul = Color(0xFF9F84C9)),
-        Vorm(cirkel(15.5f, 12f, 1.3f), vul = Color(0xFF9F84C9)),
-    ).verschuif(x = -0.5f, y = -0.75f)
-    val mensen = listOf(
-        Vorm(cirkel(9f, 8f, 3.6f), vul = creme),
-        Vorm("M2.5 20a6.5 6.5 0 0 1 13 0z", vul = creme),
-        Vorm(cirkel(17f, 9f, 2.6f), vul = Color(0xFFE3EFE3)),
-        Vorm("M14.5 20a5 5 0 0 1 7.5-4.3V20z", vul = Color(0xFFE3EFE3)),
-    ).verschuif(x = -0.25f, y = -0.2f)
-    val week = listOf(
-        Vorm(rechthoek(3f, 5f, 18f, 16f, 3.5f), vul = creme),
-        Vorm(rechthoek(3f, 5f, 18f, 5f, 2.5f), vul = wit),
-        Vorm(cirkel(8f, 14.5f, 1.6f), vul = Color(0xFF6E95C3)),
-        Vorm(cirkel(12f, 14.5f, 1.6f), vul = Color(0xFF6E95C3)),
-    ).verschuif(y = -1f)
-    val hart = listOf(
-        Vorm("M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z", vul = creme),
-    ).verschuif(y = -1f)
-
     // Onthoud (ontwerp/Toevoegen.dc.html en Mensen.dc.html)
     val microfoon = listOf(
         Vorm(rechthoek(9f, 3f, 6f, 11f, 3f), lijn = wit, dikte = 2.4f),
@@ -140,6 +113,7 @@ object Icoontjes {
         Vorm("M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3.5 7l8.5 6 8.5-6", lijn = wit, dikte = 2.4f),
     )
     val plusPaars = listOf(Vorm("M12 5v14M5 12h14", lijn = Color(0xFF6A4BC4), dikte = 2.8f))
+    val potlood = listOf(Vorm("M4 20l1.2-4.6L15.8 4.8a2.1 2.1 0 0 1 3 3L8.2 18.4zM13.8 6.8l3 3", lijn = Kleur.Koraal, dikte = 2.4f))
 
     // Menu-knop
     val pijlRechts = listOf(Vorm("M9 6l6 6-6 6", lijn = wit, dikte = 2.6f))

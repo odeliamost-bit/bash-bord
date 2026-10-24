@@ -79,4 +79,29 @@ class OpslagTest {
         onthoud.verwijder("a1")
         assertTrue(onthoud.staat().afspraken.isEmpty())
     }
+
+    @Test
+    fun `persoon aanpassen en weghalen, de afspraken blijven`() = runBlocking {
+        // De database blijft tussen de tests bestaan: alleen naar eigen ids kijken en na afloop opruimen.
+        val onthoud = OnthoudOpslag(context)
+        val p = onthoud.nieuwePersoon("Dhr. Jansen", Groep.School, "docent")
+        onthoud.pasPersoonAan(p.copy(naam = " Dhr. Jansen-de Vries ", rol = "mentor", groep = Groep.Werk))
+        var staat = onthoud.staat(LocalDate.of(2026, 10, 23))
+        assertEquals(p.copy(naam = "Dhr. Jansen-de Vries", rol = "mentor", groep = Groep.Werk), staat.persoon(p.id))
+
+        val dag = LocalDateTime.of(2026, 10, 23, 9, 0)
+        onthoud.bewaar(Afspraak("j1", "Verslag inleveren", persoonId = p.id, gemaakt = dag))
+        onthoud.bewaar(Afspraak("j2", "Rooster vragen", persoonId = p.id, groep = Groep.Thuis, gemaakt = dag))
+        onthoud.verwijderPersoon(p.id)
+        staat = onthoud.staat(LocalDate.of(2026, 10, 23))
+        assertEquals(null, staat.persoon(p.id))
+        val van = staat.afspraken.filter { it.id in setOf("j1", "j2") }.sortedBy { it.id }
+        assertEquals(listOf("j1", "j2"), van.map { it.id })
+        assertTrue(van.all { it.persoonId == null })
+        // Zonder eigen groep krijgt de afspraak de groep van de persoon; een eigen groep blijft.
+        assertEquals(listOf(Groep.Werk, Groep.Thuis), van.map { it.groep })
+
+        onthoud.verwijder("j1")
+        onthoud.verwijder("j2")
+    }
 }

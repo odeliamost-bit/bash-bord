@@ -40,6 +40,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app) {
         zetKlaar = { id, klaar -> viewModelScope.launch { onthoud.zetKlaar(id, klaar) } },
         verwijder = { id -> viewModelScope.launch { onthoud.verwijder(id) } },
         nieuwePersoon = { naam, groep, rol, klaar -> viewModelScope.launch { klaar(onthoud.nieuwePersoon(naam, groep, rol)) } },
+        pasPersoonAan = { p -> viewModelScope.launch { onthoud.pasPersoonAan(p) } },
+        verwijderPersoon = { id -> viewModelScope.launch { onthoud.verwijderPersoon(id) } },
         inspreken = inspreken,
     )
 
