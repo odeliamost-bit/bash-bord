@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Wensen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 4300px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 380px, #FBE6D9 850px, #FDF6EF 4300px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 40px; display: flex; flex-direction: column; gap: 16px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A4A38" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1; font-size: 28px; font-weight: 900; color: #5A3426;">Wensen</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #F7B7AE, #E8877A); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 6px 14px rgba(232,135,122,0.35);">
+<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z" fill="#FFFFFF"></path></svg>
+</span>
+</div>
+
+<!-- Totaal -->
+<section aria-label="Samen" style="background: linear-gradient(160deg, #F7B7AE, #E8877A); border-radius: 30px; padding: 16px 20px; color: #FFFFFF; box-shadow: inset 0 4px 0 rgba(255,255,255,0.35), 0 12px 24px rgba(232,135,122,0.35); display: flex; align-items: center; gap: 14px;">
+<span style="font-size: 42px;" aria-hidden="true">🛍️</span>
+<div style="flex-grow: 1;">
+<div style="font-size: 15px; font-weight: 800;">mijn verlanglijst</div>
+<div style="font-size: 30px; font-weight: 900; line-height: 1.05;">{{openCount}} wensen</div>
+</div>
+<div style="text-align: right;">
+<div style="font-size: 13px; font-weight: 800;">al gekocht</div>
+<div style="font-size: 22px; font-weight: 900;">{{boughtCount}} ✓</div>
+</div>
+</section>
+
+<!-- Toevoegen -->
+<div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px;">
+<button style="min-height: 56px; border-radius: 20px; border: none; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 16px; font-weight: 900; box-shadow: 0 6px 12px rgba(217,105,79,0.35);">+ Nieuwe wens</button>
+<button style="min-height: 56px; border-radius: 20px; border: none; background: #FBF3EA; font-size: 16px; font-weight: 900; color: #4A3A30; box-shadow: 0 5px 10px rgba(170,110,80,0.18);">📋 Link plakken</button>
+<button aria-label="Inspreken" style="width: 56px; border-radius: 20px; border: none; background: #FBF3EA; font-size: 22px; box-shadow: 0 5px 10px rgba(170,110,80,0.18);">🎤</button>
+</div>
+
+<!-- Soorten -->
+<div role="tablist" aria-label="Soort" style="display: flex; flex-wrap: wrap; gap: 8px;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="6">
+<button role="tab" onClick="{{f.pick}}" aria-selected="{{f.on}}" style="min-height: 44px; padding: 0 14px; border: none; border-radius: 999px; background: {{f.bg}}; color: {{f.ink}}; font-size: 15px; font-weight: 900; box-shadow: {{f.shadow}};">{{f.label}}</button>
+</sc-for>
+</div>
+
+<!-- Lijst -->
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<sc-for list="{{items}}" as="w" hint-placeholder-count="8">
+<div style="background: {{w.bg}}; border-radius: 26px; padding: 14px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 10px 20px rgba(170,110,80,0.16); display: flex; flex-direction: column; gap: 6px; opacity: {{w.op}};">
+<div style="display: flex; justify-content: space-between; align-items: flex-start;">
+<span style="width: 58px; height: 58px; border-radius: 18px; background: rgba(255,255,255,0.75); display: flex; align-items: center; justify-content: center; font-size: 32px;" aria-hidden="true">{{w.emo}}</span>
+<button onClick="{{w.tapHeart}}" aria-label="{{w.prioLabel}}, tik om te veranderen" style="border: none; background: transparent; padding: 4px; font-size: 13px; letter-spacing: -1px;">{{w.hearts}}</button>
+</div>
+<div style="font-size: 16px; font-weight: 900; color: #5A3426; line-height: 1.15; text-decoration: {{w.strike}};">{{w.name}}</div>
+<div style="font-size: 13px; font-weight: 700; color: #8A6A5A;">{{w.shop}}</div>
+<sc-if value="{{w.hasLink}}" hint-placeholder-val="{{true}}">
+<a href="{{w.link}}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; border-radius: 999px; background: rgba(255,255,255,0.85); color: #7A4A38; font-size: 14px; font-weight: 900; text-decoration: none;">🔗 bekijken{{w.more}}</a>
+</sc-if>
+<button onClick="{{w.toggle}}" aria-pressed="{{w.bought}}" style="min-height: 40px; border-radius: 999px; border: none; background: {{w.btnBg}}; color: {{w.btnInk}}; font-size: 14px; font-weight: 900;">{{w.btn}}</button>
+</div>
+</sc-for>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":4300}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { filter: 'alles', bought: {}, hearts: {} };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var G = { kleding: { label: '👕 Kleding', bg: '#DCE7F2' }, haken: { label: '🧶 Haken', bg: '#FBE0E8' }, huis: { label: '🏠 Huis', bg: '#FBEBC4' }, verz: { label: '🧴 Verzorging', bg: '#E3EDDF' }, overig: { label: '✨ Overig', bg: '#EFE7FB' } };
+var W = [
+['kleding', '🧦', 'Schapenwollen sokken', '', 0],
+['kleding', '👟', 'Barefoot schoenen', 'https://vaistoa.com/collections/autumn-barefoot-shoes/products/kajo-1-barefoot-chelsea-boots?variant=55379672891717', 1],
+['kleding', '👕', 'Supima-katoenen longsleeve', 'https://hikecarewinkel.nl/products/alpaca-ergonomische?variant=50742198436160', 0],
+['kleding', '🔥', 'Elektrische sokken', 'https://smartsporter.nl/products/ignite-verwarmde-sokken-wintersokken-met-verwarming', 1],
+['kleding', '👡', 'Open schoenen', '', 0],
+['haken', '⚪', 'Poly pellets voor haken', '', 0],
+['haken', '💍', 'Ring om te haken', 'https://www.amazon.nl/gp/product/B0C8RR66NM', 0],
+['haken', '🧶', 'Yarn winder', '', 0],
+['haken', '🐭', 'Patroon: muis pop', 'https://www.etsy.com/nl/listing/1791061165/brie-muis-zeemeerminstaart-mod', 0],
+['haken', '🦌', 'Patroon: hert pop', 'https://www.etsy.com/nl/listing/1850608502/fora-fawn-fairy-mod-haakpatroon', 0],
+['haken', '🐉', 'Patroon: roze draak', 'https://www.etsy.com/nl/listing/1759631991/fairy-dragon-amigurumi-haakpatroon', 0],
+['haken', '🔖', 'Patroon: boekenlegger', 'https://www.etsy.com/nl/listing/1890221875/6-in-1-gehaakte-bladwijzer-gehaakte', 0],
+['haken', '🌻', 'Patroon: zonnebloem rugzak', 'https://www.etsy.com/nl/listing/1714068971/lees-eerst-disclaimer-zonnebloem', 0],
+['huis', '🟣', 'Ubbi siliconen bewaarzak', 'https://www.amazon.nl/Ubbi-Platemate-Reusable-Pomegranate-Buttercup/dp/B0GR21FNKM', 0],
+['huis', '🪟', 'Gordijnbeugel', '', 0],
+['huis', '🛏️', 'Beddengoed', '', 0],
+['huis', '🍳', 'Stalen pan', 'https://www.dartointernational.com/product/Sautepan-n27/1?cs=true&cst=custom', 0],
+['huis', '☕', 'Glazen mok', 'https://www.nordicnest.nl/merken/muurla/muurla-glazen-mok-35-cl-/?variantId=514249-01', 0],
+['huis', '🪞', '360 verstelbare spiegel', 'https://amzn.eu/d/0gGIPHH3', 0],
+['verz', '🧴', 'Beef tallow huidverzorging', 'https://amzn.eu/d/btwCgKS', 0],
+['verz', '💎', 'Oorbelletjes laten schieten', '', 0],
+['verz', '💤', 'Nekkussen', 'https://travel-detail.com/products/neck-pro-deluxe-comfort-reiskussen-met-ergonomische-nekondersteuning', 0],
+['overig', '⌚', 'Horlogebandjes', 'https://amzn.eu/d/0dhD8KHW', 3],
+['overig', '🔋', 'Nieuwe batterij laptop', '', 0],
+['overig', '🍅', 'Cherry tomaat zaadjes', '', 0],
+['overig', '🎧', 'Koptelefoonkussentjes', 'https://amzn.eu/d/hM4OHuH', 0],
+['overig', '📱', 'Digitaal boek', 'https://garbie.com/', 0],
+['overig', '🎲', 'Andromeda Escape spel', 'https://www.badrulegames.com/nl/games/andromeda-escape/', 0],
+['overig', '🐴', 'Equigroomer', 'https://equigroomer.nl/Equigroomer_small_natural', 0]
+].map(function (r, i) { return { id: 'w' + i, group: r[0], emo: r[1], name: r[2], link: r[3], extra: r[4] }; });
+var boughtCount = 0, openCount = 0;
+W.forEach(function (w) { if (s.bought[w.id]) boughtCount++; else openCount++; });
+var list = s.filter === 'alles' ? W : W.filter(function (w) { return w.group === s.filter; });
+var items = list.map(function (w) {
+var b = !!s.bought[w.id];
+var hearts = s.hearts[w.id] || 0;
+return { emo: w.emo, name: w.name, shop: G[w.group].label, bg: G[w.group].bg, link: w.link, hasLink: !!w.link, more: w.extra ? ' (+' + w.extra + ')' : '', hearts: '❤️❤️❤️'.slice(0, hearts * 2) + '🤍🤍🤍'.slice(0, (3 - hearts) * 2), prioLabel: hearts + ' van 3 hartjes', bought: b ? 'true' : 'false', op: b ? '0.55' : '1', strike: b ? 'line-through' : 'none', btn: b ? '✓ gekocht' : 'Gekocht?', btnBg: b ? '#6FAE84' : '#FFFFFF', btnInk: b ? '#FFFFFF' : '#7A4A38', toggle: function () { var x = Object.assign({}, s.bought); x[w.id] = !x[w.id]; self.setState({ bought: x }); }, tapHeart: function () { var x = Object.assign({}, s.hearts); x[w.id] = ((x[w.id] || 0) + 1) % 4; self.setState({ hearts: x }); } };
+});
+var filters = [{ id: 'alles', label: 'Alles' }].concat(Object.keys(G).map(function (k) { return { id: k, label: G[k].label }; })).map(function (f) {
+var on = s.filter === f.id;
+return { label: f.label, on: on ? 'true' : 'false', bg: on ? 'linear-gradient(160deg, #F4A58B, #D9694F)' : 'rgba(251,243,234,0.85)', ink: on ? '#FFFFFF' : '#7A4A38', shadow: on ? 'inset 0 3px 0 rgba(255,255,255,0.4), 0 4px 10px rgba(217,105,79,0.35)' : '0 3px 8px rgba(170,110,80,0.12)', pick: function () { self.setState({ filter: f.id }); } };
+});
+return { items: items, filters: filters, openCount: openCount, boughtCount: boughtCount };
+}
+}
+</script>
+</body>
+</html>

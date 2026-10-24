@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Leren</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#4A3A30}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 1250px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0px, #F8CDB9 380px, #FBE6D9 850px, #FDF6EF 1250px); position: relative; overflow: hidden; font-family: 'Nunito', system-ui, sans-serif; color: #4A3A30;">
+<div style="padding: 24px 18px 40px; display: flex; flex-direction: column; gap: 16px;">
+
+<!-- Bovenbalk -->
+<div style="display: flex; align-items: center; gap: 12px;">
+<button aria-label="Terug" style="width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.7); background: #FBF3EA; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(170,110,80,0.22);">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A4A38" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="flex-grow: 1; font-size: 28px; font-weight: 900; color: #5A3426;">Leren</div>
+<span style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(160deg, #F7DA8A, #E5B54E); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.5), 0 6px 14px rgba(229,181,78,0.35);">📚</span>
+</div>
+
+<!-- Boek -->
+<section aria-label="Mijn boek" style="background: #FBEBC4; border-radius: 30px; padding: 16px 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 12px 24px rgba(200,150,60,0.22); display: flex; align-items: center; gap: 14px;">
+<span style="width: 62px; height: 80px; border-radius: 8px 14px 14px 8px; background: linear-gradient(160deg, #B9A3F0, #8E74D6); box-shadow: inset 6px 0 0 rgba(0,0,0,0.12), 0 6px 12px rgba(120,90,180,0.35); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;" aria-hidden="true">📖</span>
+<div style="flex-grow: 1;">
+<div style="font-size: 14px; font-weight: 800; color: #8A6A1A;">ik leer uit</div>
+<div style="font-size: 20px; font-weight: 900; color: #5A3426; line-height: 1.15;">Mijn schoolboek</div>
+<div style="font-size: 14px; font-weight: 700; color: #8A6A5A;">hoofdstuk 3 van 8</div>
+<div style="margin-top: 6px; height: 10px; border-radius: 999px; background: #FFFFFF; overflow: hidden;"><div style="height: 100%; width: 32%; border-radius: 999px; background: linear-gradient(90deg, #F7DA8A, #E5B54E);"></div></div>
+</div>
+</section>
+
+<!-- Doelen vandaag -->
+<section aria-label="Doelen vandaag" style="background: #FBF3EA; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.9), 0 12px 24px rgba(170,110,80,0.2); display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
+<span style="font-size: 21px; font-weight: 900; color: #5A3426;">🎯 Vandaag</span>
+<span style="font-size: 16px; font-weight: 900; color: #3F7A58;">{{doneCount}} van {{goalCount}} klaar</span>
+</div>
+<sc-for list="{{goals}}" as="g" hint-placeholder-count="3">
+<button onClick="{{g.toggle}}" aria-pressed="{{g.done}}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; border: none; background: #FFFFFF; text-align: left; color: #4A3A30; box-shadow: 0 4px 10px rgba(170,110,80,0.1);">
+<span style="width: 32px; height: 32px; border-radius: 10px; border: 3px solid {{g.ring}}; background: {{g.bg}}; color: #FFFFFF; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{g.mark}}</span>
+<span style="font-size: 24px;" aria-hidden="true">{{g.emo}}</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column;">
+<span style="font-size: 17px; font-weight: 900; text-decoration: {{g.strike}};">{{g.what}}</span>
+<span style="font-size: 13px; font-weight: 700; color: #8A6A5A;">{{g.sub}}</span>
+</span>
+</button>
+</sc-for>
+</section>
+
+<!-- Focus-timer -->
+<section aria-label="Focus-tijd" style="background: #E3EDDF; border-radius: 30px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 12px 24px rgba(90,130,100,0.22); display: flex; align-items: center; gap: 16px;">
+<div style="position: relative; width: 110px; height: 110px; flex-shrink: 0;">
+<svg width="110" height="110" viewBox="0 0 110 110" aria-hidden="true"><circle cx="55" cy="55" r="44" fill="none" stroke="#FFFFFF" stroke-width="14"></circle><circle cx="55" cy="55" r="44" fill="none" stroke="#6FAE84" stroke-width="14" stroke-linecap="round" stroke-dasharray="{{timerDash}}" transform="rotate(-90 55 55)"></circle></svg>
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #2F5E43;">{{timerText}}</div>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
+<div style="font-size: 18px; font-weight: 900; color: #2F5E43;">Focus-tijd</div>
+<div style="font-size: 14px; font-weight: 700; color: #4F7A5E;">20 min leren, dan 5 min pauze</div>
+<button onClick="{{toggleTimer}}" style="min-height: 48px; border-radius: 999px; border: none; background: {{timerBtnBg}}; color: #FFFFFF; font-size: 16px; font-weight: 900; box-shadow: 0 6px 12px rgba(80,130,95,0.3);">{{timerBtn}}</button>
+</div>
+</section>
+
+<!-- Hulp -->
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<button style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 120px; padding: 16px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.7); background: #EFE7FB; text-align: left; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 10px 20px rgba(130,100,200,0.18);">
+<span style="font-size: 32px;" aria-hidden="true">💡</span>
+<span style="font-size: 18px; font-weight: 900; color: #3E2F66;">Leg uit</span>
+<span style="font-size: 13px; font-weight: 700; color: #5E4A8A;">ik snap iets niet</span>
+</button>
+<button style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 120px; padding: 16px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.7); background: #FBE0E8; text-align: left; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), 0 10px 20px rgba(200,100,130,0.18);">
+<span style="font-size: 32px;" aria-hidden="true">❓</span>
+<span style="font-size: 18px; font-weight: 900; color: #7A2F4E;">Overhoren</span>
+<span style="font-size: 13px; font-weight: 700; color: #8A4A60;">stel me vragen</span>
+</button>
+</div>
+
+<!-- Week -->
+<section aria-label="Deze week" style="background: #FBF3EA; border-radius: 26px; padding: 16px 18px; box-shadow: 0 8px 18px rgba(170,110,80,0.16); display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 17px; font-weight: 900; color: #5A3426;">⭐ Deze week geleerd</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; text-align: center;">
+<sc-for list="{{week}}" as="w" hint-placeholder-count="7">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: {{w.bg}}; display: flex; align-items: center; justify-content: center; font-size: 18px;">{{w.icon}}</span>
+<span style="font-size: 12px; font-weight: 800; color: #8A6A5A;">{{w.d}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1250}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { done: { g1: true }, running: false };
+}
+renderVals() {
+var self = this;
+var s = this.state;
+var G = [
+{ id: 'g1', emo: '📖', what: 'Lezen: blz. 40 tot 45', sub: 'hoofdstuk 3' },
+{ id: 'g2', emo: '✏️', what: 'Opdracht 3.2 maken', sub: 'in je schrift' },
+{ id: 'g3', emo: '🃏', what: '10 woordjes leren', sub: 'met kaartjes' }
+];
+var n = 0;
+var goals = G.map(function (g) {
+var d = !!s.done[g.id]; if (d) n++;
+return Object.assign({}, g, { done: d ? 'true' : 'false', mark: d ? '✓' : '', ring: d ? '#6FAE84' : '#E3C3B0', bg: d ? '#6FAE84' : '#FFFFFF', strike: d ? 'line-through' : 'none', toggle: function () { var x = Object.assign({}, s.done); x[g.id] = !x[g.id]; self.setState({ done: x }); } });
+});
+var C = 2 * Math.PI * 44;
+var frac = s.running ? 0.35 : 1;
+var week = [['ma', '⭐'], ['di', '⭐'], ['wo', ''], ['do', '⭐'], ['vr', ''], ['za', '🔆'], ['zo', '']].map(function (w, i) { return { d: w[0], icon: w[1], bg: i === 5 ? '#FBEBC4' : (w[1] ? '#F7DA8A' : '#F1E4D6') }; });
+return {
+goals: goals,
+doneCount: n,
+goalCount: G.length,
+timerDash: (C * frac) + ' ' + C,
+timerText: s.running ? '13:00' : '20:00',
+timerBtn: s.running ? '⏸ Pauze' : '▶ Start',
+timerBtnBg: s.running ? 'linear-gradient(160deg, #F4A58B, #D9694F)' : 'linear-gradient(160deg, #A8D6B4, #6FAE84)',
+toggleTimer: function () { self.setState({ running: !s.running }); },
+week: week
+};
+}
+}
+</script>
+</body>
+</html>
