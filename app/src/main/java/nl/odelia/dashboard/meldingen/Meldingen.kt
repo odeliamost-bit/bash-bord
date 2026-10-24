@@ -23,6 +23,7 @@ enum class Seintje(val nummer: Int) {
     Uitklokken(2),
     UitklokkenLater(3),
     MorgenTeDoen(4),
+    Ochtend(5),
 }
 
 /** Meldingen tonen en wekkers zetten. */

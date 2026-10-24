@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import nl.odelia.dashboard.onthoud.Afspraak
+import nl.odelia.dashboard.onthoud.Ochtend
 import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.Plek
 import nl.odelia.dashboard.ui.onderdelen.Icoon
@@ -79,8 +80,8 @@ fun ThuisScherm(
                 .padding(start = 8.dp, end = 16.dp, top = 24.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Bovenbalk(datumTekst(nu), onBel = { onMelding("Meldingen komen in stap 4.") })
-            WelkomKaart(groet, onder, onVoorlezen = { onVoorlezen("$groet, Odelia! $onder.") })
+            Bovenbalk(datumTekst(nu), aantal = onthoud.vandaagTeDoen.size, onBel = onAlles)
+            WelkomKaart(groet, onder, onVoorlezen = { onVoorlezen("$groet, Odelia! $onder. ${Ochtend.voorlees(onthoud)}") })
             Tabjes(tab, onTab)
             when (tab) {
                 Tab.Vandaag -> VandaagTab(klok, klokActies, onthoud, onOpenDag, onWeek = { onTab(Tab.Werk) }, onOnthoud = { onTab(Tab.Onthoud) })
@@ -93,7 +94,7 @@ fun ThuisScherm(
 }
 
 @Composable
-private fun Bovenbalk(datum: String, onBel: () -> Unit) {
+private fun Bovenbalk(datum: String, aantal: Int, onBel: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier
@@ -120,20 +121,23 @@ private fun Bovenbalk(datum: String, onBel: () -> Unit) {
                     .background(Kleur.Kaart)
                     .glans(CircleShape, licht = 0.9f, donker = 0f, boven = 2.dp)
                     .border(1.dp, Color.White.copy(alpha = 0.7f), CircleShape)
-                    .semantics { contentDescription = "Meldingen, 2 nieuw" },
+                    .semantics { contentDescription = if (aantal == 0) "Vandaag niets te doen" else "Vandaag $aantal te doen" },
                 contentAlignment = Alignment.Center,
             ) {
                 Icoon(Icoontjes.bel, 26.dp)
             }
-            Box(
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 2.dp, y = (-2).dp)
-                    .size(22.dp)
-                    .background(hoekVerloop(Color(0xFFF09A84), Kleur.Koraal), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Tekst("2", 13.sp, kleur = Color.White)
+            // Rood bolletje: hoeveel er vandaag (of te laat) moet. Tik op de bel = de lijst.
+            if (aantal > 0) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 2.dp, y = (-2).dp)
+                        .size(22.dp)
+                        .background(hoekVerloop(Color(0xFFF09A84), Kleur.Koraal), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Tekst(if (aantal > 9) "9+" else aantal.toString(), 13.sp, kleur = Color.White)
+                }
             }
         }
     }

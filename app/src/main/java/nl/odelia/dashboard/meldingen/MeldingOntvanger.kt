@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import nl.odelia.dashboard.data.Instellingen
 import nl.odelia.dashboard.data.KlokOpslag
 import nl.odelia.dashboard.data.OnthoudOpslag
+import nl.odelia.dashboard.onthoud.Ochtend
 import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.thuis.tijdTekst
 import nl.odelia.dashboard.uren.DagSoort
@@ -27,6 +28,11 @@ object Herinneringen {
     const val LATER_10 = "nl.odelia.dashboard.LATER_10"
     const val LATER_20 = "nl.odelia.dashboard.LATER_20"
     const val CHECK_MORGEN = "nl.odelia.dashboard.CHECK_MORGEN"
+    const val OCHTEND = "nl.odelia.dashboard.OCHTEND"
+
+    /** Stap 4: 20 minuten na het eerste inklokken van de dag een overzicht. */
+    fun planOchtend(context: Context, ingeklokt: LocalDateTime) =
+        Meldingen.zetWekker(context, Seintje.Ochtend, OCHTEND, ingeklokt.plus(Ochtend.NA_INKLOKKEN))
 
     /** De volgende controles inplannen. Mag vaak gebeuren: een nieuwe wekker vervangt de oude. */
     fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
@@ -100,6 +106,10 @@ class MeldingOntvanger : BroadcastReceiver() {
                 val s = opslag.nu().staat(nu, Instellingen.van(context).weekdoel.value)
                 if (s.isIn) Herinneringen.toonUitklokken(context, s)
                 Herinneringen.plan(context, nu)
+            }
+            Herinneringen.OCHTEND -> {
+                val (titel, tekst) = Ochtend.bericht(OnthoudOpslag(context).staat(nu.toLocalDate()))
+                Meldingen.toon(context, Seintje.Ochtend, Meldingen.KANAAL_ONTHOUD, titel, tekst)
             }
             Herinneringen.CHECK_MORGEN -> {
                 Herinneringen.toonMorgen(context, OnthoudOpslag(context).staat(nu.toLocalDate()))

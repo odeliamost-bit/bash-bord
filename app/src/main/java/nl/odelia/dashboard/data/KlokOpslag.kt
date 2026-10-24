@@ -8,6 +8,7 @@ import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import nl.odelia.dashboard.Bijwerken
+import nl.odelia.dashboard.meldingen.Herinneringen
 import nl.odelia.dashboard.uren.Blok
 import nl.odelia.dashboard.uren.DagSoort
 import nl.odelia.dashboard.uren.KlokStaat
@@ -47,7 +48,9 @@ class KlokOpslag(context: Context) {
 
     suspend fun klokIn(nu: LocalDateTime = LocalDateTime.now()) {
         if (openVandaag(nu) != null) return
+        val eersteVanDeDag = nu().blokken.none { it.datum == nu.toLocalDate() }
         bewaar(Blok(UUID.randomUUID().toString(), nu.opMinuut(), null))
+        if (eersteVanDeDag) Herinneringen.planOchtend(app, nu)
     }
 
     suspend fun klokUit(nu: LocalDateTime = LocalDateTime.now()) {

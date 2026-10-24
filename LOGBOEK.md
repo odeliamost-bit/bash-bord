@@ -157,3 +157,31 @@ Widget: ![Widget Onthoud](logboek/3-widget-onthoud.png)
 - 📍 "Waar" heeft geen eigen vakje. Typ het in de tekst of in de notitie. Wil je toch een apart vakje?
 - 👥 Personen kun je toevoegen, maar nog niet aanpassen of weghalen. Komt later, als je dat wilt.
 - 🏷️ De groepen zijn vast: 🎒 School, 🏭 Werk, 🏠 Thuis. Projecten maak je zelf.
+
+---
+
+## 4. 🔔 Ochtendmelding
+
+✅ **Klaar**
+- ☀️ **20 minuten na je eerste inklokken** van de dag komt er een melding met wat er vandaag en deze week staat. Voorbeeld:
+
+  > **Goedemorgen! ☀️ Vandaag: Tandarts bellen**
+  > Vandaag:
+  > • Tandarts bellen
+  >
+  > Deze week:
+  > • Boek meenemen – Dhr. Jansen (morgen)
+
+- Op **vrijdag** staat er ook: "📧 Vandaag na het werk: urenmail voor Kim klaarzetten."
+- Klok je later op de dag nog een keer in (bijvoorbeeld na de lunch)? Dan komt er geen tweede ochtendmelding.
+- 🔔 De **bel** rechtsboven op het hoofdscherm telt nu echt: hoeveel er vandaag (of te laat) moet. Tik = de lijst. Staat er niets, dan is er geen rood bolletje.
+- 🔊 **Voorlezen** op de welkomkaart noemt nu ook wat er vandaag staat.
+
+🔍 **Getest**
+- ✅ 4 tests voor de tekst van de melding (vandaag, deze week, niets, vrijdag) en het voorlezen.
+- ✅ Een test dat inklokken om 7:45 een wekker zet om 8:05.
+- ✅ Echte Android-app gebouwd.
+- ❌ Niet op de telefoon getest. Ik kon geen plaatje van de melding maken, want meldingen tekent Android zelf. Daarom staat hierboven de tekst.
+
+❓ **Voor jou**
+- Niets nieuws.

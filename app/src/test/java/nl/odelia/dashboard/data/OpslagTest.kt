@@ -1,9 +1,12 @@
 package nl.odelia.dashboard.data
 
+import android.app.AlarmManager
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import java.time.LocalDate
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import nl.odelia.dashboard.onthoud.Afspraak
 import nl.odelia.dashboard.onthoud.Bron
@@ -16,6 +19,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /** Echt opslaan in de (Room-)database en weer teruglezen, zonder telefoon. */
@@ -34,6 +38,11 @@ class OpslagTest {
         assertEquals(1, staat.vandaag.blokken.size)
         assertEquals(LocalDateTime.of(2026, 10, 23, 7, 45), staat.vandaag.blokken[0].begin) // seconden vallen weg
         assertEquals(6.5f, staat.nettoVandaag) // 7:45–15:00 = 7¼ uur, min 45 min pauze
+
+        // Stap 4: 20 minuten na het eerste inklokken een ochtendmelding (wekker om 8:05).
+        val wekkers = shadowOf(context.getSystemService(AlarmManager::class.java)).scheduledAlarms
+        val tijden = wekkers.map { LocalDateTime.ofInstant(Instant.ofEpochMilli(it.triggerAtMs), ZoneId.systemDefault()).withSecond(0) }
+        assertTrue(LocalDateTime.of(2026, 10, 23, 8, 5) in tijden)
     }
 
     @Test
