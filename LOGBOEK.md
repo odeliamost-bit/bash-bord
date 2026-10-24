@@ -312,3 +312,22 @@ Kies daarna één manier en blijf daarbij (Android Studio óf de APK van Claude)
 
 ❓ **Voor jou**
 - ✅ 10:00 voor dagen zonder inklokken is goed (Odelia, 24 okt). Er staan nu geen open vragen meer.
+
+---
+
+## 8. ∞ Geen einddatum (24 okt, avond, versie 0.5)
+
+✅ **Klaar**
+- Bij "Wanneer klaar?" staat nu een vijfde vakje: **"geen ∞"**.
+- Bij iets nieuws staat het meteen aan (koraal randje).
+- Tik je op een dag, dan gaat "geen" uit. Tik je op "geen", dan is de dag weer weg.
+- In de lijst staan deze dingen onder "Geen datum".
+
+🖼️ **Plaatje**
+
+![](logboek/8-geen-einddatum.png)
+
+🔍 **Getest**
+- ✅ Echte Android-app gebouwd (versie 0.5, dezelfde sleutel).
+- ✅ 49 tests slagen. Android-lint: 0 fouten.
+- ❌ Niet op de telefoon getest.

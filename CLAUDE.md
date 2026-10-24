@@ -151,13 +151,14 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Wensen van Odelia na het testen van 0.3 (24 okt, avond):**
   - Mensen: naam, beschrijving en groep aanpassen, en een persoon weghalen (eerst "Weet je het zeker?"). De afspraken blijven staan, zonder naam; ze houden de groep van die persoon.
   - To-do: bij "Onthoud dit" kies je bovenaan **📅 Afspraak** of **✅ To-do**. In de lijst: Alles · Afspraken · To-do.
+  - Geen einddatum: bij "Wanneer klaar?" een vijfde vakje **"geen ∞"** in de rij (gekozen door Odelia). Staat aan zolang er geen dag gekozen is.
 
 ## Status
 
 - Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd en getest op de telefoon. 👍
 - Verbeteringen na die test (zijbalk, tik-effect, icoontjes, Wachtwoorden weg): gebouwd. Nog niet getest op de telefoon.
 - Stap 2 t/m 5 van fase 1 (klokken, Onthoud, ochtendmelding, urenmail): gebouwd door Claude op 24 okt (zelfstandig, met toestemming). Echte app gebouwd en getest met unit-tests en Robolectric. **Nog niet getest op de telefoon.** Zie `LOGBOEK.md`.
-- Versie 0.4 (24 okt, avond): tegels weg, mensen aanpassen/weghalen, To-do. Getest met unit-tests en Robolectric, **nog niet op de telefoon**.
+- Versie 0.4 (24 okt, avond): tegels weg, mensen aanpassen/weghalen, To-do. Versie 0.5: vakje "geen einddatum". Getest met unit-tests en Robolectric, **nog niet op de telefoon**.
 - Open vragen voor Odelia staan in `LOGBOEK.md` (bij ❓).
 - Let op bij installeren: de APK uit de cloud heeft een andere sleutel dan de versie uit Android Studio. Eerst de oude app verwijderen (zie README).
-- APK's 0.2 t/m 0.4 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.
+- APK's 0.2 t/m 0.5 uit de cloud zijn getekend met debug-sleutel SHA-256 `aef9d672…0fdf42`. Een nieuwe cloud-sessie maakt een andere sleutel: controleer dat (`apksigner verify --print-certs`) en waarschuw Odelia vóór je een APK geeft, want een andere sleutel = app verwijderen = gegevens kwijt. De sleutel zelf hoort niet in git.

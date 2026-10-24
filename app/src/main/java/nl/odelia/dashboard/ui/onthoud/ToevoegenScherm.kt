@@ -344,7 +344,7 @@ private fun WanneerKeuze(vandaag: LocalDate, gekozen: LocalDate?, onKies: (Local
     val maandag = vandaag.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).let { if (it == vandaag.plusDays(1)) it.plusWeeks(1) else it }
     val vast = listOf("vandaag" to vandaag, "morgen" to vandaag.plusDays(1), dagKort(maandag.dayOfWeek) to maandag)
     var kiezen by rememberSaveable { mutableStateOf(gekozen != null && vast.none { it.second == gekozen }) }
-    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         vast.forEach { (boven, datum) ->
             DatumVakje(boven, datum.dayOfMonth.toString(), aan = gekozen == datum, Modifier.weight(1f)) {
                 onKies(if (gekozen == datum) null else datum)
@@ -353,6 +353,11 @@ private fun WanneerKeuze(vandaag: LocalDate, gekozen: LocalDate?, onKies: (Local
         }
         DatumVakje("kies", if (kiezen && gekozen != null) gekozen.dayOfMonth.toString() else "…", aan = kiezen, Modifier.weight(1f)) {
             kiezen = !kiezen
+        }
+        // Geen einddatum (keuze van Odelia): staat aan zolang er geen dag gekozen is.
+        DatumVakje("geen", "∞", aan = gekozen == null && !kiezen, Modifier.weight(1f)) {
+            onKies(null)
+            kiezen = false
         }
     }
     if (kiezen) {
@@ -380,7 +385,7 @@ private fun DatumVakje(boven: String, groot: String, aan: Boolean, modifier: Mod
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Tekst(boven, 15.sp, dikte = FontWeight.ExtraBold, kleur = Color(0xFF1F3F66), eenRegel = true)
+        Tekst(boven, 13.sp, dikte = FontWeight.ExtraBold, kleur = Color(0xFF1F3F66), eenRegel = true)
         Tekst(groot, 22.sp, kleur = Color(0xFF1F3F66), regel = 24.sp)
     }
 }
