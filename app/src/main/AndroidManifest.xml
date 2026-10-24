@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Herinneringen: meldingen tonen (Android 13+ vraagt toestemming) en na het opstarten opnieuw zetten. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!-- Nodig om de voorleesstem (tekst-naar-spraak) van de telefoon te vinden. -->
     <queries>
         <intent>
@@ -23,6 +27,34 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Wekkers en knoppen in de meldingen (alleen voor de app zelf) -->
+        <receiver
+            android:name=".meldingen.MeldingOntvanger"
+            android:exported="false" />
+
+        <!-- Na het opstarten van de telefoon de wekkers opnieuw zetten -->
+        <receiver
+            android:name=".meldingen.OpstartOntvanger"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Widget op het startscherm: in- en uitklokken -->
+        <receiver
+            android:name=".widget.KlokWidgetOntvanger"
+            android:exported="true"
+            android:label="Klokken">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/klok_widget" />
+        </receiver>
     </application>
 
 </manifest>

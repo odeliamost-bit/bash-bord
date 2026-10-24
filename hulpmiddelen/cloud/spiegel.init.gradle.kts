@@ -10,3 +10,10 @@ beforeSettings {
     pluginManagement.repositories.viaSpiegel()
     dependencyResolutionManagement.repositories.viaSpiegel()
 }
+
+// Robolectric haalt zelf Android-onderdelen op bij Maven Central: ook via de spiegel.
+allprojects {
+    tasks.withType<Test>().configureEach {
+        systemProperty("robolectric.dependency.repo.url", "http://127.0.0.1:8765")
+    }
+}

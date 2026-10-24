@@ -1,11 +1,14 @@
 package nl.odelia.dashboard
 
+import android.Manifest
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
+import nl.odelia.dashboard.meldingen.Herinneringen
+import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.theme.DashboardThema
 import nl.odelia.dashboard.ui.theme.Kleur
@@ -33,6 +38,9 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
         )
         voorlezer = Voorlezer(this)
+        Meldingen.maakKanalen(this)
+        Herinneringen.plan(this)
+        vraagMeldingenToestemming()
         setContent {
             DashboardThema {
                 val gegevens by model.klokGegevens.collectAsStateWithLifecycle()
@@ -46,6 +54,14 @@ class MainActivity : ComponentActivity() {
                     DashboardApp(klok = klok, klokActies = model.klokActies, onVoorlezen = voorlezer::spreek)
                 }
             }
+        }
+    }
+
+    /** Android 13+: één keer vragen of de app meldingen mag tonen (voor de herinneringen). */
+    private fun vraagMeldingenToestemming() {
+        if (Build.VERSION.SDK_INT >= 33 && !Meldingen.magTonen(this)) {
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+                .launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 

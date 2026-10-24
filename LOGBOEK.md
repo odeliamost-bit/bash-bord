@@ -69,3 +69,43 @@ De plaatjes staan in de map `logboek/`. Ze komen uit het voorproef-hulpje (compu
 - 🔢 Tijdens het werk: "Vandaag" = tijd sinds inklokken (zoals in het ontwerp). Na het uitklokken: uren mét de pauze eraf.
 - 🌿 Vrije en zieke dagen tellen als 0 uur. Ze tellen niet mee voor je 35 uur. **Klopt dat?**
 - ⏰ Bij "vergeten uit te klokken" stelt de app 15:45 voor.
+
+### 2c: widget op het startscherm 🏠
+
+✅ **Klaar**
+- Widget "Klokken" (4 × 2 vakjes), zoals in het ontwerp:
+  - links de grote knop: groen = aan het werk, roze = niet. **Tik = in- of uitklokken.**
+  - rechts de ring met je uren van deze week. Tik = app openen.
+- De widget ververst meteen na elke klik (in de app, in de widget of in een melding) en verder elk half uur.
+- 📲 Zo zet je hem erop: lang drukken op het startscherm › Widgets › "Mijn dashboard" › "Klokken".
+
+🖼️ **Plaatjes** (getekend met Robolectric, geen echte telefoon)
+
+![Widget](logboek/2-widget.png)
+
+🔍 **Getest**
+- ✅ Gebouwd, en 3 plaatjes gemaakt van de widget (aan het werk, nog niet gestart, klaar).
+- ❌ Niet op de telefoon getest: of de klik werkt en hoe hij er in jouw launcher uitziet.
+- ⚠️ Op de plaatjes zijn de hoekjes niet rond. Op Android 12+ zijn ze dat wel, maar dat kan Robolectric niet tekenen.
+- ⚠️ Een widget kan geen eigen lettertype gebruiken. De tekst is dus de gewone telefoonletter, niet Nunito. "UIT"/"IN" op de knop is wel Nunito, want dat is een plaatje.
+- ⚠️ "al 5½ uur gewerkt" in de widget kan tot een half uur achterlopen. Android laat een widget niet vaker verversen.
+
+### 2d: herinneringen 🔔
+
+✅ **Klaar**
+- ma–vr **8:15**: nog niet ingeklokt? → melding met knoppen **Inklokken · Vandaag vrij · Ziek**.
+- ma–vr **16:15**: nog ingeklokt? → melding met knoppen **Uitklokken · Over 10 min · Over 20 min** (jouw snooze-wens).
+- Op een vrije of zieke dag komt er geen inklok-melding.
+- Klok je in de app in of uit, dan verdwijnt een melding die niet meer klopt vanzelf.
+- Na het opnieuw opstarten van de telefoon zet de app de herinneringen weer klaar.
+- De eerste keer vraagt Android of de app meldingen mag sturen. Zeg **"Toestaan"**.
+
+🔍 **Getest**
+- ✅ 4 tests voor de planning, bijvoorbeeld vrijdagavond → maandag 8:15 en weekend → maandag.
+- ✅ 3 Robolectric-tests: de melding heeft de 3 knoppen, zonder toestemming komt er geen melding, en de wekkers staan op 8:15 en 16:15.
+- ✅ Android-lint: 0 fouten.
+- ❌ Niet op de telefoon getest.
+- ⚠️ Android mag een herinnering een paar minuten later laten komen, om de batterij te sparen. Precies op de minuut kan alleen met een extra toestemming ("Wekkers"). Die heb ik expres niet gevraagd.
+
+❓ **Voor jou**
+- 🔕 Komen de meldingen niet? Kijk dan bij Instellingen › Apps › Mijn dashboard › Meldingen. Op de Nothing Phone ook bij Batterij › "Niet beperken".

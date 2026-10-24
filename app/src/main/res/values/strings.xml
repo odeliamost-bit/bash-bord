@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mijn dashboard</string>
+    <string name="widget_klok_uitleg">Grote in/uit-knop en je uren van deze week</string>
 </resources>

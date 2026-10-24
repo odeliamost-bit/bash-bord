@@ -32,6 +32,10 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        // Nodig voor Robolectric (plaatjes van de widget zonder telefoon).
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 // Room bewaart een beschrijving van de database in app/schemas (nodig om later veilig te kunnen wijzigen).
@@ -54,4 +58,6 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }
