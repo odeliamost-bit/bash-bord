@@ -48,6 +48,7 @@ import nl.odelia.dashboard.uren.Blok
 import nl.odelia.dashboard.uren.DagSoort
 import nl.odelia.dashboard.uren.KlokActies
 import nl.odelia.dashboard.uren.KlokStaat
+import nl.odelia.dashboard.uren.Urenmail
 
 /** Tabje "Vandaag": grote in/uit-knop en vier tegels. */
 @Composable
@@ -58,6 +59,7 @@ fun VandaagTab(
     onOpenDag: (LocalDate) -> Unit,
     onWeek: () -> Unit,
     onOnthoud: () -> Unit,
+    onUrenmail: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         klok.vergeten?.let { VergetenKaart(it, acties, onOpenDag) }
@@ -85,7 +87,11 @@ fun VandaagTab(
                     Pastels.Koraal, Icoontjes.bladwijzer, "Onthoud", onthoud.open.size.toString(), "${onthoud.vandaagTeDoen.size} vandaag",
                     Modifier.weight(1f).tik(onClick = onOnthoud),
                 )
-                StatTegel(Pastels.Blauw, Icoontjes.mail, "Mail Kim", "vr", "klaar om 16:15", Modifier.weight(1f))
+                StatTegel(
+                    Pastels.Blauw, Icoontjes.mail, "Mail Kim", "vr",
+                    if (Urenmail.staatKlaar(klok.nu, klok)) "staat klaar ✓" else "na je werk",
+                    Modifier.weight(1f).tik(onClick = onUrenmail),
+                )
             }
         }
     }

@@ -66,6 +66,7 @@ fun ThuisScherm(
     onOpenAfspraak: (Afspraak) -> Unit,
     onAlles: () -> Unit,
     onNieuw: (inspreken: Boolean) -> Unit,
+    onUrenmail: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val nu = klok.nu
@@ -84,7 +85,7 @@ fun ThuisScherm(
             WelkomKaart(groet, onder, onVoorlezen = { onVoorlezen("$groet, Odelia! $onder. ${Ochtend.voorlees(onthoud)}") })
             Tabjes(tab, onTab)
             when (tab) {
-                Tab.Vandaag -> VandaagTab(klok, klokActies, onthoud, onOpenDag, onWeek = { onTab(Tab.Werk) }, onOnthoud = { onTab(Tab.Onthoud) })
+                Tab.Vandaag -> VandaagTab(klok, klokActies, onthoud, onOpenDag, onWeek = { onTab(Tab.Werk) }, onOnthoud = { onTab(Tab.Onthoud) }, onUrenmail = onUrenmail)
                 Tab.Werk -> WerkTab(klok, klokActies, onOpenDag)
                 Tab.Onthoud -> OnthoudTab(onthoud, onOpenAfspraak, onAlles, onNieuw = { onNieuw(false) }, onInspreken = { onNieuw(true) })
             }

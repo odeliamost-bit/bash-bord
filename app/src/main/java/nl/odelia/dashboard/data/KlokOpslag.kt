@@ -51,11 +51,13 @@ class KlokOpslag(context: Context) {
         val eersteVanDeDag = nu().blokken.none { it.datum == nu.toLocalDate() }
         bewaar(Blok(UUID.randomUUID().toString(), nu.opMinuut(), null))
         if (eersteVanDeDag) Herinneringen.planOchtend(app, nu)
+        Herinneringen.stopUrenmail(app)
     }
 
     suspend fun klokUit(nu: LocalDateTime = LocalDateTime.now()) {
         val open = openVandaag(nu) ?: return
         bewaar(open.copy(eind = maxOf(nu.opMinuut(), open.begin)))
+        Herinneringen.planUrenmail(app, nu)
     }
 
     /** Nieuw of verbeterd blok. */

@@ -12,6 +12,7 @@ import nl.odelia.dashboard.ui.theme.DashboardThema
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.Voorbeeld
 import nl.odelia.dashboard.uren.KlokActies
+import nl.odelia.dashboard.uren.MailActies
 import nl.odelia.dashboard.uren.KlokStaat
 import org.jetbrains.skia.EncodedImageFormat
 
@@ -36,10 +37,11 @@ fun main(args: Array<String>) {
         tab: Tab = Tab.Vandaag,
         menu: Boolean = false,
         scherm: String? = null,
+        adres: String = "",
     ): @Composable () -> Unit = {
         DashboardThema {
             DashboardApp(
-                k, KlokActies.niets, Voorbeeld.onthoud(k.nu), OnthoudActies.niets, { true },
+                k, KlokActies.niets, Voorbeeld.onthoud(k.nu), OnthoudActies.niets, MailActies.niets, adres, { true },
                 beginPlek = plek, beginTab = tab, beginMenuOpen = menu, beginScherm = scherm,
             )
         }
@@ -61,5 +63,6 @@ fun main(args: Array<String>) {
     teken("15-onthoud-project", 411, 1300, app(scherm = "lijst/project:PVB"))
     teken("16-mensen", 411, 1300, app(plek = Plek.Mensen))
     teken("17-afspraak-aanpassen", 411, 1500, app(scherm = "bewerk/a1"))
+    teken("18-urenmail", 411, 1700, app(k = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50"), scherm = "urenmail", adres = "kim@voorbeeld.nl"))
     teken("12-klaar-voor-vandaag", 411, 870, app(k = Voorbeeld.klok(LocalDateTime.of(2026, 10, 23, 16, 30), vrijdagUit = "15:50")))
 }

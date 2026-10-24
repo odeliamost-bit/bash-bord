@@ -27,6 +27,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app) {
         klok.gegevens().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val weekdoel: StateFlow<Float> = instellingen.weekdoel
+    val kimAdres: StateFlow<String> = instellingen.kimAdres
+    fun zetKimAdres(adres: String) = instellingen.zetKimAdres(adres)
 
     /** Afspraken en personen; `null` zolang de database nog laadt. */
     val onthoudGegevens: StateFlow<Pair<List<Afspraak>, List<Persoon>>?> =

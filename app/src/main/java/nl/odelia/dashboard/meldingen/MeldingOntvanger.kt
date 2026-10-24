@@ -3,10 +3,12 @@ package nl.odelia.dashboard.meldingen
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.MainActivity
 import nl.odelia.dashboard.data.Instellingen
 import nl.odelia.dashboard.data.KlokOpslag
 import nl.odelia.dashboard.data.OnthoudOpslag
@@ -16,6 +18,7 @@ import nl.odelia.dashboard.ui.thuis.tijdTekst
 import nl.odelia.dashboard.uren.DagSoort
 import nl.odelia.dashboard.uren.KlokStaat
 import nl.odelia.dashboard.uren.Planning
+import nl.odelia.dashboard.uren.Urenmail
 
 /** Herinneringen om in en uit te klokken (ma–vr 8:15 en 16:15). */
 object Herinneringen {
@@ -29,6 +32,17 @@ object Herinneringen {
     const val LATER_20 = "nl.odelia.dashboard.LATER_20"
     const val CHECK_MORGEN = "nl.odelia.dashboard.CHECK_MORGEN"
     const val OCHTEND = "nl.odelia.dashboard.OCHTEND"
+    const val URENMAIL = "nl.odelia.dashboard.URENMAIL"
+
+    /** Stap 5: vrijdag 30 minuten na het uitklokken: "urenmail staat klaar". */
+    fun planUrenmail(context: Context, uitgeklokt: LocalDateTime) {
+        if (uitgeklokt.dayOfWeek == DayOfWeek.FRIDAY) {
+            Meldingen.zetWekker(context, Seintje.Urenmail, URENMAIL, uitgeklokt.plus(Urenmail.NA_UITKLOKKEN))
+        }
+    }
+
+    /** Toch weer ingeklokt: dan nog niet. Bij het volgende uitklokken komt een nieuwe. */
+    fun stopUrenmail(context: Context) = Meldingen.haalWekkerWeg(context, Seintje.Urenmail, URENMAIL)
 
     /** Stap 4: 20 minuten na het eerste inklokken van de dag een overzicht. */
     fun planOchtend(context: Context, ingeklokt: LocalDateTime) =
@@ -111,6 +125,12 @@ class MeldingOntvanger : BroadcastReceiver() {
                 val (titel, tekst) = Ochtend.bericht(OnthoudOpslag(context).staat(nu.toLocalDate()))
                 Meldingen.toon(context, Seintje.Ochtend, Meldingen.KANAAL_ONTHOUD, titel, tekst)
             }
+            Herinneringen.URENMAIL -> Meldingen.toon(
+                context, Seintje.Urenmail, Meldingen.KANAAL_ONTHOUD,
+                "📧 Urenmail voor Kim staat klaar",
+                "Tik om hem na te kijken en in Gmail te zetten. De app verstuurt niets zelf.",
+                openActie = MainActivity.ACTIE_URENMAIL,
+            )
             Herinneringen.CHECK_MORGEN -> {
                 Herinneringen.toonMorgen(context, OnthoudOpslag(context).staat(nu.toLocalDate()))
                 Herinneringen.plan(context, nu)

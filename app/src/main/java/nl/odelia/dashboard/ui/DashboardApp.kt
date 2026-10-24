@@ -45,8 +45,10 @@ import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
 import nl.odelia.dashboard.ui.werk.DagScherm
+import nl.odelia.dashboard.ui.werk.UrenmailScherm
 import nl.odelia.dashboard.uren.KlokActies
 import nl.odelia.dashboard.uren.KlokStaat
+import nl.odelia.dashboard.uren.MailActies
 
 /**
  * De hele app: zijbalk links, het gekozen scherm rechts.
@@ -54,7 +56,7 @@ import nl.odelia.dashboard.uren.KlokStaat
  * @param klok alles over in- en uitklokken, uitgerekend voor nu.
  * @param onthoud alle afspraken en personen.
  * @param onVoorlezen leest tekst voor; geeft `false` als dat (nog) niet lukt.
- * @param verzoek iets van buiten de app (gedeelde tekst, widget): opent "Onthoud dit".
+ * @param verzoek iets van buiten de app (gedeelde tekst, widget, melding): opent meteen het goede scherm.
  * @param beginScherm opent meteen een scherm, bv. "dag/2026-10-22" of "nieuw" (voor voorbeelden).
  */
 @Composable
@@ -63,8 +65,10 @@ fun DashboardApp(
     klokActies: KlokActies,
     onthoud: OnthoudStaat,
     onthoudActies: OnthoudActies,
+    mailActies: MailActies,
+    kimAdres: String,
     onVoorlezen: (String) -> Boolean,
-    verzoek: Concept? = null,
+    verzoek: Verzoek? = null,
     onVerzoekGezien: () -> Unit = {},
     beginPlek: Plek = Plek.Thuis,
     beginTab: Tab = Tab.Vandaag,
@@ -100,18 +104,20 @@ fun DashboardApp(
         }
     }
 
-    // Tekst gedeeld vanuit een andere app, of de knop van de widget: meteen "Onthoud dit".
+    // Tekst gedeeld vanuit een andere app, de knop van de widget of een melding: meteen het goede scherm.
     LaunchedEffect(verzoek) {
-        if (verzoek != null) {
-            menuOpen = false
-            nieuw(verzoek)
-            onVerzoekGezien()
+        when (verzoek) {
+            is Verzoek.Onthoud -> nieuw(verzoek.concept)
+            Verzoek.Urenmail -> stapel = "urenmail"
+            null -> return@LaunchedEffect
         }
+        menuOpen = false
+        onVerzoekGezien()
     }
 
     // Werk & uren en Onthoud zijn tabjes op het hoofdscherm.
     val gekozen = when {
-        scherm?.startsWith("dag/") == true -> Plek.Werk
+        scherm?.startsWith("dag/") == true || scherm == "urenmail" -> Plek.Werk
         scherm != null -> Plek.Onthoud
         plek != Plek.Thuis -> plek
         tab == Tab.Werk -> Plek.Werk
@@ -145,6 +151,7 @@ fun DashboardApp(
                     val dag = klok.dag(LocalDate.parse(scherm.removePrefix("dag/")))
                     DagScherm(dag, klok.uren(dag), klok.nu, klokActies, onTerug = ::terug, modifier = inhoud)
                 }
+                scherm == "urenmail" -> UrenmailScherm(klok, kimAdres, mailActies, onMelding = ::toon, onTerug = ::terug, modifier = inhoud)
                 scherm == "nieuw" || scherm?.startsWith("bewerk/") == true -> {
                     val bestaand = onthoud.afspraken.firstOrNull { it.id == scherm.removePrefix("bewerk/") }
                     if (scherm != "nieuw" && bestaand == null) {
@@ -185,6 +192,7 @@ fun DashboardApp(
                     onOpenAfspraak = { open("bewerk/${it.id}") },
                     onAlles = { open("lijst") },
                     onNieuw = { inspreken -> nieuw(Concept(inspreken = inspreken)) },
+                    onUrenmail = { open("urenmail") },
                     modifier = inhoud,
                 )
                 plek == Plek.Mensen -> MensenScherm(

@@ -24,6 +24,7 @@ enum class Seintje(val nummer: Int) {
     UitklokkenLater(3),
     MorgenTeDoen(4),
     Ochtend(5),
+    Urenmail(6),
 }
 
 /** Meldingen tonen en wekkers zetten. */
@@ -59,12 +60,15 @@ object Meldingen {
         titel: String,
         tekst: String,
         knoppen: List<Pair<String, String>> = emptyList(),
+        /** Actie voor de app bij tikken op de melding (bv. meteen de urenmail openen). */
+        openActie: String? = null,
     ) {
         if (!magTonen(context)) return
         maakKanalen(context)
         val open = PendingIntent.getActivity(
             context, seintje.nummer,
-            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            Intent(context, MainActivity::class.java).setAction(openActie)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val melding = NotificationCompat.Builder(context, kanaal)

@@ -2,8 +2,10 @@ package nl.odelia.dashboard
 
 import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
@@ -32,15 +34,17 @@ import nl.odelia.dashboard.onthoud.Bron
 import nl.odelia.dashboard.onthoud.Concept
 import nl.odelia.dashboard.onthoud.OnthoudStaat
 import nl.odelia.dashboard.ui.DashboardApp
+import nl.odelia.dashboard.ui.Verzoek
 import nl.odelia.dashboard.ui.theme.DashboardThema
 import nl.odelia.dashboard.ui.theme.Kleur
+import nl.odelia.dashboard.uren.MailActies
 
 class MainActivity : ComponentActivity() {
     private lateinit var voorlezer: Voorlezer
     private val model: DashboardModel by viewModels()
 
-    /** Iets van buiten de app (gedeelde tekst of de widget) dat "Onthoud dit" moet openen. */
-    private var verzoek by mutableStateOf<Concept?>(null)
+    /** Iets van buiten de app (gedeelde tekst, widget, melding) dat meteen een scherm moet openen. */
+    private var verzoek by mutableStateOf<Verzoek?>(null)
 
     /** Wat er moet gebeuren met de tekst die net is ingesproken. */
     private var naInspreken: ((String) -> Unit)? = null
@@ -64,11 +68,13 @@ class MainActivity : ComponentActivity() {
         vraagMeldingenToestemming()
         if (savedInstanceState == null) verzoek = verzoekUit(intent)
         val onthoudActies = model.onthoudActies(::spreekIn)
+        val mailActies = MailActies(openMail = ::openMail, deel = ::deel, zetAdres = model::zetKimAdres)
         setContent {
             DashboardThema {
                 val gegevens by model.klokGegevens.collectAsStateWithLifecycle()
                 val onthoud by model.onthoudGegevens.collectAsStateWithLifecycle()
                 val weekdoel by model.weekdoel.collectAsStateWithLifecycle()
+                val kimAdres by model.kimAdres.collectAsStateWithLifecycle()
                 val nu by klokTik()
                 val klok = gegevens?.staat(nu, weekdoel)
                 val o = onthoud
@@ -81,6 +87,8 @@ class MainActivity : ComponentActivity() {
                         klokActies = model.klokActies,
                         onthoud = OnthoudStaat(o.first, o.second, nu.toLocalDate()),
                         onthoudActies = onthoudActies,
+                        mailActies = mailActies,
+                        kimAdres = kimAdres,
                         onVoorlezen = voorlezer::spreek,
                         verzoek = verzoek,
                         onVerzoekGezien = { verzoek = null },
@@ -95,16 +103,49 @@ class MainActivity : ComponentActivity() {
         verzoekUit(intent)?.let { verzoek = it }
     }
 
-    /** Gedeelde tekst uit een andere app, of de knoppen van de Onthoud-widget. */
-    private fun verzoekUit(intent: Intent?): Concept? = when (intent?.action) {
+    /** Gedeelde tekst uit een andere app, de knoppen van de Onthoud-widget, of de urenmail-melding. */
+    private fun verzoekUit(intent: Intent?): Verzoek? = when (intent?.action) {
         Intent.ACTION_SEND -> {
             val tekst = listOfNotNull(intent.getStringExtra(Intent.EXTRA_SUBJECT), intent.getStringExtra(Intent.EXTRA_TEXT))
                 .filter { it.isNotBlank() }.distinct().joinToString("\n")
-            if (tekst.isBlank()) null else Concept(tekst = tekst.trim(), bron = Bron.Gedeeld)
+            if (tekst.isBlank()) null else Verzoek.Onthoud(Concept(tekst = tekst.trim(), bron = Bron.Gedeeld))
         }
-        ACTIE_ONTHOUD -> Concept()
-        ACTIE_INSPREKEN -> Concept(inspreken = true)
+        ACTIE_ONTHOUD -> Verzoek.Onthoud(Concept())
+        ACTIE_INSPREKEN -> Verzoek.Onthoud(Concept(inspreken = true))
+        ACTIE_URENMAIL -> Verzoek.Urenmail
         else -> null
+    }
+
+    /**
+     * Gmail openen met aan, onderwerp en tekst al ingevuld (een concept).
+     * VERSTUURT NIETS: Odelia drukt zelf op verzenden. Geen Gmail? Dan een andere mail-app.
+     */
+    private fun openMail(aan: String, onderwerp: String, tekst: String) {
+        val adres = Uri.encode(aan.trim(), "@.+-_")
+        val mail = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$adres?subject=${Uri.encode(onderwerp)}&body=${Uri.encode(tekst)}"))
+            .putExtra(Intent.EXTRA_SUBJECT, onderwerp)
+            .putExtra(Intent.EXTRA_TEXT, tekst)
+        if (aan.isNotBlank()) mail.putExtra(Intent.EXTRA_EMAIL, arrayOf(aan.trim()))
+        try {
+            startActivity(Intent(mail).setPackage("com.google.android.gm"))
+        } catch (_: ActivityNotFoundException) {
+            try {
+                startActivity(Intent.createChooser(mail, "Mail klaarzetten met…"))
+            } catch (_: ActivityNotFoundException) {
+                Toast.makeText(this, "Er is geen mail-app gevonden. Gebruik Kopiëren.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    /** Het "Delen"-menu van Android (zonder deze app zelf erin). */
+    private fun deel(onderwerp: String, tekst: String) {
+        val delen = Intent(Intent.ACTION_SEND).setType("text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, onderwerp)
+            .putExtra(Intent.EXTRA_TEXT, tekst)
+        startActivity(
+            Intent.createChooser(delen, "Urenmail delen")
+                .putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, arrayOf(ComponentName(this, MainActivity::class.java))),
+        )
     }
 
     /** Opent de spraakherkenning van de telefoon (Nederlands). */
@@ -140,6 +181,9 @@ class MainActivity : ComponentActivity() {
 
         /** Opent "Onthoud dit" en begint meteen met inspreken (🎤 van de widget). */
         const val ACTIE_INSPREKEN = "nl.odelia.dashboard.INSPREKEN"
+
+        /** Opent de urenmail (van de melding op vrijdag). */
+        const val ACTIE_URENMAIL = "nl.odelia.dashboard.OPEN_URENMAIL"
     }
 }
 

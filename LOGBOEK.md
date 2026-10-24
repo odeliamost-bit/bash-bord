@@ -185,3 +185,48 @@ Widget: ![Widget Onthoud](logboek/3-widget-onthoud.png)
 
 ❓ **Voor jou**
 - Niets nieuws.
+
+---
+
+## 5. 📧 Urenmail voor Kim
+
+✅ **Klaar**
+- 🔒 **De app verstuurt nooit zelf een mail.** Hij zet alleen een concept klaar.
+- 📧 Scherm **Urenmail**: tik op de tegel "Mail Kim" op het hoofdscherm.
+  - kies **vorige week** of **deze week** (vanaf donderdag staat "deze week" klaar)
+  - vul één keer het e-mailadres van Kim in (blijft alleen op je telefoon)
+  - schrijf eventueel een **opmerking** (komt onder "Hier de uren van afgelopen week.")
+  - je ziet de brief, met daaronder de uren als **tabel**: datum · begin · eind · uren. "vrij" en "ziek" staan er als tekst.
+- ✉️ **Open in Gmail**: Gmail opent met onderwerp "Urenregistratie" en de tekst erin. Jij drukt zelf op verzenden.
+- 📋 **Kopiëren**: om in de bestaande mail "Urenregistratie" op **Beantwoorden** te tikken en te plakken.
+- 📤 **Delen** via het Android-menu.
+- 🔔 **Vrijdag, 30 minuten na het uitklokken**: melding "Urenmail voor Kim staat klaar". Tik erop en het scherm opent. Klok je daarna toch weer in? Dan schuift de melding mee met je nieuwe uitkloktijd.
+- 📄 In **GMAIL-KOPPELING.md** staat wat je later moet instellen voor de échte koppeling. Dan zet de app het concept zelf in de draad, met een echte tabel.
+
+🖼️ **Plaatjes**
+
+| Urenmail | Tegel "Mail Kim" |
+|---|---|
+| ![](logboek/5-urenmail.png) | ![](logboek/5-vandaag-mail-kim.png) |
+
+In de mail zelf ziet het overzicht er zo uit (gewone regels, want een tabel kan Gmail op deze manier niet maken):
+
+```
+ma 19-10-2026: 7:45 – 15:45 = 7,25 uur
+di 20-10-2026: 7:30 – 16:00 = 7,75 uur
+wo 21-10-2026: vrij
+do 22-10-2026: ziek
+vr 23-10-2026: 7:45 – 15:50 = 7,33 uur
+Totaal: 22,33 uur
+```
+
+🔍 **Getest**
+- ✅ 6 tests voor de mail: de tekst precies zoals in CLAUDE.md, vrij/ziek, opmerking, komma-getallen, welke week, en "staat klaar".
+- ✅ Een test dat uitklokken op vrijdag om 15:00 een wekker zet om 15:30.
+- ✅ Echte Android-app gebouwd.
+- ❌ Niet op de telefoon getest: of Gmail opent met alles ingevuld. De meeste Gmail-versies doen dat. Gebeurt het niet, gebruik dan Kopiëren.
+
+❓ **Vragen voor jou**
+- 🔢 Wil Kim de uren als **7,25** (zoals nu) of als **7:15**?
+- 📅 Moet de **datum** zo: "19-10-2026"? Of liever "maandag 19 oktober"?
+- 📧 Moet er nog iets anders in de mail, bijvoorbeeld je personeelsnummer?

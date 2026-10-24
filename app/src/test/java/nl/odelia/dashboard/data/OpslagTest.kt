@@ -43,6 +43,8 @@ class OpslagTest {
         val wekkers = shadowOf(context.getSystemService(AlarmManager::class.java)).scheduledAlarms
         val tijden = wekkers.map { LocalDateTime.ofInstant(Instant.ofEpochMilli(it.triggerAtMs), ZoneId.systemDefault()).withSecond(0) }
         assertTrue(LocalDateTime.of(2026, 10, 23, 8, 5) in tijden)
+        // Stap 5: het is vrijdag, uitgeklokt om 15:00 → om 15:30 "urenmail staat klaar".
+        assertTrue(LocalDateTime.of(2026, 10, 23, 15, 30) in tijden)
     }
 
     @Test
