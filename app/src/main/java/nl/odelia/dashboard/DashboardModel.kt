@@ -16,14 +16,19 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.data.KluisOpslag
 import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
+import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.KluisStaat
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Plek
+import nl.odelia.dashboard.logica.ReceptenData
+import nl.odelia.dashboard.logica.WachtwoordenData
 import nl.odelia.dashboard.logica.Zeilweer
 import nl.odelia.dashboard.online.Online
 import nl.odelia.dashboard.ui.AppActies
@@ -35,6 +40,9 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val opslag = Opslag.van(app)
     private val voorlezer = Voorlezer(app)
     private val leren = LerenOpslag.van(app)
+    private val recepten = ReceptenOpslag.van(app)
+    private val kluisOpslag = KluisOpslag.van(app)
+    private val kluis = MutableStateFlow(KluisStaat())
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -52,7 +60,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         }
 
     val staat: StateFlow<AppStaat> =
-        combine(basis, leren.data) { s, l -> s.copy(leren = l) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        combine(basis, leren.data, kluis, recepten.data) { s, l, k, r -> s.copy(leren = l, kluis = k, recepten = r) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
@@ -77,6 +85,47 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun verwijder(id: String) = doe { opslag.verwijder(id) }
 
     override fun wijzigLeren(wat: (LerenData) -> LerenData) = leren.wijzig(wat)
+
+    override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
+
+    // ---- Wachtwoorden (versleuteld; ontgrendelen doet MainActivity met de telefoon zelf) ----
+
+    /** Na gelukt ontgrendelen: ontsleutelen en laten zien. */
+    fun kluisOpen() {
+        viewModelScope.launch {
+            kluis.value = try {
+                KluisStaat(open = true, data = kluisOpslag.lees())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                KluisStaat(fout = "Openen lukte niet. Probeer het nog een keer.")
+            }
+        }
+    }
+
+    fun kluisFout(tekst: String?) {
+        kluis.value = KluisStaat(fout = tekst)
+    }
+
+    override fun opSlot() {
+        if (kluis.value != KluisStaat()) kluis.value = KluisStaat()
+    }
+
+    override fun wijzigWachtwoorden(wat: (WachtwoordenData) -> WachtwoordenData) {
+        val nu = kluis.value
+        if (!nu.open) return
+        val nieuw = wat(nu.data)
+        kluis.value = nu.copy(data = nieuw)
+        viewModelScope.launch {
+            try {
+                kluisOpslag.bewaar(nieuw)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                kluis.update { it.copy(fout = "Bewaren lukte niet.") }
+            }
+        }
+    }
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----
 
