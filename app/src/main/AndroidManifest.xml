@@ -3,6 +3,8 @@
 
     <!-- Meldingen tonen (Android 13+ vraagt hier toestemming voor). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Alleen voor Zeilweer, en alleen als Odelia eerst "ja" zegt. Zie online/Online.kt. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Na het opstarten van de telefoon de herinneringen opnieuw zetten. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
