@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import nl.odelia.dashboard.ui.cyclus.CyclusScherm
+import nl.odelia.dashboard.ui.geld.GeldBegin
+import nl.odelia.dashboard.ui.geld.GeldScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
 import nl.odelia.dashboard.ui.leren.LerenScherm
@@ -62,6 +64,7 @@ sealed interface Scherm {
     data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
     data object Cyclus : Scherm
     data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
+    data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -109,6 +112,7 @@ fun DashboardApp(
             Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
             Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
+            Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -146,6 +150,7 @@ fun DashboardApp(
         is Scherm.Leren -> Plek.Leren
         Scherm.Cyclus -> Plek.Cyclus
         is Scherm.Wensen -> Plek.Wensen
+        is Scherm.Geld -> Plek.Geld
         is Scherm.Later -> scherm.plek
     }
 
@@ -195,6 +200,7 @@ fun DashboardApp(
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 

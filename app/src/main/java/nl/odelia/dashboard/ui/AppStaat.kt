@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import nl.odelia.dashboard.logica.CyclusData
 import nl.odelia.dashboard.logica.DagSoort
+import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
@@ -24,6 +25,7 @@ data class AppStaat(
     val leren: LerenData = LerenData(),
     val cyclus: CyclusData = CyclusData(),
     val wensen: WensenData = WensenData(),
+    val geld: GeldData = GeldData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -77,6 +79,11 @@ interface AppActies {
 
     /** Wensen aanpassen. Wordt meteen op de telefoon bewaard. Gaat nooit online. */
     fun wijzigWensen(wat: (WensenData) -> WensenData) {}
+    /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen op de telefoon bewaard. Gaat nooit online. */
+    fun wijzigGeld(wat: (GeldData) -> GeldData) {}
+
+    /** Deel tekst met een andere app (bijv. Google Drive of Sheets). Geeft `false` als dat niet lukt. */
+    fun deelTekst(titel: String, tekst: String): Boolean = false
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

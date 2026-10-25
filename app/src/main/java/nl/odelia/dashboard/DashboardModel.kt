@@ -17,11 +17,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.odelia.dashboard.data.Bestanden
+import nl.odelia.dashboard.data.GeldOpslag
 import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.logica.CyclusData
 import nl.odelia.dashboard.logica.DagSoort
+import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
@@ -41,6 +43,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val leren = LerenOpslag.van(app)
     private val cyclus = Bestanden.cyclus(app)
     private val wensen = Bestanden.wensen(app)
+    private val geld = GeldOpslag.van(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -59,6 +62,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     val staat: StateFlow<AppStaat> =
         combine(basis, leren.data, cyclus.data, wensen.data) { s, l, c, w -> s.copy(leren = l, cyclus = c, wensen = w) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        combine(basis, leren.data, geld.data) { s, l, g -> s.copy(leren = l, geld = g) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
@@ -88,6 +92,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         cyclus.wijzig(wat) { Planner.plan(getApplication<Application>()) }
 
     override fun wijzigWensen(wat: (WensenData) -> WensenData) = wensen.wijzig(wat)
+    override fun wijzigGeld(wat: (GeldData) -> GeldData) = geld.wijzig(wat)
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----
 

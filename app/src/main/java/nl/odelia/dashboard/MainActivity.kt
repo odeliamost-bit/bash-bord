@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
                     override fun openLink(link: String) = openInBrowser(link)
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
+                    override fun deelTekst(titel: String, tekst: String) = deel(titel, tekst)
                 }
             }
             DashboardThema {
@@ -144,6 +145,20 @@ class MainActivity : ComponentActivity() {
     }
 
     /** Zet een nieuwe mail klaar in Gmail (of laat kiezen). Versturen doet Odelia zelf. */
+    /** Tekst delen met een andere app (Drive, Sheets, ...). De app zelf gaat niet online. */
+    private fun deel(titel: String, tekst: String): Boolean {
+        val stuur = Intent(Intent.ACTION_SEND)
+            .setType("text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, titel)
+            .putExtra(Intent.EXTRA_TEXT, tekst)
+        return try {
+            startActivity(Intent.createChooser(stuur, titel))
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
+    }
+
     private fun openMailApp(onderwerp: String, tekst: String): Boolean {
         val mail = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
