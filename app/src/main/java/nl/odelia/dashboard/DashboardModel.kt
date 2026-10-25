@@ -26,6 +26,11 @@ import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.logica.CyclusData
+import nl.odelia.dashboard.data.AdviesOpslag
+import nl.odelia.dashboard.data.LerenOpslag
+import nl.odelia.dashboard.data.Opslag
+import nl.odelia.dashboard.data.PlekOpslag
+import nl.odelia.dashboard.logica.AdviesData
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
@@ -49,6 +54,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val wensen = Bestanden.wensen(app)
     private val geld = GeldOpslag.van(app)
     private val fotos = FotoOpslag.van(app)
+    private val advies = AdviesOpslag.van(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -69,6 +75,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         combine(basis, leren.data, cyclus.data, wensen.data) { s, l, c, w -> s.copy(leren = l, cyclus = c, wensen = w) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
         combine(basis, leren.data, geld.data) { s, l, g -> s.copy(leren = l, geld = g) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
         combine(basis, leren.data, fotos.data) { s, l, f -> s.copy(leren = l, fotos = f) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        combine(basis, leren.data, advies.data) { s, l, a -> s.copy(leren = l, advies = a) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
@@ -123,6 +130,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     override fun wijzigWensen(wat: (WensenData) -> WensenData) = wensen.wijzig(wat)
     override fun wijzigGeld(wat: (GeldData) -> GeldData) = geld.wijzig(wat)
+    override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----
 

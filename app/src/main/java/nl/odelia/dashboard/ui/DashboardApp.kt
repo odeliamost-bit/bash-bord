@@ -31,9 +31,15 @@ import kotlinx.coroutines.delay
 import nl.odelia.dashboard.ui.cyclus.CyclusScherm
 import nl.odelia.dashboard.ui.geld.GeldBegin
 import nl.odelia.dashboard.ui.geld.GeldScherm
+import nl.odelia.dashboard.ui.advies.AdviesBegin
+import nl.odelia.dashboard.ui.advies.AdviesScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
 import nl.odelia.dashboard.ui.leren.LerenScherm
+import nl.odelia.dashboard.ui.mail.MailBegin
+import nl.odelia.dashboard.ui.mail.MailScherm
+import nl.odelia.dashboard.ui.mensen.MensenBegin
+import nl.odelia.dashboard.ui.mensen.MensenScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -65,6 +71,9 @@ sealed interface Scherm {
     data object Cyclus : Scherm
     data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
     data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
+    data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
+    data class Mail(val begin: MailBegin = MailBegin()) : Scherm
+    data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -107,7 +116,9 @@ fun DashboardApp(
             Plek.Thuis -> { ga(Scherm.Thuis); tab = Tab.Vandaag }
             Plek.Werk -> { ga(Scherm.Thuis); tab = Tab.Werk }
             Plek.Onthoud -> { ga(Scherm.Thuis); ga(Scherm.Lijst()) }
-            Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
+            Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Mensen()) }
+            Plek.Mail -> { ga(Scherm.Thuis); ga(Scherm.Mail()) }
+            Plek.Advies -> { ga(Scherm.Thuis); ga(Scherm.Advies()) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
             Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
@@ -151,6 +162,9 @@ fun DashboardApp(
         Scherm.Cyclus -> Plek.Cyclus
         is Scherm.Wensen -> Plek.Wensen
         is Scherm.Geld -> Plek.Geld
+        is Scherm.Mensen -> Plek.Mensen
+        is Scherm.Mail -> Plek.Mail
+        is Scherm.Advies -> Plek.Advies
         is Scherm.Later -> scherm.plek
     }
 
@@ -201,6 +215,9 @@ fun DashboardApp(
                 Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Mensen -> MensenScherm(staat, acties, onTerug = ::terug, onGaNaar = ::ga, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Advies -> AdviesScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 

@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import nl.odelia.dashboard.logica.CyclusData
+import nl.odelia.dashboard.logica.AdviesData
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
@@ -28,6 +29,7 @@ data class AppStaat(
     val geld: GeldData = GeldData(),
     /** Foto bij een Onthoud-item: id → pad van het bestand op de telefoon. */
     val fotos: Map<String, String> = emptyMap(),
+    val advies: AdviesData = AdviesData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -97,6 +99,8 @@ interface AppActies {
     fun gooiFotoWeg(pad: String) {}
     /** Klein plaatje van een foto, of `null`. */
     fun laadFoto(pad: String): ImageBitmap? = null
+    /** Advies aanpassen (⭐-favorieten). Wordt meteen op de telefoon bewaard (advies.json). Gaat nooit online. */
+    fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */
