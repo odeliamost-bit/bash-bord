@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -535,7 +534,7 @@ private fun DoelenKaart(data: LerenData, vandaag: LocalDate, onDoel: (String) ->
                 ) { if (klaar) Tekst("✓", 18.sp, kleur = Color.White) }
                 Tekst(d.emoji, 24.sp)
                 Column(Modifier.weight(1f)) {
-                    Tekst(d.wat, 17.sp, kleur = Kleur.Inkt, versiering = if (klaar) TextDecoration.LineThrough else null)
+                    Tekst(if (klaar) "${d.wat} ✓" else d.wat, 17.sp, kleur = if (klaar) Grijs else Kleur.Inkt)
                     Tekst(d.sub, 13.sp, dikte = FontWeight.Bold, kleur = Grijs)
                 }
             }

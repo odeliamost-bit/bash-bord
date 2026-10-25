@@ -46,8 +46,8 @@ val ZijbalkRuimte = 88.dp
 
 /**
  * Menu aan de linkerkant (ontwerp/Navigatie.dc.html).
- * Dicht: alleen icoontjes. Tik op een icoontje of de pijl = menu open.
- * Open: icoontjes met naam. Tik op een naam = daarheen.
+ * Dicht: alleen icoontjes. Tik op een icoontje = meteen daarheen (menu blijft dicht).
+ * De bovenste knop (pijl) schuift het menu uit: dan zie je ook de namen.
  */
 @Composable
 fun Zijbalk(
