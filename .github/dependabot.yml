@@ -1,0 +1,23 @@
+# Elke week kijken of er updates zijn (vooral beveiligingsupdates) voor
+# de bouwstenen van de app en de hulpjes in het bouw-recept.
+# Dependabot maakt dan een pull request; GitHub bouwt en test die eerst.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: saturday
+    open-pull-requests-limit: 5
+    groups:
+      bouwstenen:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: saturday
+    groups:
+      bouw-recept:
+        patterns: ["*"]

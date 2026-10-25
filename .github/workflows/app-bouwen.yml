@@ -1,31 +1,45 @@
 name: App bouwen
 
 # Bouwt de app bij elke nieuwe code, draait de testjes en zet de nieuwste
-# versie klaar op één vaste link (zie README: "App op de telefoon zetten").
+# versie klaar op één vaste link (zie README: "App op je telefoon zetten").
+#
+# Beveiliging:
+# - Elk hulpje staat vast op een precieze versie (de lange code achter @).
+#   Dependabot meldt het als er een nieuwere is (.github/dependabot.yml).
+# - Standaard mag het recept alleen lezen; alleen "klaarzetten" mag schrijven.
+# - Bij een pull request wordt alleen gebouwd en getest, niks klaargezet.
 on:
   push:
     branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: app-bouwen
+  group: app-bouwen-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   bouwen:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/setup-gradle@v4
+      # Controleert ook of gradle-wrapper.jar echt van Gradle is.
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          validate-wrappers: true
 
       - name: Vaste handtekening klaarzetten (als die is ingesteld)
         env:
@@ -41,23 +55,66 @@ jobs:
       - name: Bouwen en testen
         env:
           SLEUTEL_WACHTWOORD: ${{ secrets.APP_SLEUTEL_WACHTWOORD }}
-        run: ./gradlew assembleDebug testDebugUnitTest --stacktrace
+        run: ./gradlew assembleRelease testReleaseUnitTest --stacktrace
+
+      - name: Controle — geen internet en geen testversie
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          aapt2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2"
+          "$aapt2" dump permissions "$apk" | tee rechten.txt
+          if grep -q "android.permission.INTERNET" rechten.txt; then
+            echo "::error::De app vraagt om internet-toegang. Dat hoort niet: alle gegevens blijven op de telefoon."
+            exit 1
+          fi
+          if "$aapt2" dump badging "$apk" | grep -q "application-debuggable"; then
+            echo "::error::Dit is een testversie (debuggable). Die mag niet naar de telefoon."
+            exit 1
+          fi
+          cp "$apk" mijn-dashboard.apk
+          sha256sum mijn-dashboard.apk | tee mijn-dashboard.apk.sha256
 
       - name: Testverslag bewaren
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: testverslag
           path: app/build/reports/tests/
+          retention-days: 7
+
+      - name: App bewaren voor de volgende stap
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mijn-dashboard
+          path: |
+            mijn-dashboard.apk
+            mijn-dashboard.apk.sha256
+          retention-days: 7
+
+  klaarzetten:
+    needs: bouwen
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Eén tegelijk, zodat twee builds niet door elkaar de link vervangen.
+    concurrency:
+      group: nieuwste-versie
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: mijn-dashboard
 
       - name: Nieuwste versie klaarzetten
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk mijn-dashboard.apk
+          controle="$(cut -d' ' -f1 mijn-dashboard.apk.sha256)"
           gh release delete nieuwste --yes --cleanup-tag || true
-          gh release create nieuwste mijn-dashboard.apk \
+          gh release create nieuwste mijn-dashboard.apk mijn-dashboard.apk.sha256 \
             --target "$GITHUB_SHA" \
             --prerelease \
             --title "Nieuwste versie" \
-            --notes "Gebouwd uit ${GITHUB_REF_NAME} (${GITHUB_SHA::7}). Open deze pagina op je telefoon en tik op mijn-dashboard.apk."
+            --notes "Gebouwd uit ${GITHUB_REF_NAME} (${GITHUB_SHA::7}). Open deze pagina op je telefoon en tik op mijn-dashboard.apk. Controlecode (SHA-256): ${controle}"
