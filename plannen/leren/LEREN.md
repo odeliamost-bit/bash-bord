@@ -2,11 +2,10 @@
 
 Dit is een plan. Er staat nog **geen code** in. Lees eerst `CLAUDE.md`. Alle regels daar blijven gelden: eerst een plan, dan "mag ik?", en daarna kleine stappen.
 
-## ⚠️ Eerst vragen
+## ✅ Al gekozen (25 oktober 2026)
 
-In `CLAUDE.md` staat Leren bij **fase 2**. Fase 1 (klokken, Onthoud) is nog niet af.
-
-Vraag Odelia daarom eerst: wil je Leren nu al doen, of eerst fase 1 afmaken?
+- **Eerst fase 1 afmaken.** Leren komt daarna, in fase 2. Begin hier pas aan als Odelia dat zegt.
+- **Sleutel voor Claude: via een backend** (server). Zie 🔑.
 
 ## 🎯 Wat Odelia wil
 
@@ -77,12 +76,12 @@ Een nieuwe kaart begint in G1 en is meteen klaar.
 
 De tutor en "kaarten maken" hebben de Claude API nodig. **Er mag geen API-sleutel in git** (regel 5).
 
-Leg Odelia de opties eenvoudig uit en laat haar kiezen:
+Odelia koos voor een **backend**. Bijvoorbeeld een Cloudflare Worker, die staat al bij "later" in `CLAUDE.md`. De sleutel staat dan veilig op de server, en de app praat alleen met de server.
 
-1. **Backend** (Cloudflare Worker, staat al bij "later"): de sleutel staat veilig op de server. Dit is netjes, maar het is meer werk.
-2. **Tijdelijk**: Odelia typt haar sleutel zelf in bij de instellingen van de app. De app bewaart hem versleuteld op de telefoon. De sleutel komt niet in de code en niet in git.
+- Maak eerst een kort plan voor die backend: wat er nodig is, en wat het kost.
+- Vraag daarna of je mag beginnen.
 
-Tot die keuze gemaakt is werken de flashcards al wel, en kan Odelia de tutor gebruiken in de webversie.
+Tot de backend er is werken de flashcards al wel, en kan Odelia de tutor gebruiken in de webversie.
 
 ## 💾 Data (Room)
 
@@ -98,7 +97,7 @@ Elk record heeft een UUID en `updated_at`, zoals in `CLAUDE.md` staat.
 
 1. **Flashcards** met de basiskaarten, de groepenkast en de herhaalregels. Werkt helemaal offline.
 2. **Koppelen** aan het Leren-scherm: de Overhoren-knop, het doel bij "Vandaag" en "Deze week geleerd".
-3. **Keuze voor Claude** (zie 🔑). Daarna de tutor.
+3. **Backend voor Claude** (zie 🔑). Daarna de tutor.
 4. **Kaarten maken**, eerst met tekst en daarna met een foto.
 
 ## ✅ Testen
