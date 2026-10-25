@@ -20,6 +20,8 @@ data class AppStaat(
     val onthoud: List<Onthoud> = emptyList(),
     val zeilweer: ZeilweerStaat = ZeilweerStaat(),
     val leren: LerenData = LerenData(),
+    /** Foto bij een Onthoud-item: id → pad van het bestand op de telefoon. */
+    val fotos: Map<String, String> = emptyMap(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -67,6 +69,18 @@ interface AppActies {
 
     /** Leren aanpassen (bakjes, quiz, eigen kaarten). Wordt meteen op de telefoon bewaard. Gaat nooit online. */
     fun wijzigLeren(wat: (LerenData) -> LerenData) {}
+
+    // Foto's bij Onthoud. Blijven op de telefoon (filesDir), gaan nooit online.
+    /** Camera openen; [klaar] krijgt het pad van de bewaarde foto (of null). Geeft `false` als het niet kan. */
+    fun maakFoto(klaar: (String?) -> Unit): Boolean = false
+    /** Foto kiezen uit de galerij; [klaar] krijgt het pad van de kopie in de app (of null). */
+    fun kiesFoto(klaar: (String?) -> Unit): Boolean = false
+    /** Foto bij een Onthoud-item zetten, of weghalen met `null`. */
+    fun zetFoto(id: String, pad: String?) {}
+    /** Een foto die niet bewaard wordt (bv. na het kruisje) weer weggooien. */
+    fun gooiFotoWeg(pad: String) {}
+    /** Klein plaatje van een foto, of `null`. */
+    fun laadFoto(pad: String): ImageBitmap? = null
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

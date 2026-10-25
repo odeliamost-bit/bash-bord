@@ -16,6 +16,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.compose.ui.graphics.asImageBitmap
+import nl.odelia.dashboard.data.FotoOpslag
 import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
@@ -35,6 +39,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val opslag = Opslag.van(app)
     private val voorlezer = Voorlezer(app)
     private val leren = LerenOpslag.van(app)
+    private val fotos = FotoOpslag.van(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -52,7 +57,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         }
 
     val staat: StateFlow<AppStaat> =
-        combine(basis, leren.data) { s, l -> s.copy(leren = l) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        combine(basis, leren.data, fotos.data) { s, l, f -> s.copy(leren = l, fotos = f) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
@@ -74,7 +79,31 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     override fun bewaar(onthoud: Onthoud) = doe { opslag.bewaar(onthoud) }
 
-    override fun verwijder(id: String) = doe { opslag.verwijder(id) }
+    override fun verwijder(id: String) {
+        fotos.zet(id, null)
+        doe { opslag.verwijder(id) }
+    }
+
+    override fun zetFoto(id: String, pad: String?) = fotos.zet(id, pad)
+
+    override fun gooiFotoWeg(pad: String) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) { fotos.gooiWeg(pad) }
+    }
+
+    override fun laadFoto(pad: String) = fotos.laad(pad)?.asImageBitmap()
+
+    /** Camera-foto of gekozen foto opslaan in de app (niet op de hoofdlijn). */
+    fun bewaarFoto(beeld: Bitmap, klaar: (String?) -> Unit) {
+        viewModelScope.launch {
+            klaar(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { fotos.bewaarBitmap(beeld) })
+        }
+    }
+
+    fun bewaarFoto(uri: Uri, klaar: (String?) -> Unit) {
+        viewModelScope.launch {
+            klaar(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { fotos.bewaarUri(uri) })
+        }
+    }
 
     override fun wijzigLeren(wat: (LerenData) -> LerenData) = leren.wijzig(wat)
 
