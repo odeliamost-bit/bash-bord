@@ -138,6 +138,7 @@ private fun menuKleuren(plek: Plek): Pair<Color, Color> = when (plek) {
     Plek.Wensen -> Color(0xFFF7B7AE) to Color(0xFFE8877A)
     Plek.Zeilweer -> Color(0xFFA9CBF2) to Color(0xFF5B8FD6)
     Plek.Wachtwoorden -> Color(0xFF9AD1D4) to Color(0xFF5FA8AD)
+    Plek.Recepten -> Color(0xFFF8C29C) to Color(0xFFE9956A)
 }
 
 private fun menuPad(plek: Plek): String = when (plek) {
@@ -153,6 +154,7 @@ private fun menuPad(plek: Plek): String = when (plek) {
     Plek.Wensen -> "M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"
     Plek.Zeilweer -> "M12 3v14M12 4l7 11h-7zM10 6l-6 9h6zM3 18h18l-2.5 3h-13z"
     Plek.Wachtwoorden -> "M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"
+    Plek.Recepten -> "M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 0-3 2.5-3 6s1 4 3 4v8"
 }
 
 private fun menuVormen(plek: Plek): List<Vorm> {
