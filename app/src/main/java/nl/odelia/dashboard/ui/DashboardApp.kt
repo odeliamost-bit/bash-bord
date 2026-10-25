@@ -198,13 +198,10 @@ fun DashboardApp(
                 open = menuOpen,
                 gekozen = gekozen,
                 onWissel = { menuOpen = !menuOpen },
+                // Tik op een icoontje = meteen daarheen. Alleen de oranje knop klapt het menu uit.
                 onKies = { plek ->
-                    if (!menuOpen) {
-                        menuOpen = true
-                    } else {
-                        naarPlek(plek)
-                        menuOpen = false
-                    }
+                    naarPlek(plek)
+                    menuOpen = false
                 },
                 modifier = Modifier.padding(12.dp),
             )
