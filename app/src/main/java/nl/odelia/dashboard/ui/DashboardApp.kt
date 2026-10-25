@@ -47,7 +47,9 @@ import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.onthoud.OnthoudLijstScherm
 import nl.odelia.dashboard.ui.onthoud.ToevoegenScherm
 import nl.odelia.dashboard.ui.theme.Kleur
+import nl.odelia.dashboard.ui.recepten.ReceptenScherm
 import nl.odelia.dashboard.ui.thuis.Tab
+import nl.odelia.dashboard.ui.wachtwoorden.WachtwoordenScherm
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
 import nl.odelia.dashboard.ui.weer.ZeilweerScherm
 import nl.odelia.dashboard.ui.wensen.WensenBegin
@@ -74,6 +76,8 @@ sealed interface Scherm {
     data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
     data class Mail(val begin: MailBegin = MailBegin()) : Scherm
     data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
+    data object Wachtwoorden : Scherm
+    data class Recepten(val gekozen: String? = null) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -124,6 +128,8 @@ fun DashboardApp(
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
             Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
             Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
+            Plek.Wachtwoorden -> { ga(Scherm.Thuis); ga(Scherm.Wachtwoorden) }
+            Plek.Recepten -> { ga(Scherm.Thuis); ga(Scherm.Recepten()) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -165,6 +171,8 @@ fun DashboardApp(
         is Scherm.Mensen -> Plek.Mensen
         is Scherm.Mail -> Plek.Mail
         is Scherm.Advies -> Plek.Advies
+        Scherm.Wachtwoorden -> Plek.Wachtwoorden
+        is Scherm.Recepten -> Plek.Recepten
         is Scherm.Later -> scherm.plek
     }
 
@@ -218,6 +226,8 @@ fun DashboardApp(
                 is Scherm.Mensen -> MensenScherm(staat, acties, onTerug = ::terug, onGaNaar = ::ga, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Advies -> AdviesScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                Scherm.Wachtwoorden -> WachtwoordenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
+                is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 

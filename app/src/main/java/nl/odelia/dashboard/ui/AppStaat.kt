@@ -9,10 +9,14 @@ import nl.odelia.dashboard.logica.AdviesData
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.KluisStaat
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
 import nl.odelia.dashboard.logica.Plek
+import nl.odelia.dashboard.logica.ReceptenData
+import nl.odelia.dashboard.logica.ReceptenStart
+import nl.odelia.dashboard.logica.WachtwoordenData
 import nl.odelia.dashboard.logica.Weerbericht
 import nl.odelia.dashboard.logica.WensenData
 
@@ -30,6 +34,8 @@ data class AppStaat(
     /** Foto bij een Onthoud-item: id → pad van het bestand op de telefoon. */
     val fotos: Map<String, String> = emptyMap(),
     val advies: AdviesData = AdviesData(),
+    val kluis: KluisStaat = KluisStaat(),
+    val recepten: ReceptenData = ReceptenData(ReceptenStart.recepten),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -101,6 +107,21 @@ interface AppActies {
     fun laadFoto(pad: String): ImageBitmap? = null
     /** Advies aanpassen (⭐-favorieten). Wordt meteen op de telefoon bewaard (advies.json). Gaat nooit online. */
     fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
+    // Wachtwoorden. Ontgrendelen gaat met de vingerafdruk/pincode van de telefoon zelf.
+    fun ontgrendel() {}
+    fun opSlot() {}
+
+    /** Alleen als de kluis open is. Wordt meteen versleuteld bewaard. */
+    fun wijzigWachtwoorden(wat: (WachtwoordenData) -> WachtwoordenData) {}
+
+    /** Kopieer een wachtwoord (gemarkeerd als gevoelig, na een minuut weer weg). */
+    fun kopieerGeheim(tekst: String): Boolean = false
+
+    /** Geen schermafdruk of opname zolang dit aan staat. */
+    fun geheimScherm(aan: Boolean) {}
+
+    /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
+    fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */
