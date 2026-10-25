@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.ui.weer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -125,6 +127,8 @@ fun ZeilweerScherm(staat: AppStaat, acties: AppActies, onTerug: () -> Unit, modi
                 }
                 z.fout?.let { Tekst(it, 16.sp, kleur = Kleur.KoraalDiep) }
             }
+
+            WeerApps(acties)
 
             Tekst(
                 "Bron: Open-Meteo. Dit is een voorspelling; het kan anders uitpakken. Kijk ook naar de lucht en luister naar je club. ⛵",
@@ -306,6 +310,34 @@ private fun UurRegel(u: Uurweer) {
         Column(horizontalAlignment = Alignment.End) {
             Tekst(u.stoot?.let { "↑${it.roundToInt()}" } ?: "", 15.sp, eenRegel = true, kleur = if (teVeel) Color(0xFFC0392B) else Zacht)
             Tekst(u.regen?.let { "💧${"%.1f".format(it)}" } ?: "", 13.sp, eenRegel = true, dikte = FontWeight.Bold, kleur = Zacht)
+        }
+    }
+}
+
+/** Knoppen naar Odelia's eigen weer-apps, met het echte icoontje van de telefoon. Niet geïnstalleerd = niet getoond. */
+@Composable
+private fun WeerApps(acties: AppActies) {
+    val apps = remember(acties) {
+        Zeilweer.weerApps.mapNotNull { app -> acties.appIcoon(app.pakket)?.let { app to it } }
+    }
+    if (apps.isEmpty()) return
+    Kaart {
+        Tekst("📱 Kijk ook in", 17.sp, kleur = Diep)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            apps.forEach { (app, icoon) ->
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(18.dp))
+                        .clickable(role = Role.Button, onClickLabel = "${app.naam} openen") { acties.openApp(app.pakket) }
+                        .padding(vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Image(icoon, contentDescription = null, Modifier.size(56.dp).clip(RoundedCornerShape(14.dp)))
+                    Tekst(app.naam, 14.sp, eenRegel = true, dikte = FontWeight.ExtraBold, kleur = Diep)
+                }
+            }
         }
     }
 }

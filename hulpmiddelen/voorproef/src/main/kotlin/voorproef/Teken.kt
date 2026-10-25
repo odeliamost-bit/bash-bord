@@ -2,6 +2,10 @@ package voorproef
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ImageComposeScene
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.unit.Density
 import java.io.File
 import nl.odelia.dashboard.ui.AppActies
@@ -38,6 +42,12 @@ fun main(args: Array<String>) {
     teken("9-urenmail", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Urenmail) }
     teken("10-tablet", 800, 1200) { DashboardApp(staat, geen) }
     val metWeer = staat.copy(zeilweer = Voorbeeld.zeilweer())
-    teken("11-zeilweer", 411, 1900) { DashboardApp(metWeer, geen, beginScherm = Scherm.Zeilweer) }
+    // Op de computer staan geen weer-apps: grijze vlakjes in plaats van de echte icoontjes.
+    val metApps = object : AppActies {
+        override fun appIcoon(pakket: String) = ImageBitmap(144, 144).also {
+            Canvas(it).drawRect(0f, 0f, 144f, 144f, Paint().apply { color = Color(0xFFB8C4CC) })
+        }
+    }
+    teken("11-zeilweer", 411, 2150) { DashboardApp(metWeer, metApps, beginScherm = Scherm.Zeilweer) }
     teken("12-zeilweer-plek", 411, 870) { DashboardApp(staat, geen, beginScherm = Scherm.Zeilweer) }
 }
