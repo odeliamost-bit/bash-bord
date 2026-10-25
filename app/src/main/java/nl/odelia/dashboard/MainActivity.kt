@@ -60,8 +60,6 @@ class MainActivity : ComponentActivity() {
     }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    private var model: DashboardModel? = null
-
     /** Oude telefoons (voor Android 10): ontgrendelen met het gewone schermslot. */
     private val schermslot = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultaat ->
         if (resultaat.resultCode == RESULT_OK) model?.kluisOpen() else model?.kluisFout(null)
