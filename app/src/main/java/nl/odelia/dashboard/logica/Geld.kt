@@ -23,6 +23,8 @@ data class Potje(
     /** Deel van de rest bij verdelen, bv. Investeren 30. */
     val procent: Int? = null,
     val echteRekening: Boolean = false,
+    /** Naam van die echte rekening, bv. "ING-spaarrekening" of "Giro-rekening". */
+    val rekening: String? = null,
 )
 
 /**
@@ -211,8 +213,16 @@ object Geld {
         val naar = potjes.find { it.id == boeking.naarPotjeId }
         if (van?.echteRekening != true && naar?.echteRekening != true) return null
         return "Vergeet niet: maak ${bedrag(boeking.cent)} over in de ING-app, " +
-            "van ${van?.naam ?: "?"} naar ${naar?.naam ?: "?"}."
+            "van ${van?.let(::naamMetRekening) ?: "?"} naar ${naar?.let(::naamMetRekening) ?: "?"}."
     }
+
+    /** "Spaarpot (ING-spaarrekening)", of alleen de naam als er geen rekening bij hoort. */
+    fun naamMetRekening(p: Potje): String = p.rekening?.let { "${p.naam} ($it)" } ?: p.naam
+
+    /** Na verdelen: wat moet ze echt overmaken in de ING-app? Eén regel per echte rekening. */
+    fun overmaken(v: Verdeling, potjes: List<Potje>): List<String> = potjes
+        .filter { it.echteRekening && (v.perPotje[it.id] ?: 0L) > 0L }
+        .map { p -> "${bedrag(v.perPotje.getValue(p.id))} naar ${p.rekening ?: "de rekening"} (${p.naam})" }
 
     /**
      * Alle boekingen als tabel (CSV) om te delen met Google Sheets of Drive.

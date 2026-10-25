@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import nl.odelia.dashboard.ui.geld.GeldBegin
+import nl.odelia.dashboard.ui.geld.GeldScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
 import nl.odelia.dashboard.ui.leren.LerenScherm
@@ -57,6 +59,7 @@ sealed interface Scherm {
     data object Urenmail : Scherm
     data object Zeilweer : Scherm
     data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
+    data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -102,6 +105,7 @@ fun DashboardApp(
             Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
             Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
+            Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -136,6 +140,7 @@ fun DashboardApp(
         Scherm.Urenmail -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Leren -> Plek.Leren
+        is Scherm.Geld -> Plek.Geld
         is Scherm.Later -> scherm.plek
     }
 
@@ -183,6 +188,7 @@ fun DashboardApp(
                 )
                 Scherm.Zeilweer -> ZeilweerScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 
