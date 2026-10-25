@@ -9,7 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.odelia.dashboard.Acties
+import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.Opslag
+import nl.odelia.dashboard.logica.Cyclus
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.Instellingen
 import nl.odelia.dashboard.logica.ochtendTekst
@@ -71,6 +73,18 @@ class Ontvanger : BroadcastReceiver() {
                 "Urenmail voor Kim staat klaar", "Tik om de mail te bekijken en in Gmail te zetten.",
                 scherm = "urenmail",
             )
+
+            Planner.CYCLUS -> {
+                val c = Bestanden.cyclus(context).nu()
+                val vandaag = LocalDate.now()
+                if (c.seintje && Cyclus.seintjeDag(c.stand(vandaag), vandaag) == vandaag) {
+                    Meldingen.toon(
+                        context, Meldingen.ID_CYCLUS, Meldingen.KANAAL_CYCLUS,
+                        "Neem verband mee", "Over ongeveer 2 dagen word je misschien ongesteld.",
+                        scherm = "cyclus", geheim = true,
+                    )
+                }
+            }
 
             Planner.SEINTJE -> {
                 val id = intent.getStringExtra(Planner.EXTRA_ID) ?: return

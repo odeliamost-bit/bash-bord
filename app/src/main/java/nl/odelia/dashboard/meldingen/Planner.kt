@@ -9,6 +9,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.logica.Instellingen
 
@@ -25,6 +26,7 @@ object Planner {
     const val OCHTEND = "nl.odelia.dashboard.OCHTEND"
     const val URENMAIL = "nl.odelia.dashboard.URENMAIL"
     const val SEINTJE = "nl.odelia.dashboard.SEINTJE"
+    const val CYCLUS = "nl.odelia.dashboard.CYCLUS"
     const val EXTRA_ID = "id"
 
     suspend fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
@@ -55,6 +57,10 @@ object Planner {
                 val code = Meldingen.seintjeId(o.id)
                 if (moment.isAfter(nu)) zet(context, SEINTJE, code, moment, o.id) else stop(context, SEINTJE, code, o.id)
             }
+
+        // Cyclus: seintje 2 dagen voor de verwachte dag ("Neem verband mee").
+        val cyclus = Bestanden.cyclus(context).nu().seintjeOm(nu)
+        if (cyclus != null) zet(context, CYCLUS, 5, cyclus) else stop(context, CYCLUS, 5)
     }
 
     /** Eerstvolgende werkdag (ma–vr) om [tijd], vanaf nu. */

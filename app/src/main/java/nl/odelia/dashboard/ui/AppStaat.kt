@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import nl.odelia.dashboard.logica.CyclusData
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.KlokStaat
 import nl.odelia.dashboard.logica.LerenData
@@ -11,6 +12,7 @@ import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
 import nl.odelia.dashboard.logica.Plek
 import nl.odelia.dashboard.logica.Weerbericht
+import nl.odelia.dashboard.logica.WensenData
 
 /** Alles wat de schermen laten zien. Komt uit de opslag op de telefoon. */
 data class AppStaat(
@@ -20,6 +22,8 @@ data class AppStaat(
     val onthoud: List<Onthoud> = emptyList(),
     val zeilweer: ZeilweerStaat = ZeilweerStaat(),
     val leren: LerenData = LerenData(),
+    val cyclus: CyclusData = CyclusData(),
+    val wensen: WensenData = WensenData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -67,6 +71,12 @@ interface AppActies {
 
     /** Leren aanpassen (bakjes, quiz, eigen kaarten). Wordt meteen op de telefoon bewaard. Gaat nooit online. */
     fun wijzigLeren(wat: (LerenData) -> LerenData) {}
+
+    /** Cyclus aanpassen. Alleen op de telefoon (niet in de back-up), gaat nooit online. Zet ook het seintje opnieuw. */
+    fun wijzigCyclus(wat: (CyclusData) -> CyclusData) {}
+
+    /** Wensen aanpassen. Wordt meteen op de telefoon bewaard. Gaat nooit online. */
+    fun wijzigWensen(wat: (WensenData) -> WensenData) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

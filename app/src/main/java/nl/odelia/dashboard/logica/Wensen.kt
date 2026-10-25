@@ -21,6 +21,8 @@ data class Wens(
     val links: List<String>,
     val hartjes: Int = 0,
     val gekocht: Boolean = false,
+    /** Laatst veranderd (millis), voor later synchroniseren. */
+    val updatedAt: Long = 0,
 )
 
 /** Wat de app uit geplakte, gedeelde of ingesproken tekst haalt. */

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import nl.odelia.dashboard.ui.cyclus.CyclusScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
 import nl.odelia.dashboard.ui.leren.LerenScherm
@@ -41,6 +42,8 @@ import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
 import nl.odelia.dashboard.ui.weer.ZeilweerScherm
+import nl.odelia.dashboard.ui.wensen.WensenBegin
+import nl.odelia.dashboard.ui.wensen.WensenScherm
 import nl.odelia.dashboard.ui.werk.UrenmailScherm
 
 /** Welk scherm rechts van de zijbalk staat. */
@@ -57,6 +60,8 @@ sealed interface Scherm {
     data object Urenmail : Scherm
     data object Zeilweer : Scherm
     data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
+    data object Cyclus : Scherm
+    data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -102,6 +107,8 @@ fun DashboardApp(
             Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
             Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
+            Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
+            Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -116,6 +123,7 @@ fun DashboardApp(
             "onthoud" -> naarPlek(Plek.Onthoud)
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
             "werk" -> naarPlek(Plek.Werk)
+            "cyclus" -> naarPlek(Plek.Cyclus)
         }
         onOpdrachtGedaan()
     }
@@ -136,6 +144,8 @@ fun DashboardApp(
         Scherm.Urenmail -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Leren -> Plek.Leren
+        Scherm.Cyclus -> Plek.Cyclus
+        is Scherm.Wensen -> Plek.Wensen
         is Scherm.Later -> scherm.plek
     }
 
@@ -183,6 +193,8 @@ fun DashboardApp(
                 )
                 Scherm.Zeilweer -> ZeilweerScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
+                is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 
