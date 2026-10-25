@@ -14,7 +14,7 @@
       "x": 0,
       "y": 0,
       "w": 390,
-      "h": 1650,
+      "h": 1800,
       "title": "Dashboard (telefoon)",
       "is_interactive": true,
       "radius": 36
@@ -31,7 +31,7 @@
       "x": 940,
       "y": 0,
       "w": 390,
-      "h": 900,
+      "h": 1040,
       "title": "Geheugen 1: snel vastleggen",
       "is_interactive": true,
       "radius": 36
@@ -41,7 +41,7 @@
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "Menu dicht (tik = open)",
+      "title": "Menu dicht (tik icoon = ga erheen)",
       "is_interactive": true,
       "radius": 36
     },

@@ -44,18 +44,18 @@ button{font-family:inherit;cursor:pointer}
 </sc-if>
 
 <!-- Zijbalk -->
-<nav aria-label="Menu" style="position: absolute; top: 12px; bottom: 12px; left: 12px; width: {{railW}}; background: #DDE9D7; border: 1px solid rgba(255,255,255,0.7); border-radius: 30px; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(80,120,90,0.08), 0 12px 28px rgba(90,130,100,0.28); transition: width 0.25s ease;">
-<button onClick="{{toggle}}" aria-label="{{toggleLabel}}" aria-expanded="{{open}}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: none; border-radius: 20px; background: linear-gradient(160deg, #F4A58B, #E07A62); padding: 0 0 0 12px; color: #FFFFFF; margin-bottom: 6px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -4px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(224,122,98,0.35);">
+<nav aria-label="Menu" style="position: absolute; top: 12px; bottom: 12px; left: 12px; width: {{railW}}; background: #DDE9D7; border: 1px solid rgba(255,255,255,0.7); border-radius: 30px; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overflow-x: hidden; box-shadow: inset 0 3px 0 rgba(255,255,255,0.7), inset 0 -4px 0 rgba(80,120,90,0.08), 0 12px 28px rgba(90,130,100,0.28); transition: width 0.25s ease;">
+<button onClick="{{toggle}}" aria-label="{{toggleLabel}}" aria-expanded="{{open}}" style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: none; border-radius: 20px; background: linear-gradient(160deg, #F4A58B, #E07A62); padding: 0 0 0 12px; color: #FFFFFF; margin-bottom: 6px; flex-shrink: 0; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -4px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(224,122,98,0.35);">
 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{toggleIcon}}"></path></svg>
 <sc-if value="{{open}}" hint-placeholder-val="{{false}}"><span style="font-size: 18px; font-weight: 900;">Menu</span></sc-if>
 </button>
 <sc-for list="{{items}}" as="it" hint-placeholder-count="11">
-<button onClick="{{it.pick}}" aria-label="{{it.label}}" aria-current="{{it.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 58px; border: none; border-radius: 20px; background: {{it.rowBg}}; padding: 0 0 0 6px; text-align: left; color: #3A3046;">
+<a href="{{it.href}}" aria-label="{{it.label}}" aria-current="{{it.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 54px; flex-shrink: 0; text-decoration: none; border-radius: 20px; background: {{it.rowBg}}; padding: 0 0 0 6px; text-align: left; color: #3A3046;">
 <span style="width: 46px; height: 46px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
 <svg width="34" height="34" viewBox="0 0 24 24" fill="{{it.soft}}" stroke="{{it.ink}}" stroke-width="2.3" style="filter: {{it.shadow}};" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.icon}}"></path></svg>
 </span>
 <sc-if value="{{open}}" hint-placeholder-val="{{false}}"><span style="font-size: 18px; font-weight: 900; white-space: nowrap;">{{it.label}}</span></sc-if>
-</button>
+</a>
 </sc-for>
 </nav>
 
@@ -65,7 +65,7 @@ button{font-family:inherit;cursor:pointer}
 class Component extends DCLogic {
 constructor(props) {
 super(props);
-this.state = { open: !!props.startOpen, sel: 'thuis' };
+this.state = { open: !!props.startOpen, sel: props.current || 'thuis' };
 }
 renderVals() {
 var self = this;
@@ -81,9 +81,14 @@ var list = [
 { id: 'cyclus', label: 'Cyclus', color: '#FFD6E3', ink: '#C2457A', icon: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z' },
 { id: 'geld', label: 'Geld', color: '#D6EBDD', ink: '#3F7A58', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12' },
 { id: 'wensen', label: 'Wensen', color: '#FFD6E3', ink: '#C2457A', icon: 'M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z' },
-{ id: 'slot', label: 'Wachtwoorden', color: '#D4EEF0', ink: '#3F8A8F', icon: 'M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11' }
+{ id: 'slot', label: 'Wachtwoorden', color: '#D4EEF0', ink: '#3F8A8F', icon: 'M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11' },
+{ id: 'recepten', label: 'Recepten', icon: 'M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 0-3 2.5-3 6s1 4 3 4v8' },
+{ id: 'weer', label: 'Zeilweer', icon: 'M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z' },
+{ id: 'boeken', label: 'Boeken', icon: 'M4 4h5v16H4zM10.5 6H15v14h-4.5zM16 7.5l3.2-.9 2.6 12.6-3.2.8z' },
+{ id: 'simulator', label: 'Simulator', icon: 'M13 2L5 13.5h6L10 22l8-11.5h-6z' }
 ];
-var G = { thuis: ['#C9B6F2', '#9C82DA', '156,130,218'], klok: ['#A8D6B4', '#6FAE84', '111,174,132'], onthoud: ['#F6B3BF', '#E58497', '229,132,151'], mensen: ['#AFCBEA', '#7FA5D2', '127,165,210'], mail: ['#D2BDF0', '#A88AD8', '168,138,216'], advies: ['#F8C29C', '#E9956A', '233,149,106'], leren: ['#F7DA8A', '#E5B54E', '229,181,78'], cyclus: ['#F4B0C8', '#DE7FA1', '222,127,161'], geld: ['#B9DDB0', '#82B874', '130,184,116'], wensen: ['#F7B7AE', '#E8877A', '232,135,122'], slot: ['#9AD1D4', '#5FA8AD', '95,168,173'] };
+var HREF = { thuis: 'Main.dc.html', klok: 'Main.dc.html', onthoud: 'Toevoegen.dc.html', mensen: 'Mensen.dc.html', mail: 'Mail.dc.html', advies: 'Advies.dc.html', leren: 'Leren.dc.html', cyclus: 'Cyclus.dc.html', geld: 'Geld.dc.html', wensen: 'Wensen.dc.html', slot: 'Wachtwoorden.dc.html', recepten: 'Recepten.dc.html', weer: 'Weer.dc.html', boeken: 'https://claude.ai/code/artifact/e23f1beb-e479-44cd-83c7-2713d32d0692', simulator: 'https://claude.ai/code/artifact/5e73741c-be08-4cc6-bf2e-f07182ff4db3' };
+var G = { thuis: ['#C9B6F2', '#9C82DA', '156,130,218'], klok: ['#A8D6B4', '#6FAE84', '111,174,132'], onthoud: ['#F6B3BF', '#E58497', '229,132,151'], mensen: ['#AFCBEA', '#7FA5D2', '127,165,210'], mail: ['#D2BDF0', '#A88AD8', '168,138,216'], advies: ['#F8C29C', '#E9956A', '233,149,106'], leren: ['#F7DA8A', '#E5B54E', '229,181,78'], cyclus: ['#F4B0C8', '#DE7FA1', '222,127,161'], geld: ['#B9DDB0', '#82B874', '130,184,116'], wensen: ['#F7B7AE', '#E8877A', '232,135,122'], slot: ['#9AD1D4', '#5FA8AD', '95,168,173'], recepten: ['#F8C29C', '#E9956A', '233,149,106'], weer: ['#AFCBEA', '#7FA5D2', '127,165,210'], boeken: ['#F7DA8A', '#E5B54E', '229,181,78'], simulator: ['#9AD1D4', '#5FA8AD', '95,168,173'] };
 var items = list.map(function (it) {
 var on = s.sel === it.id;
 var g = G[it.id];
@@ -94,7 +99,7 @@ soft: it.id === 'geld' ? 'none' : g[0],
 shadow: 'drop-shadow(0 3px 3px rgba(' + g[2] + ',0.45))',
 current: on ? 'page' : 'false',
 rowBg: on ? '#FBF3EA' : 'transparent',
-pick: function () { if (!s.open) { self.setState({ open: true }); } else { self.setState({ sel: it.id, open: false }); } }
+href: HREF[it.id]
 });
 });
 return {
