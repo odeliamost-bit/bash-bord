@@ -74,4 +74,6 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
+    // Op de telefoon zit org.json in Android zelf; voor de testjes op de computer deze echte versie.
+    testImplementation(libs.org.json)
 }

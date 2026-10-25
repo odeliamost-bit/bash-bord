@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
                 object : AppActies by model {
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
+                    override fun openLink(link: String) = openInBrowser(link)
                 }
             }
             DashboardThema {
@@ -105,6 +107,17 @@ class MainActivity : ComponentActivity() {
             true
         } catch (_: ActivityNotFoundException) {
             naInspreken = null
+            false
+        }
+    }
+
+    /** Opent een https-link in Chrome of Google Maps. De app zelf gaat hierbij niet online. */
+    private fun openInBrowser(link: String): Boolean {
+        if (!link.startsWith("https://")) return false
+        return try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)).addCategory(Intent.CATEGORY_BROWSABLE))
+            true
+        } catch (_: ActivityNotFoundException) {
             false
         }
     }

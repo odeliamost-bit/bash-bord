@@ -150,6 +150,8 @@ object Icoontjes {
     val groepLijn = listOf(
         Vorm("M3 21V8l9-5 9 5v13M9 21v-6h6v6", lijn = Color(0xFF3F7A58), dikte = 2.4f),
     )
+    /** Pijl omhoog; draai hem naar de kant waar de wind heen waait. */
+    val windPijl = listOf(Vorm("M12 20V4M6 10l6-6 6 6", lijn = Color(0xFF23465E), dikte = 2.6f))
     val belLijn = listOf(
         Vorm("M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9", lijn = Color(0xFF9A6F05), dikte = 2.3f),
         Vorm("M10.3 21a1.9 1.9 0 0 0 3.4 0", lijn = Color(0xFF9A6F05), dikte = 2.3f),

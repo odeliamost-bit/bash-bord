@@ -59,15 +59,35 @@ jobs:
           SLEUTEL_WACHTWOORD: ${{ secrets.APP_SLEUTEL_WACHTWOORD }}
         run: ./gradlew assembleRelease testReleaseUnitTest --stacktrace
 
-      - name: Controle — geen internet en geen testversie
+      - name: Controle — online alleen via Online.kt, naar Open-Meteo
+        run: |
+          # Netwerkcode mag alleen in app/.../online/Online.kt staan.
+          buiten=$(grep -rlE "openConnection|HttpURLConnection|HttpsURLConnection|Socket\(|okhttp|io\.ktor|import java\.net\.URL$" app/src/main/java \
+            | grep -v "/online/Online.kt$" || true)
+          if [ -n "$buiten" ]; then
+            echo "::error::Netwerkcode buiten Online.kt gevonden: $buiten"
+            exit 1
+          fi
+          # En Online.kt mag alleen naar de weerdienst Open-Meteo.
+          if ! grep -q 'TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com")' app/src/main/java/nl/odelia/dashboard/online/Online.kt; then
+            echo "::error::De lijst met toegestane websites in Online.kt is veranderd. Pas deze controle bewust mee aan."
+            exit 1
+          fi
+
+      - name: Controle — alleen bekende toestemmingen en geen testversie
         run: |
           apk=app/build/outputs/apk/release/app-release.apk
           aapt2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2"
           "$aapt2" dump permissions "$apk" | tee rechten.txt
-          if grep -q "android.permission.INTERNET" rechten.txt; then
-            echo "::error::De app vraagt om internet-toegang. Dat hoort niet: alle gegevens blijven op de telefoon."
-            exit 1
-          fi
+          # Alleen deze toestemmingen mogen erin. Iets nieuws (locatie, camera, contacten …)? Dan stopt de bouw.
+          toegestaan="POST_NOTIFICATIONS RECEIVE_BOOT_COMPLETED INTERNET ACCESS_NETWORK_STATE WAKE_LOCK FOREGROUND_SERVICE DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+          for recht in $(grep "uses-permission" rechten.txt | sed -E "s/.*name='([^']*)'.*/\1/"); do
+            kort="${recht##*.}"
+            if ! echo " $toegestaan " | grep -q " $kort "; then
+              echo "::error::Onbekende toestemming: $recht"
+              exit 1
+            fi
+          done
           if "$aapt2" dump badging "$apk" | grep -q "application-debuggable"; then
             echo "::error::Dit is een testversie (debuggable). Die mag niet naar de telefoon."
             exit 1

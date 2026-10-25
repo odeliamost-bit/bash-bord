@@ -38,7 +38,9 @@ Daarom zet je één keer een vaste handtekening klaar. Dit doet je broer op de l
 ## 🛡️ Beveiliging
 
 **Wat de app al doet**
-- 🌐 De app heeft **geen internet**. Je uren en afspraken blijven op je telefoon. GitHub controleert dit bij elke versie.
+- 🌐 De app gaat **alleen online als jij eerst "ja" zegt**, en alleen voor **Zeilweer**: dan haalt hij het weer op bij Open-Meteo (gratis weerdienst). Alleen je zeilplek gaat mee. Je uren en afspraken gaan **nooit** het internet op.
+- 🔎 **Opzoeken** en 🗺️ **route**: na jouw "ja" gaan Chrome of Google Maps open. De app zelf gaat dan niet online.
+- 🧱 Alle internet-code staat in **één bestand** (`online/Online.kt`): alleen versleuteld (https), alleen naar Open-Meteo, nooit meer dan 2 MB. GitHub controleert dit bij elke versie, en ook dat de app geen andere toestemmingen vraagt (zoals locatie, camera of contacten).
 - 🔒 Je krijgt de **echte versie**, geen testversie. Met een kabel kan niemand in de app kijken.
 - 🚪 Andere apps kunnen de app niet stiekem laten klokken of meldingen laten sturen.
 - 🧾 Bij elke versie staat een **controlecode** (SHA-256) op de downloadpagina.

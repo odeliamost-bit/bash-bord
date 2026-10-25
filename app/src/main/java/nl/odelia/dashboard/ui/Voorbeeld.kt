@@ -5,6 +5,10 @@ import java.time.LocalDateTime
 import nl.odelia.dashboard.logica.KlokStaat
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
+import nl.odelia.dashboard.logica.Plek
+import nl.odelia.dashboard.logica.Uurweer
+import nl.odelia.dashboard.logica.Weerbericht
+import nl.odelia.dashboard.logica.Zeilweer
 
 /**
  * Verzonnen voorbeeld (uit het ontwerp) voor de voorbeelden in Android Studio en de voorproef-plaatjes.
@@ -30,5 +34,19 @@ object Voorbeeld {
             Onthoud(tekst = "Vrije dag doorgeven", wie = "Kim", wat = "Mailen", groep = "Werk"),
         )
         return AppStaat(KlokStaat.maak(perioden, emptyMap(), nu), perioden, emptyMap(), onthoud)
+    }
+
+    /** Verzonnen zeilweer voor een verzonnen plek. */
+    fun zeilweer(nu: LocalDateTime = this.nu): ZeilweerStaat {
+        val plek = Plek("Voorbeeldmeer", 52.0, 4.7)
+        val perModel = Zeilweer.modellen.mapIndexed { m, model ->
+            model to (0L..2L).flatMap { d ->
+                (10..18).map { u ->
+                    val wind = 18.0 + m * 1.5 + (u - 12) * 1.2 + d * 4
+                    Uurweer(nu.toLocalDate().plusDays(d).atTime(u, 0), wind, wind * 1.6, 220.0 + u * 3, if (u == 15) 0.2 else 0.0, 12.0 + m * 0.2)
+                }
+            }
+        }.toMap()
+        return ZeilweerStaat(plek = plek, bericht = Weerbericht(plek, nu.withHour(9).withMinute(41), perModel))
     }
 }

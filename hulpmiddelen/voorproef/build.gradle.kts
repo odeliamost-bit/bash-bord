@@ -10,6 +10,7 @@ plugins {
 dependencies {
     implementation("org.jetbrains.compose.desktop:desktop-jvm-linux-x64:$cmp")
     implementation("org.jetbrains.compose.material3:material3-desktop:$cmp")
+    implementation("org.json:json:20251224")
     testImplementation("junit:junit:4.13.2")
 }
 
@@ -22,7 +23,7 @@ sourceSets.main {
     // Alleen de rekenregels en de Compose-schermen; de rest bestaat alleen op Android.
     kotlin.exclude(
         "**/MainActivity.kt", "**/Voorlezer.kt", "**/Voorbeelden.kt", "**/DashboardModel.kt", "**/Acties.kt",
-        "**/data/**", "**/meldingen/**", "**/widget/**",
+        "**/data/**", "**/meldingen/**", "**/widget/**", "**/online/**",
     )
 }
 sourceSets.test {

@@ -125,11 +125,13 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Uren:** de 45 min pauze gaat er vanaf het begin af ("al 4¾ uur gewerkt" is zonder pauze). Weekdoel 35 uur (nog navragen: klopt dat?).
 - **Herinneringen:** inklokken 7:50, uitklokken 15:50 (ma–vr), seintje voor een afspraak de dag ervoor om 16:15. Vaste tijden in `logica/Klok.kt` (`Instellingen`).
 - **Urenmail:** de app opent Gmail met een **nieuwe** mail (onderwerp "Urenregistratie"). Antwoorden in de bestaande draad kan pas met de Gmail-koppeling (Google-account nodig). Nooit zelf versturen.
-- **Beveiliging:** de app heeft geen INTERNET-toestemming (CI controleert dit), de telefoon krijgt de release-versie (niet debuggable), acties in het bouw-recept staan vast op een commit-SHA, minste rechten, Gradle-checksum, Dependabot elke zaterdag.
+- **Beveiliging:** de telefoon krijgt de release-versie (niet debuggable), acties in het bouw-recept staan vast op een commit-SHA, minste rechten, Gradle-checksum, Dependabot elke zaterdag. CI controleert: alleen bekende Android-toestemmingen, netwerkcode alleen in `online/Online.kt`.
+- **Online (gekozen door Odelia):** de app gaat alleen online na "ja" (`OnlineVraag`), alleen voor Zeilweer, alleen naar Open-Meteo (https, max 2 MB). Opzoeken en route openen Chrome/Maps; de app zelf gaat dan niet online. Uren en afspraken gaan nooit online. De zeilplek staat op de telefoon, niet in de (openbare) code.
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
 
 ## Status
 
 - Stap 1 (basis-app): gebouwd.
 - Stap 2–5 (klokken, onthoud, meldingen, urenmail als nieuwe Gmail-mail): gebouwd, GitHub bouwt de app. **Nog niet getest op de telefoon.**
+- Extra: beveiliging, opzoeken/route via Chrome/Maps, Zeilweer (5 weermodellen, met toestemming online). **Nog niet getest op de telefoon.**
 - Nog te doen: Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).

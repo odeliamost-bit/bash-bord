@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 import nl.odelia.dashboard.logica.Herken
 import nl.odelia.dashboard.logica.Instellingen
+import nl.odelia.dashboard.logica.Links
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.korteDatum
 import nl.odelia.dashboard.ui.AppActies
@@ -53,6 +54,9 @@ import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.TerugBalk
 import nl.odelia.dashboard.ui.onderdelen.ZachteKnop
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.opzoekVraag
+import nl.odelia.dashboard.ui.onderdelen.rememberVraag
+import nl.odelia.dashboard.ui.onderdelen.routeVraag
 import nl.odelia.dashboard.ui.theme.Kleur
 
 /** Groepen die er altijd staan. Nieuwe komen er vanzelf bij. */
@@ -85,6 +89,7 @@ fun ToevoegenScherm(
     var nieuweGroep by remember { mutableStateOf<String?>(null) }
     var kiesDatum by remember { mutableStateOf(false) }
     val klembord = LocalClipboardManager.current
+    val vraag = rememberVraag()
 
     /** Vul aan wat in de (ingesproken) tekst staat; wat je al gekozen had blijft staan. */
     fun vulAan(t: String) {
@@ -147,6 +152,12 @@ fun ToevoegenScherm(
                 }
             }
 
+            if (tekst.isNotBlank()) {
+                ZachteKnop("🔎 Opzoeken op internet", onClick = {
+                    vraag.stel(opzoekVraag(tekst) { if (!acties.openLink(Links.zoek(tekst))) onMelding("Chrome openen lukte niet.") })
+                }, Modifier.fillMaxWidth())
+            }
+
             // Wie?
             Kopje("Wie?", Icoontjes.persoonLijn)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -196,7 +207,13 @@ fun ToevoegenScherm(
             }
 
             // Waar?
-            Invoer(waar, onWijzig = { waar = it }, hint = "Waar? (mag leeg)")
+            Invoer(waar, onWijzig = { waar = it }, hint = "Waar? (mag leeg)") {
+                if (waar.isNotBlank()) {
+                    ZachteKnop("🗺️ Route", onClick = {
+                        vraag.stel(routeVraag(waar) { if (!acties.openLink(Links.route(waar))) onMelding("Maps openen lukte niet.") })
+                    })
+                }
+            }
 
             // Seintje
             Row(
@@ -250,6 +267,8 @@ fun ToevoegenScherm(
             }
         }
     }
+
+    vraag.Toon()
 
     if (kiesDatum) {
         DatumKiezer(

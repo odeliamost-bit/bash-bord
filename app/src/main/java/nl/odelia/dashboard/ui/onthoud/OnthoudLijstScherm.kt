@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import nl.odelia.dashboard.logica.Links
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.AppStaat
@@ -48,6 +49,8 @@ import nl.odelia.dashboard.ui.onderdelen.TerugBalk
 import nl.odelia.dashboard.ui.onderdelen.ZachteKnop
 import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onderdelen.opzoekVraag
+import nl.odelia.dashboard.ui.onderdelen.rememberVraag
 import nl.odelia.dashboard.ui.theme.Kleur
 
 private val persoonKleuren = listOf(
@@ -75,6 +78,7 @@ fun OnthoudLijstScherm(
     var groep by remember { mutableStateOf<String?>(null) }
     var persoon by remember { mutableStateOf<String?>(null) }
     val vink: (Onthoud) -> (Boolean) -> Unit = { o -> { klaar -> acties.bewaar(o.copy(klaar = klaar)) } }
+    val vraag = rememberVraag()
 
     val groepen = staat.onthoud.mapNotNull { it.groep }.distinct().sorted()
     val inGroep = staat.onthoud.filter { groep == null || it.groep == groep }
@@ -110,6 +114,9 @@ fun OnthoudLijstScherm(
                     gevonden.forEach { o ->
                         OnthoudRegel(o, vandaag, onKlik = { onGaNaar(Scherm.Toevoegen(id = o.id)) }, onVink = vink(o), wit = true)
                     }
+                    ZachteKnop("🔎 Op internet zoeken", onClick = {
+                        vraag.stel(opzoekVraag(zoek) { if (!acties.openLink(Links.zoek(zoek))) onMelding("Chrome openen lukte niet.") })
+                    }, Modifier.fillMaxWidth())
                 }
             } else {
                 // Groepjes
@@ -171,6 +178,7 @@ fun OnthoudLijstScherm(
             }
         }
     }
+    vraag.Toon()
 }
 
 /** Zoekt in alles wat er bij een afspraak staat. */

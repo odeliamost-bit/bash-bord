@@ -38,6 +38,7 @@ import nl.odelia.dashboard.ui.onthoud.ToevoegenScherm
 import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
+import nl.odelia.dashboard.ui.weer.ZeilweerScherm
 import nl.odelia.dashboard.ui.werk.UrenmailScherm
 
 /** Welk scherm rechts van de zijbalk staat. */
@@ -52,6 +53,7 @@ sealed interface Scherm {
     ) : Scherm
     data class Lijst(val perPersoon: Boolean = false) : Scherm
     data object Urenmail : Scherm
+    data object Zeilweer : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -95,6 +97,7 @@ fun DashboardApp(
             Plek.Werk -> { ga(Scherm.Thuis); tab = Tab.Werk }
             Plek.Onthoud -> { ga(Scherm.Thuis); ga(Scherm.Lijst()) }
             Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
+            Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -127,6 +130,7 @@ fun DashboardApp(
         is Scherm.Toevoegen -> Plek.Onthoud
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
         Scherm.Urenmail -> Plek.Werk
+        Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Later -> scherm.plek
     }
 
@@ -172,6 +176,7 @@ fun DashboardApp(
                     onMelding = ::toon,
                     modifier = inhoud,
                 )
+                Scherm.Zeilweer -> ZeilweerScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 

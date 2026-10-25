@@ -37,4 +37,7 @@ fun main(args: Array<String>) {
     teken("8-mensen", 411, 1300) { DashboardApp(staat, geen, beginScherm = Scherm.Lijst(perPersoon = true)) }
     teken("9-urenmail", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Urenmail) }
     teken("10-tablet", 800, 1200) { DashboardApp(staat, geen) }
+    val metWeer = staat.copy(zeilweer = Voorbeeld.zeilweer())
+    teken("11-zeilweer", 411, 1900) { DashboardApp(metWeer, geen, beginScherm = Scherm.Zeilweer) }
+    teken("12-zeilweer-plek", 411, 870) { DashboardApp(staat, geen, beginScherm = Scherm.Zeilweer) }
 }
