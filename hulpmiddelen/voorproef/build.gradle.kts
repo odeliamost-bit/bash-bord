@@ -10,6 +10,7 @@ plugins {
 dependencies {
     implementation("org.jetbrains.compose.desktop:desktop-jvm-linux-x64:$cmp")
     implementation("org.jetbrains.compose.material3:material3-desktop:$cmp")
+    testImplementation("junit:junit:4.13.2")
 }
 
 layout.buildDirectory.set(file("build-$cmp"))
@@ -18,8 +19,14 @@ val app = rootDir.resolve("../../app/src/main")
 
 sourceSets.main {
     kotlin.srcDir(app.resolve("java"))
-    // Alleen de Compose-schermen; dit deel bestaat alleen op Android.
-    kotlin.exclude("**/MainActivity.kt", "**/Voorlezer.kt", "**/Voorbeelden.kt")
+    // Alleen de rekenregels en de Compose-schermen; de rest bestaat alleen op Android.
+    kotlin.exclude(
+        "**/MainActivity.kt", "**/Voorlezer.kt", "**/Voorbeelden.kt", "**/DashboardModel.kt", "**/Acties.kt",
+        "**/data/**", "**/meldingen/**", "**/widget/**",
+    )
+}
+sourceSets.test {
+    kotlin.srcDir(rootDir.resolve("../../app/src/test/java"))
 }
 
 tasks.register<JavaExec>("teken") {

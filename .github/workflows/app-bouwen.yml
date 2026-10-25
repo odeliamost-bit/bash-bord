@@ -1,0 +1,63 @@
+name: App bouwen
+
+# Bouwt de app bij elke nieuwe code, draait de testjes en zet de nieuwste
+# versie klaar op één vaste link (zie README: "App op de telefoon zetten").
+on:
+  push:
+    branches: [main, "claude/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-bouwen
+  cancel-in-progress: false
+
+jobs:
+  bouwen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Vaste handtekening klaarzetten (als die is ingesteld)
+        env:
+          APP_SLEUTEL: ${{ secrets.APP_SLEUTEL }}
+        run: |
+          if [ -n "$APP_SLEUTEL" ]; then
+            echo "$APP_SLEUTEL" | base64 -d > "$RUNNER_TEMP/app.keystore"
+            echo "SLEUTEL_PAD=$RUNNER_TEMP/app.keystore" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Geen APP_SLEUTEL ingesteld. Elke versie krijgt een andere handtekening; bij bijwerken gaan gegevens verloren."
+          fi
+
+      - name: Bouwen en testen
+        env:
+          SLEUTEL_WACHTWOORD: ${{ secrets.APP_SLEUTEL_WACHTWOORD }}
+        run: ./gradlew assembleDebug testDebugUnitTest --stacktrace
+
+      - name: Testverslag bewaren
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testverslag
+          path: app/build/reports/tests/
+
+      - name: Nieuwste versie klaarzetten
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk mijn-dashboard.apk
+          gh release delete nieuwste --yes --cleanup-tag || true
+          gh release create nieuwste mijn-dashboard.apk \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "Nieuwste versie" \
+            --notes "Gebouwd uit ${GITHUB_REF_NAME} (${GITHUB_SHA::7}). Open deze pagina op je telefoon en tik op mijn-dashboard.apk."

@@ -117,12 +117,18 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 
 ## Gemaakte keuzes
 
-- **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; de 🎤- en ➕-knoppen daarvan komen terug bij stap 3.
-- **Testen:** de broer bouwt in Android Studio en drukt op ▶️ (telefoon met kabel).
+- **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; 🎤 en ➕ staan bij Onthoud.
+- **Testen:** de app komt via een link op de telefoon (GitHub bouwt hem, zie README). Android Studio met kabel kan ook.
 - **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
-- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus nieuwere versies kon Claude niet controleren. Upgraden mag zodra het bouwen werkt.
-- **Checken in de cloud:** met `hulpmiddelen/voorproef/` (compileren + schermen als plaatje). Dat vervangt testen op de telefoon niet.
+- **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01, Room 2.6.1, Glance 1.1.0) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus Claude kon nieuwere versies niet controleren. GitHub Actions bouwt wel echt. Upgraden mag.
+- **Checken in de cloud:** `hulpmiddelen/voorproef/` (compileren, testjes, schermen als plaatje) en GitHub Actions (echte Android-build). Dat vervangt testen op de telefoon niet.
+- **Uren:** de 45 min pauze gaat er vanaf het begin af ("al 4¾ uur gewerkt" is zonder pauze). Weekdoel 35 uur (nog navragen: klopt dat?).
+- **Herinneringen:** inklokken 7:50, uitklokken 15:50 (ma–vr), seintje voor een afspraak de dag ervoor om 16:15. Vaste tijden in `logica/Klok.kt` (`Instellingen`).
+- **Urenmail:** de app opent Gmail met een **nieuwe** mail (onderwerp "Urenregistratie"). Antwoorden in de bestaande draad kan pas met de Gmail-koppeling (Google-account nodig). Nooit zelf versturen.
+- **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
 
 ## Status
 
-- Stap 1 (basis-app: stijl, zijbalk, hoofdscherm met voorbeeld-getallen): gebouwd. Nog niet getest op de telefoon.
+- Stap 1 (basis-app): gebouwd.
+- Stap 2–5 (klokken, onthoud, meldingen, urenmail als nieuwe Gmail-mail): gebouwd, GitHub bouwt de app. **Nog niet getest op de telefoon.**
+- Nog te doen: Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).

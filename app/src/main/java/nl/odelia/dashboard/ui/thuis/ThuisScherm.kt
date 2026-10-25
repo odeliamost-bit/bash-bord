@@ -20,10 +20,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +31,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDateTime
+import nl.odelia.dashboard.logica.Overzicht
+import nl.odelia.dashboard.ui.AppActies
+import nl.odelia.dashboard.ui.AppStaat
 import nl.odelia.dashboard.ui.Plek
+import nl.odelia.dashboard.ui.Scherm
 import nl.odelia.dashboard.ui.onderdelen.Icoon
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -54,18 +53,21 @@ enum class Tab(val label: String) {
 /** Hoofdscherm (ontwerp/Main.dc.html), zonder de onderbalk: we gebruiken de zijbalk. */
 @Composable
 fun ThuisScherm(
+    staat: AppStaat,
+    acties: AppActies,
     tab: Tab,
     onTab: (Tab) -> Unit,
-    nu: LocalDateTime,
     onVoorlezen: (String) -> Unit,
     onMelding: (String) -> Unit,
-    onGaNaar: (Plek) -> Unit,
+    onGaNaar: (Scherm) -> Unit,
+    onPlek: (Plek) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Oefenknop: wisselt alleen van kleur. Echt klokken (en onthouden) komt in stap 2.
-    var isIn by rememberSaveable { mutableStateOf(true) }
+    val nu = staat.nu
     val groet = groet(nu)
     val onder = onderregel(nu)
+    val overzicht = Overzicht.van(staat.onthoud, nu.toLocalDate())
+    val nuBelangrijk = overzicht.vandaag.size + overzicht.teLaat.size
 
     Box(modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
         Column(
@@ -75,24 +77,21 @@ fun ThuisScherm(
                 .padding(start = 8.dp, end = 16.dp, top = 24.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Bovenbalk(datumTekst(nu), onBel = { onMelding("Meldingen komen in stap 4.") })
+            Bovenbalk(datumTekst(nu), nuBelangrijk, onBel = { onPlek(Plek.Onthoud) })
             WelkomKaart(groet, onder, onVoorlezen = { onVoorlezen("$groet, Odelia! $onder.") })
             Tabjes(tab, onTab)
             when (tab) {
-                Tab.Vandaag -> VandaagTab(isIn, onWissel = {
-                    isIn = !isIn
-                    onMelding("Oefenknop. Echt klokken komt in stap 2.")
-                })
-                Tab.Werk -> WerkTab()
-                Tab.Onthoud -> OnthoudTab(onMelding)
+                Tab.Vandaag -> VandaagTab(staat, acties, onGaNaar)
+                Tab.Werk -> WerkTab(staat, acties, onGaNaar)
+                Tab.Onthoud -> OnthoudTab(staat, acties, onGaNaar)
             }
-            SnelNaar(onGaNaar, onMelding)
+            SnelNaar(onGaNaar, onPlek)
         }
     }
 }
 
 @Composable
-private fun Bovenbalk(datum: String, onBel: () -> Unit) {
+private fun Bovenbalk(datum: String, aantal: Int, onBel: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(
             Modifier
@@ -119,20 +118,22 @@ private fun Bovenbalk(datum: String, onBel: () -> Unit) {
                     .glans(CircleShape, licht = 0.9f, donker = 0f, boven = 2.dp)
                     .border(1.dp, Color.White.copy(alpha = 0.7f), CircleShape)
                     .clickable(onClick = onBel)
-                    .semantics { contentDescription = "Meldingen, 2 nieuw" },
+                    .semantics { contentDescription = if (aantal > 0) "Onthoud, $aantal voor vandaag" else "Onthoud" },
                 contentAlignment = Alignment.Center,
             ) {
                 Icoon(Icoontjes.bel, 26.dp)
             }
-            Box(
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 2.dp, y = (-2).dp)
-                    .size(22.dp)
-                    .background(hoekVerloop(Color(0xFFF09A84), Kleur.Koraal), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Tekst("2", 13.sp, kleur = Color.White, regel = 13.sp)
+            if (aantal > 0) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 2.dp, y = (-2).dp)
+                        .size(22.dp)
+                        .background(hoekVerloop(Color(0xFFF09A84), Kleur.Koraal), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Tekst(if (aantal > 9) "9+" else "$aantal", 13.sp, kleur = Color.White, regel = 13.sp)
+                }
             }
         }
     }

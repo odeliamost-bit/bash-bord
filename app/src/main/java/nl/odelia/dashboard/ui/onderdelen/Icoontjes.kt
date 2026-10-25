@@ -113,4 +113,45 @@ object Icoontjes {
     val pijlRechts = listOf(Vorm("M9 6l6 6-6 6", lijn = wit, dikte = 2.6f))
     val pijlLinks = listOf(Vorm("M15 6l-6 6 6 6", lijn = wit, dikte = 2.6f))
     val terug = listOf(Vorm("M15 6l-6 6 6 6", lijn = Kleur.InktZacht, dikte = 2.6f))
+
+    // Onthoud en urenmail (uit ontwerp/Toevoegen.dc.html)
+    val microfoon = listOf(
+        Vorm(rechthoek(9f, 3f, 6f, 11f, 3f), lijn = wit, dikte = 2.4f),
+        Vorm("M5 11a7 7 0 0 0 14 0M12 18v3", lijn = wit, dikte = 2.4f),
+    )
+    val vinkje = listOf(Vorm("M5 12.5l4.5 4.5L19 7.5", lijn = wit, dikte = 3f))
+    val zoek = listOf(
+        Vorm(cirkel(11f, 11f, 6.5f), lijn = Kleur.InktZacht, dikte = 2.6f),
+        Vorm("M16 16l4.5 4.5", lijn = Kleur.InktZacht, dikte = 2.6f),
+    )
+    val plakken = listOf(
+        Vorm(rechthoek(5f, 4.5f, 14f, 17f, 3f), lijn = Kleur.InktZacht, dikte = 2.2f),
+        Vorm(rechthoek(8.5f, 2.5f, 7f, 4.5f, 1.5f), vul = Kleur.InktZacht),
+    )
+    val prullenbak = listOf(
+        Vorm("M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3", lijn = Kleur.KoraalDiep, dikte = 2.2f),
+    )
+    val mailWit = listOf(
+        Vorm(rechthoek(3f, 5f, 18f, 14f, 3f), lijn = wit, dikte = 2.4f),
+        Vorm("M3.5 7l8.5 6 8.5-6", lijn = wit, dikte = 2.4f),
+    )
+    val kalenderLijn = listOf(
+        Vorm(rechthoek(3f, 5f, 18f, 16f, 3f), lijn = Color(0xFF2F6DB5), dikte = 2.4f),
+        Vorm("M3 10h18M8 3v4M16 3v4", lijn = Color(0xFF2F6DB5), dikte = 2.4f),
+    )
+    val persoonLijn = listOf(
+        Vorm(cirkel(12f, 8f, 4f), lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+        Vorm("M4 21a8 8 0 0 1 16 0", lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+    )
+    val documentLijn = listOf(
+        Vorm("M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z", lijn = Color(0xFFC2457A), dikte = 2.4f),
+        Vorm("M14 3v6h6", lijn = Color(0xFFC2457A), dikte = 2.4f),
+    )
+    val groepLijn = listOf(
+        Vorm("M3 21V8l9-5 9 5v13M9 21v-6h6v6", lijn = Color(0xFF3F7A58), dikte = 2.4f),
+    )
+    val belLijn = listOf(
+        Vorm("M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9", lijn = Color(0xFF9A6F05), dikte = 2.3f),
+        Vorm("M10.3 21a1.9 1.9 0 0 0 3.4 0", lijn = Color(0xFF9A6F05), dikte = 2.3f),
+    )
 }
