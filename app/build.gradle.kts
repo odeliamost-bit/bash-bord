@@ -35,8 +35,11 @@ android {
         debug {
             signingConfigs.findByName("vast")?.let { signingConfig = it }
         }
+        // De versie voor de telefoon: geen testversie, dus niemand kan er met een kabel in kijken.
         release {
             isMinifyEnabled = false
+            // Nog geen vaste sleutel? Dan met de test-sleutel tekenen, zodat hij toch te installeren is.
+            signingConfig = signingConfigs.findByName("vast") ?: signingConfigs.getByName("debug")
         }
     }
     compileOptions {

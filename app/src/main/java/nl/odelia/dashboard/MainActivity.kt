@@ -75,10 +75,15 @@ class MainActivity : ComponentActivity() {
     private fun lees(intent: Intent?) {
         intent ?: return
         if (intent.action == Intent.ACTION_SEND && intent.type == "text/plain") {
-            opdracht.value = Opdracht("toevoegen", intent.getStringExtra(Intent.EXTRA_TEXT))
+            // Niet te lang: gedeelde tekst komt van een andere app.
+            opdracht.value = Opdracht("toevoegen", intent.getStringExtra(Intent.EXTRA_TEXT)?.take(MAX_GEDEELD))
         } else {
             intent.getStringExtra(Meldingen.EXTRA_SCHERM)?.let { opdracht.value = Opdracht(it) }
         }
+    }
+
+    private companion object {
+        const val MAX_GEDEELD = 5_000
     }
 
     private fun vraagToestemmingVoorMeldingen() {

@@ -125,6 +125,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Uren:** de 45 min pauze gaat er vanaf het begin af ("al 4¾ uur gewerkt" is zonder pauze). Weekdoel 35 uur (nog navragen: klopt dat?).
 - **Herinneringen:** inklokken 7:50, uitklokken 15:50 (ma–vr), seintje voor een afspraak de dag ervoor om 16:15. Vaste tijden in `logica/Klok.kt` (`Instellingen`).
 - **Urenmail:** de app opent Gmail met een **nieuwe** mail (onderwerp "Urenregistratie"). Antwoorden in de bestaande draad kan pas met de Gmail-koppeling (Google-account nodig). Nooit zelf versturen.
+- **Beveiliging:** de app heeft geen INTERNET-toestemming (CI controleert dit), de telefoon krijgt de release-versie (niet debuggable), acties in het bouw-recept staan vast op een commit-SHA, minste rechten, Gradle-checksum, Dependabot elke zaterdag.
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
 
 ## Status

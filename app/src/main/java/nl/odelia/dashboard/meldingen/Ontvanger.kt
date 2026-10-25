@@ -99,6 +99,8 @@ class Ontvanger : BroadcastReceiver() {
 /** Na het opstarten van de telefoon (of na een update) zijn alle wekkers weg: opnieuw zetten. */
 class OpstartOntvanger : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // Alleen echte berichten van Android; al het andere negeren.
+        if (intent.action !in SYSTEEM) return
         val bezig = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -109,3 +111,10 @@ class OpstartOntvanger : BroadcastReceiver() {
         }
     }
 }
+
+private val SYSTEEM = setOf(
+    Intent.ACTION_BOOT_COMPLETED,
+    Intent.ACTION_MY_PACKAGE_REPLACED,
+    Intent.ACTION_TIME_CHANGED,
+    Intent.ACTION_TIMEZONE_CHANGED,
+)

@@ -35,6 +35,27 @@ Daarom zet je één keer een vaste handtekening klaar. Dit doet je broer op de l
 5. Bewaar `dashboard.keystore` veilig op de laptop. **Nooit** in git zetten.
 6. Daarna: oude app **één keer** verwijderen en de nieuwe installeren. Vanaf dan gaan updates gewoon over de oude heen.
 
+## 🛡️ Beveiliging
+
+**Wat de app al doet**
+- 🌐 De app heeft **geen internet**. Je uren en afspraken blijven op je telefoon. GitHub controleert dit bij elke versie.
+- 🔒 Je krijgt de **echte versie**, geen testversie. Met een kabel kan niemand in de app kijken.
+- 🚪 Andere apps kunnen de app niet stiekem laten klokken of meldingen laten sturen.
+- 🧾 Bij elke versie staat een **controlecode** (SHA-256) op de downloadpagina.
+
+**Wat het bouw-recept doet**
+- 📌 Alle hulpjes staan vast op een precieze versie.
+- 🔑 Elk onderdeel heeft zo weinig rechten als mogelijk.
+- ✅ Het bouwgereedschap (Gradle) wordt gecontroleerd met een controlecode.
+- 🤖 **Dependabot** maakt elke zaterdag een voorstel als er een update is.
+
+**Wat jullie zelf kunnen doen (aanrader)**
+1. 🔐 **Twee-stapsverificatie** aan op GitHub: *Settings › Password and authentication*.
+2. 🙈 Repository **privé** maken: *Settings › General › Danger Zone › Change visibility*.
+3. 🔔 **Dependabot-meldingen** aan: *Settings › Advanced Security* (of *Code security*) › *Dependabot alerts* en *Dependabot security updates*.
+4. 📱 Na het installeren **"onbekende apps toestaan" weer uitzetten** voor je browser.
+5. 📱 Een **schermvergrendeling** op je telefoon (pincode, patroon of vingerafdruk). Dan zijn je gegevens versleuteld.
+
 ## 💻 Via Android Studio (met kabel)
 
 Voor wie de laptop bedient. Eerst `EERST-DOEN.md` (Android Studio installeren, telefoon klaarzetten).
