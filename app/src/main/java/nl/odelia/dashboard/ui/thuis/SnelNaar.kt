@@ -22,32 +22,50 @@ import nl.odelia.dashboard.ui.Scherm
 import nl.odelia.dashboard.ui.onderdelen.IcoonBlok
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
+import nl.odelia.dashboard.ui.onderdelen.OnlineVraag
 import nl.odelia.dashboard.ui.onderdelen.Vorm
+import nl.odelia.dashboard.ui.onderdelen.rechthoek
+import nl.odelia.dashboard.ui.onderdelen.rememberVraag
+import nl.odelia.dashboard.ui.theme.Kleur
+import androidx.compose.ui.graphics.Color
 import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.theme.Pastel
 import nl.odelia.dashboard.ui.theme.Pastels
 
-/** Tegels onderaan het hoofdscherm: snel naar andere schermen. */
+/** Boeken en Simulator staan (nog) als pagina op claude.ai, zoals in het ontwerp. */
+private const val BoekenLink = "https://claude.ai/code/artifact/e23f1beb-e479-44cd-83c7-2713d32d0692"
+private const val SimulatorLink = "https://claude.ai/code/artifact/5e73741c-be08-4cc6-bf2e-f07182ff4db3"
+
+private val Zon = Pastel(0xFFFBEBC4, 0xFFF7DA8A, 0xFFE5B54E, 0xFF6E5410, 0xFF4E3B08, 0xFF8A6A10)
+private val Leerkleur = Pastel(0xFFFFF1B8, 0xFFF7DA8A, 0xFFD9A633, 0xFF6E5410, 0xFF4E3B08, 0xFF6E5410)
+private val Turkoois = Pastel(0xFFD4EEF0, 0xFF9AD1D4, 0xFF5FA8AD, 0xFF2F5E62, 0xFF1F4A4E, 0xFF3F8A8F)
+
+private val icoonBoeken = listOf(
+    Vorm(rechthoek(4f, 4f, 5f, 16f, 1.2f), vul = Kleur.Kaart),
+    Vorm(rechthoek(10.5f, 6f, 4.5f, 14f, 1.2f), vul = Color.White),
+    Vorm("M16 7.5l3.2-.9 2.6 12.6-3.2.8z", vul = Kleur.Kaart),
+)
+private val icoonBliksem = listOf(Vorm("M13 2L5 13.5h6L10 22l8-11.5h-6z", vul = Kleur.Kaart))
+private val icoonBoek = listOf(
+    Vorm("M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z", vul = Kleur.Kaart),
+    Vorm("M4 21a2 2 0 0 1 2-2h13v2z", vul = Color.White),
+)
+
+/** Tegels onderaan het hoofdscherm (ontwerp/Main.dc.html): snel naar andere schermen. */
 @Composable
-fun SnelNaar(onGaNaar: (Scherm) -> Unit, onPlek: (Plek) -> Unit) {
+fun SnelNaar(onGaNaar: (Scherm) -> Unit, onPlek: (Plek) -> Unit, onLink: (String) -> Unit = {}) {
     val vorm = RoundedCornerShape(26.dp)
+    val vraag = rememberVraag()
+    fun openPagina(naam: String, link: String) = vraag.stel(
+        OnlineVraag(
+            titel = "$naam openen?",
+            uitleg = "Chrome gaat open met je $naam-pagina op claude.ai.\nDe app zelf gaat niet online.",
+            ja = "Ja, open",
+            doe = { onLink(link) },
+        ),
+    )
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .klei(Pastels.Abrikoos.kaart, vorm, Pastels.Abrikoos.donker, hoogte = 10.dp)
-                .clip(vorm)
-                .clickable { onPlek(Plek.Advies) }
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            IcoonBlok(Pastels.Abrikoos.licht, Pastels.Abrikoos.donker, Icoontjes.sleutel, maat = 56.dp, hoek = 18.dp, icoonMaat = 30.dp)
-            Column {
-                Tekst("Advies", 20.sp)
-                Tekst("maken · repareren · vragen", 14.sp, dikte = FontWeight.Bold, kleur = Pastels.Abrikoos.label)
-            }
-        }
+        BreedTegel(Pastels.Abrikoos, Icoontjes.sleutel, "Advies", "maken · repareren · vragen") { onPlek(Plek.Advies) }
         Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             Tegel(Pastels.Lila, Icoontjes.praatwolk, "Mail-hulp", Modifier.weight(1f)) { onPlek(Plek.Mail) }
             Tegel(Pastels.Salie, Icoontjes.mensen, "Mensen", Modifier.weight(1f)) { onPlek(Plek.Mensen) }
@@ -55,6 +73,33 @@ fun SnelNaar(onGaNaar: (Scherm) -> Unit, onPlek: (Plek) -> Unit) {
         Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             Tegel(Pastels.Blauw, Icoontjes.week, "Week", Modifier.weight(1f)) { onGaNaar(Scherm.Lijst()) }
             Tegel(Pastels.Roze, Icoontjes.hart, "Wensen", Modifier.weight(1f)) { onPlek(Plek.Wensen) }
+        }
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Tegel(Zon, icoonBoeken, "Boeken", Modifier.weight(1f)) { openPagina("Boeken", BoekenLink) }
+            Tegel(Turkoois, icoonBliksem, "Simulator", Modifier.weight(1f)) { openPagina("Simulator", SimulatorLink) }
+        }
+        BreedTegel(Leerkleur, icoonBoek, "Leren", "kaartjes · quiz · school") { onPlek(Plek.Leren) }
+    }
+    vraag.Toon()
+}
+
+@Composable
+private fun BreedTegel(p: Pastel, icoon: List<Vorm>, naam: String, sub: String, onClick: () -> Unit) {
+    val vorm = RoundedCornerShape(26.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .klei(p.kaart, vorm, p.donker, hoogte = 10.dp)
+            .clip(vorm)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        IcoonBlok(p.licht, p.donker, icoon, maat = 56.dp, hoek = 18.dp, icoonMaat = 30.dp)
+        Column {
+            Tekst(naam, 20.sp)
+            Tekst(sub, 14.sp, dikte = FontWeight.Bold, kleur = p.label)
         }
     }
 }

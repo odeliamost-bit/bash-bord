@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.ui.leren
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -7,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,6 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +51,9 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.delay
+import nl.odelia.dashboard.logica.Doelen
+import nl.odelia.dashboard.logica.FocusFase
+import nl.odelia.dashboard.logica.FocusKlok
 import nl.odelia.dashboard.logica.Leren
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.LerenInhoud
@@ -119,6 +129,21 @@ fun LerenScherm(
     var seintje by remember { mutableStateOf(begin.seintje) }
     var pauzeTot by remember { mutableStateOf(begin.pauzeTot) }
     var vraagSinds by remember { mutableStateOf(Instant.now()) }
+    var focus by remember { mutableStateOf(FocusKlok()) }
+
+    // Focus-klok: elke seconde kijken of de 20 of 5 minuten om zijn.
+    LaunchedEffect(focus.loopt) {
+        while (focus.loopt) {
+            delay(1_000)
+            val (nieuw, klaar) = focus.bijwerken(Instant.now())
+            focus = nieuw
+            when (klaar) {
+                FocusFase.Leren -> onMelding("20 minuten geleerd! Nu 5 minuten pauze ☕")
+                FocusFase.Pauze -> onMelding("Pauze klaar. Tik op Start voor een nieuwe ronde.")
+                null -> {}
+            }
+        }
+    }
 
     fun lees(tekst: String) {
         if (!acties.voorlezen(Leren.uitspraak(tekst))) onMelding("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
@@ -180,10 +205,22 @@ fun LerenScherm(
             if (tab != LerenTab.Overzicht) Onderwerpen(vak, onderwerp, ::kiesOnderwerp)
 
             when (tab) {
-                LerenTab.Overzicht -> Overzicht(data, vak, vandaag, onOefen = { o, t ->
-                    kiesOnderwerp(o)
-                    tab = t
-                })
+                LerenTab.Overzicht -> Overzicht(
+                    data = data,
+                    vak = vak,
+                    vandaag = vandaag,
+                    focus = focus,
+                    onFocus = { focus = it },
+                    onDoel = { id -> acties.wijzigLeren { Doelen.wissel(it, id, vandaag) } },
+                    onLegUit = {
+                        onMelding("Uitleg met Claude komt later. Draai een kaartje om voor uitleg.")
+                        tab = LerenTab.Kaarten
+                    },
+                    onOefen = { o, t ->
+                        kiesOnderwerp(o)
+                        tab = t
+                    },
+                )
                 LerenTab.Kaarten -> KaartenDeel(
                     data = data,
                     onderwerp = onderwerp,
@@ -338,34 +375,43 @@ private fun Onderwerpen(vak: String, gekozen: String, onKies: (String) -> Unit) 
 // ---- Overzicht ----
 
 @Composable
-private fun Overzicht(data: LerenData, vak: String, vandaag: LocalDate, onOefen: (String, LerenTab) -> Unit) {
+private fun Overzicht(
+    data: LerenData,
+    vak: String,
+    vandaag: LocalDate,
+    focus: FocusKlok,
+    onFocus: (FocusKlok) -> Unit,
+    onDoel: (String) -> Unit,
+    onLegUit: () -> Unit,
+    onOefen: (String, LerenTab) -> Unit,
+) {
     val ows = Leren.onderwerpen(vak)
     val per = ows.associate { it.id to Leren.voortgang(data, it.id, vandaag) }
     val klaar = per.values.sumOf { it.klaar }
     val eerste = ows.firstOrNull { (per[it.id]?.klaar ?: 0) > 0 } ?: ows.first()
     val p = pastelVan(vak)
 
+    DoelenKaart(data, vandaag, onDoel)
+
+    FocusKaart(focus, onFocus)
+
+    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        HulpTegel("💡", "Leg uit", "ik snap iets niet", Color(0xFFEFE7FB), Color(0xFF3E2F66), Color(0xFF5E4A8A), Modifier.weight(1f), onLegUit)
+        HulpTegel("❓", "Overhoren", "stel me vragen", Color(0xFFFBE0E8), Color(0xFF7A2F4E), Color(0xFF8A4A60), Modifier.weight(1f)) {
+            onOefen(eerste.id, LerenTab.Quiz)
+        }
+    }
+
     LKaart {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Tekst("🎯 Vandaag", 21.sp, Modifier.weight(1f), kleur = Bruin)
+            Tekst("🃏 Kaartjes", 21.sp, Modifier.weight(1f), kleur = Bruin)
             Tekst("${data.geoefend[vandaag] ?: 0} geoefend", 16.sp, kleur = Color(0xFF3F7A58))
         }
         Tekst(
             if (klaar > 0) "$klaar kaarten klaar om te oefenen." else "Alles voor vandaag gedaan. Knap! ⭐",
             18.sp, dikte = FontWeight.ExtraBold, kleur = Kleur.Inkt,
         )
-        GroteKnop("Overhoren", { onOefen(eerste.id, LerenTab.Kaarten) }, icoon = Icoontjes.afspelen)
-        ZachteKnop("❓ Quiz doen", { onOefen(eerste.id, LerenTab.Quiz) }, Modifier.fillMaxWidth())
-    }
-
-    LKaart(Color(0xFFE3EDDF)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Tekst("⏱️", 30.sp)
-            Column(Modifier.weight(1f)) {
-                Tekst("20 min leren, dan 5 min pauze", 17.sp, kleur = Color(0xFF2F5E43))
-                Tekst("De app zegt het als het tijd is. Of als je langzamer wordt.", 14.sp, dikte = FontWeight.Bold, kleur = Color(0xFF4F7A5E))
-            }
-        }
+        GroteKnop("Kaartjes oefenen", { onOefen(eerste.id, LerenTab.Kaarten) }, icoon = Icoontjes.afspelen)
     }
 
     WeekKaart(data, vandaag)
@@ -436,7 +482,7 @@ private fun WeekKaart(data: LerenData, vandaag: LocalDate) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             listOf("ma", "di", "wo", "do", "vr", "za", "zo").forEachIndexed { i, d ->
                 val dag = maandag.plusDays(i.toLong())
-                val geleerd = (data.geoefend[dag] ?: 0) > 0
+                val geleerd = Doelen.geleerd(data, dag)
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Box(
                         Modifier
@@ -449,6 +495,134 @@ private fun WeekKaart(data: LerenData, vandaag: LocalDate) {
                 }
             }
         }
+    }
+}
+
+// ---- Doelen, focus-tijd en hulp ----
+
+private val Groen = Color(0xFF6FAE84)
+
+@Composable
+private fun DoelenKaart(data: LerenData, vandaag: LocalDate, onDoel: (String) -> Unit) {
+    LKaart {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Tekst("🎯 Vandaag", 21.sp, Modifier.weight(1f), kleur = Bruin)
+            Tekst("${Doelen.aantalKlaar(data, vandaag)} van ${Doelen.vast.size} klaar", 16.sp, kleur = Color(0xFF3F7A58))
+        }
+        Doelen.vast.forEach { d ->
+            val klaar = Doelen.isKlaar(data, d.id, vandaag)
+            val vorm = RoundedCornerShape(20.dp)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .shadow(4.dp, vorm, ambientColor = Kleur.KaartSchaduw, spotColor = Kleur.KaartSchaduw)
+                    .clip(vorm)
+                    .background(Color.White)
+                    .selectable(selected = klaar, role = Role.Checkbox, onClick = { onDoel(d.id) })
+                    .semantics { stateDescription = if (klaar) "klaar" else "nog niet klaar" }
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Box(
+                    Modifier
+                        .size(32.dp)
+                        .background(if (klaar) Groen else Color.White, RoundedCornerShape(10.dp))
+                        .border(3.dp, if (klaar) Groen else Color(0xFFE3C3B0), RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center,
+                ) { if (klaar) Tekst("✓", 18.sp, kleur = Color.White) }
+                Tekst(d.emoji, 24.sp)
+                Column(Modifier.weight(1f)) {
+                    Tekst(if (klaar) "${d.wat} ✓" else d.wat, 17.sp, kleur = if (klaar) Grijs else Kleur.Inkt)
+                    Tekst(d.sub, 13.sp, dikte = FontWeight.Bold, kleur = Grijs)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FocusKaart(focus: FocusKlok, onFocus: (FocusKlok) -> Unit) {
+    var nu by remember { mutableStateOf(Instant.now()) }
+    LaunchedEffect(focus) {
+        nu = Instant.now()
+        while (focus.loopt) {
+            delay(1_000)
+            nu = Instant.now()
+        }
+    }
+    val pauze = focus.fase == FocusFase.Pauze
+    val ringKleur = if (pauze) Color(0xFFF4A58B) else Groen
+    val deel = focus.deel(nu).coerceIn(0f, 1f)
+    val tijd = FocusKlok.alsTekst(focus.overOp(nu))
+    LKaart(Color(0xFFE3EDDF)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Box(Modifier.size(110.dp).semantics { contentDescription = "Nog $tijd" }, contentAlignment = Alignment.Center) {
+                Canvas(Modifier.size(110.dp)) {
+                    val dik = 14.dp.toPx()
+                    val r = size.minDimension / 2 - dik / 2
+                    val linksBoven = androidx.compose.ui.geometry.Offset(center.x - r, center.y - r)
+                    val maat = androidx.compose.ui.geometry.Size(r * 2, r * 2)
+                    drawArc(Color.White, 0f, 360f, false, linksBoven, maat, style = Stroke(dik))
+                    if (deel > 0f) drawArc(ringKleur, -90f, 360f * deel, false, linksBoven, maat, style = Stroke(dik, cap = StrokeCap.Round))
+                }
+                Tekst(tijd, 26.sp, kleur = Color(0xFF2F5E43))
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tekst(if (pauze) "☕ Pauze" else "Focus-tijd", 18.sp, kleur = Color(0xFF2F5E43))
+                Tekst(
+                    if (pauze) "Even rust. Drink wat water." else "20 min leren, dan 5 min pauze",
+                    14.sp, dikte = FontWeight.Bold, kleur = Color(0xFF4F7A5E),
+                )
+                val vorm = RoundedCornerShape(999.dp)
+                val knopKleur = if (focus.loopt) hoekVerloop(Kleur.KoraalLicht, Kleur.Koraal) else hoekVerloop(Color(0xFFA8D6B4), Groen)
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp)
+                        .shadow(6.dp, vorm, ambientColor = Groen, spotColor = Groen)
+                        .clip(vorm)
+                        .background(knopKleur)
+                        .clickable {
+                            val t = Instant.now()
+                            onFocus(if (focus.loopt) focus.stil(t) else focus.start(t))
+                        },
+                    contentAlignment = Alignment.Center,
+                ) { Tekst(if (focus.loopt) "⏸ Pauze" else "▶ Start", 16.sp, kleur = Color.White) }
+                if (!focus.loopt && focus != FocusKlok()) {
+                    ZachteKnop("↺ Opnieuw", { onFocus(FocusKlok()) }, Modifier.fillMaxWidth())
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HulpTegel(
+    emoji: String,
+    titel: String,
+    sub: String,
+    achter: Color,
+    inkt: Color,
+    zacht: Color,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    val vorm = RoundedCornerShape(26.dp)
+    Column(
+        modifier
+            .fillMaxHeight()
+            .heightIn(min = 120.dp)
+            .klei(achter, vorm, zacht, hoogte = 10.dp)
+            .clip(vorm)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Tekst(emoji, 32.sp)
+        Tekst(titel, 18.sp, kleur = inkt)
+        Tekst(sub, 13.sp, dikte = FontWeight.Bold, kleur = zacht)
     }
 }
 

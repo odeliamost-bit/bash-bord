@@ -85,7 +85,7 @@ fun ThuisScherm(
                 Tab.Werk -> WerkTab(staat, acties, onGaNaar)
                 Tab.Onthoud -> OnthoudTab(staat, acties, onGaNaar)
             }
-            SnelNaar(onGaNaar, onPlek)
+            SnelNaar(onGaNaar, onPlek, onLink = { if (!acties.openLink(it)) onMelding("Chrome openen lukte niet.") })
         }
     }
 }

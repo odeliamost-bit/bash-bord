@@ -1,6 +1,14 @@
 package nl.odelia.dashboard.ui.onthoud
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.layout.ContentScale
+import nl.odelia.dashboard.ui.onderdelen.Vorm
+import nl.odelia.dashboard.ui.onderdelen.cirkel
+import nl.odelia.dashboard.ui.onderdelen.rechthoek
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,6 +67,17 @@ import nl.odelia.dashboard.ui.onderdelen.rememberVraag
 import nl.odelia.dashboard.ui.onderdelen.routeVraag
 import nl.odelia.dashboard.ui.theme.Kleur
 
+private val cameraLijn = listOf(
+    Vorm("M4 8h3l2-3h6l2 3h3v11H4z", lijn = Color(0xFF3F7A58), dikte = 2.4f),
+    Vorm(cirkel(12f, 13f, 3.5f), lijn = Color(0xFF3F7A58), dikte = 2.4f),
+)
+private val fotoLijn = listOf(
+    Vorm(rechthoek(3f, 4f, 18f, 16f, 3f), lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+    Vorm(cirkel(9f, 10f, 2f), lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+    Vorm("M21 16l-5-5-9 9", lijn = Color(0xFF6A4BC4), dikte = 2.4f),
+)
+private val kruisRood = listOf(Vorm("M6 6l12 12M18 6L6 18", lijn = Color(0xFFB0413A), dikte = 2.8f))
+
 /** Groepen die er altijd staan. Nieuwe komen er vanzelf bij. */
 val VasteGroepen = listOf("Werk", "School", "Thuis")
 
@@ -88,6 +107,19 @@ fun ToevoegenScherm(
     var nieuweNaam by remember { mutableStateOf<String?>(null) }
     var nieuweGroep by remember { mutableStateOf<String?>(null) }
     var kiesDatum by remember { mutableStateOf(false) }
+    val oudeFoto = remember(start.id) { start.id?.let { staat.fotos[it] } }
+    var foto by remember { mutableStateOf(oudeFoto) }
+    /** Nieuwe foto's die (nog) niet bewaard zijn: weggooien als je niet bewaart. */
+    val nieuweFotos = remember { mutableListOf<String>() }
+    var bewaard by remember { mutableStateOf(false) }
+    DisposableEffect(Unit) {
+        onDispose { if (!bewaard) nieuweFotos.forEach(acties::gooiFotoWeg) }
+    }
+    fun nieuweFoto(pad: String?) {
+        if (pad == null) return
+        nieuweFotos += pad
+        foto = pad
+    }
     val klembord = LocalClipboardManager.current
     val vraag = rememberVraag()
 
@@ -180,6 +212,22 @@ fun ToevoegenScherm(
                 }
             }
 
+            // Foto erbij?
+            Kopje("Foto erbij?", cameraLijn)
+            val f = foto
+            if (f == null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    FotoKnop("Maak foto", cameraLijn, Color(0xFFD6EBDD), Color(0xFF24452F), Modifier.weight(1f)) {
+                        if (!acties.maakFoto(::nieuweFoto)) onMelding("De camera openen lukt niet.")
+                    }
+                    FotoKnop("Kies foto", fotoLijn, Color.White, Color(0xFF3A3046), Modifier.weight(1f)) {
+                        if (!acties.kiesFoto(::nieuweFoto)) onMelding("Foto kiezen lukt niet.")
+                    }
+                }
+            } else {
+                FotoVoorbeeld(f, acties, onWeg = { foto = null })
+            }
+
             // Wanneer?
             Kopje("Wanneer klaar?", Icoontjes.kalenderLijn)
             val volgendeWerkdag = generateSequence(vandaag.plusDays(2)) { it.plusDays(1) }.first { Instellingen.isWerkdag(it) }
@@ -241,12 +289,14 @@ fun ToevoegenScherm(
                 if (titel.isBlank() && wat == null) {
                     onMelding("Vul eerst in wat je wilt onthouden.")
                 } else {
-                    acties.bewaar(
-                        (oud ?: Onthoud(tekst = titel)).copy(
-                            tekst = titel, wie = wie, wat = wat, waar = waar.trim().ifBlank { null },
-                            wanneer = wanneer, groep = groep, seintje = seintje,
-                        ),
+                    val item = (oud ?: Onthoud(tekst = titel)).copy(
+                        tekst = titel, wie = wie, wat = wat, waar = waar.trim().ifBlank { null },
+                        wanneer = wanneer, groep = groep, seintje = seintje,
                     )
+                    acties.bewaar(item)
+                    if (foto != oudeFoto) acties.zetFoto(item.id, foto)
+                    bewaard = true
+                    nieuweFotos.filter { it != foto }.forEach(acties::gooiFotoWeg)
                     onMelding("Bewaard ✓")
                     onKlaar()
                 }
@@ -276,5 +326,57 @@ fun ToevoegenScherm(
             onKies = { wanneer = it; kiesDatum = false },
             onSluit = { kiesDatum = false },
         )
+    }
+}
+
+@Composable
+private fun FotoKnop(tekst: String, icoon: List<Vorm>, achter: Color, inkt: Color, modifier: Modifier, onClick: () -> Unit) {
+    val vorm = RoundedCornerShape(20.dp)
+    Row(
+        modifier
+            .heightIn(min = 64.dp)
+            .klei(achter, vorm, Color(0xFF50825F), hoogte = 6.dp)
+            .clip(vorm)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+    ) {
+        Icoon(icoon, 26.dp)
+        Tekst(tekst, 17.sp, kleur = inkt, eenRegel = true)
+    }
+}
+
+@Composable
+private fun FotoVoorbeeld(pad: String, acties: AppActies, onWeg: () -> Unit) {
+    val beeld = remember(pad) { acties.laadFoto(pad) }
+    val vorm = RoundedCornerShape(20.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(Color.White, vorm)
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(Modifier.size(84.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFFF5E8DA)), contentAlignment = Alignment.Center) {
+            if (beeld != null) {
+                Image(beeld, contentDescription = "Je foto", modifier = Modifier.size(84.dp), contentScale = ContentScale.Crop)
+            } else {
+                Icoon(fotoLijn, 32.dp)
+            }
+        }
+        Tekst("Foto staat erbij", 16.sp, Modifier.weight(1f), dikte = FontWeight.ExtraBold, kleur = Color(0xFF24452F))
+        Box(
+            Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFFBD9D6))
+                .clickable(onClick = onWeg)
+                .semantics { contentDescription = "Foto weghalen" },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icoon(kruisRood, 22.dp)
+        }
     }
 }

@@ -223,12 +223,9 @@ fun DashboardApp(
                 gekozen = gekozen,
                 onWissel = { menuOpen = !menuOpen },
                 onKies = { plek ->
-                    if (!menuOpen) {
-                        menuOpen = true
-                    } else {
-                        naarPlek(plek)
-                        menuOpen = false
-                    }
+                    // Tik op een icoontje = meteen daarheen. Uitschuiven alleen met de bovenste knop.
+                    naarPlek(plek)
+                    menuOpen = false
                 },
                 modifier = Modifier.padding(12.dp),
             )

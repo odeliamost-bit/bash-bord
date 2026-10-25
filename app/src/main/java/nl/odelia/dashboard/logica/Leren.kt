@@ -72,6 +72,8 @@ data class LerenData(
     val geoefend: Map<LocalDate, Int> = emptyMap(),
     /** Laatst gekozen vak. */
     val vak: String = LerenInhoud.vakken.first().id,
+    /** Welke doelen (zie [Doelen]) per dag afgevinkt zijn. */
+    val doelenKlaar: Map<LocalDate, Set<String>> = emptyMap(),
 )
 
 object Leren {

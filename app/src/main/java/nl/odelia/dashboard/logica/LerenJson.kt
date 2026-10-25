@@ -25,6 +25,7 @@ object LerenJson {
             }
         })
         put("geoefend", JSONObject().apply { d.geoefend.forEach { (dag, n) -> put(dag.toString(), n) } })
+        put("doelen", JSONObject().apply { d.doelenKlaar.forEach { (dag, ids) -> put(dag.toString(), JSONArray(ids.sorted())) } })
     }.toString()
 
     fun lees(tekst: String): LerenData {
@@ -60,8 +61,16 @@ object LerenJson {
         val geoefend = o.optJSONObject("geoefend")?.let { s ->
             s.keys().asSequence().mapNotNull { dag -> stukje { LocalDate.parse(dag) to s.getInt(dag) } }.toMap()
         }.orEmpty()
+        val doelen = o.optJSONObject("doelen")?.let { s ->
+            s.keys().asSequence().mapNotNull { dag ->
+                stukje {
+                    val a = s.getJSONArray(dag)
+                    LocalDate.parse(dag) to (0 until a.length()).map { a.getString(it) }.toSet()
+                }
+            }.toMap()
+        }.orEmpty()
         val vak = o.optString("vak").takeIf { v -> LerenInhoud.vakken.any { it.id == v } } ?: LerenData().vak
-        return LerenData(standen, quiz, eigen, geoefend, vak)
+        return LerenData(standen, quiz, eigen, geoefend, vak, doelen)
     }
 
     private inline fun <T> stukje(maak: () -> T): T? = try {
