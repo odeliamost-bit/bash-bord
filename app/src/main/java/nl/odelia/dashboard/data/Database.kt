@@ -10,6 +10,8 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 // Elk record heeft een UUID, `updatedAt` en `verwijderd`, zodat we later kunnen synchroniseren.
@@ -52,6 +54,8 @@ data class OnthoudRij(
     val gemaakt: Long,
     val updatedAt: Long,
     val verwijderd: Boolean = false,
+    /** Bestandsnaam van een foto in de map "fotos" (mag leeg). */
+    val foto: String? = null,
 )
 
 @Dao
@@ -102,17 +106,25 @@ interface OnthoudDao {
     suspend fun bewaar(rij: OnthoudRij)
 }
 
-@Database(entities = [WerktijdRij::class, DagSoortRij::class, OnthoudRij::class], version = 1)
+@Database(entities = [WerktijdRij::class, DagSoortRij::class, OnthoudRij::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun werktijd(): WerktijdDao
     abstract fun dagSoort(): DagSoortDao
     abstract fun onthoud(): OnthoudDao
 
     companion object {
+        /** Versie 2: foto bij Onthoud. Bestaande gegevens blijven staan. */
+        private val NAAR_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE onthoud ADD COLUMN foto TEXT")
+            }
+        }
+
         @Volatile private var instantie: AppDatabase? = null
 
         fun van(context: Context): AppDatabase = instantie ?: synchronized(this) {
             instantie ?: Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "dashboard.db")
+                .addMigrations(NAAR_2)
                 .build()
                 .also { instantie = it }
         }

@@ -46,7 +46,7 @@ val ZijbalkRuimte = 88.dp
 
 /**
  * Menu aan de linkerkant (ontwerp/Navigatie.dc.html).
- * Dicht: alleen icoontjes. Tik op een icoontje of de pijl = menu open.
+ * Dicht: alleen icoontjes. Tik op een icoontje = daarheen. Tik op de oranje knop = menu open.
  * Open: icoontjes met naam. Tik op een naam = daarheen.
  */
 @Composable

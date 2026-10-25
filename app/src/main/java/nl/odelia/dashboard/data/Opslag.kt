@@ -15,7 +15,7 @@ import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
 
 /** Eén plek om alles te bewaren en op te halen. Gebruikt door app, widgets en meldingen. */
-class Opslag private constructor(context: Context) {
+class Opslag private constructor(private val context: Context) {
     private val db = AppDatabase.van(context)
 
     // ---- Klokken ----
@@ -85,18 +85,21 @@ class Opslag private constructor(context: Context) {
     suspend fun onthoudMet(id: String): Onthoud? = db.onthoud().met(id)?.alsOnthoud()
 
     suspend fun bewaar(o: Onthoud) {
+        // Andere foto gekozen of foto weggehaald? Dan de oude weggooien.
+        db.onthoud().met(o.id)?.foto?.let { oud -> if (oud != o.foto) Fotos.gooiWeg(context, oud) }
         db.onthoud().bewaar(
             OnthoudRij(
                 id = o.id, tekst = o.tekst, wie = o.wie, wat = o.wat, waar = o.waar,
                 wanneer = o.wanneer?.toString(), groep = o.groep, seintje = o.seintje, klaar = o.klaar,
-                gemaakt = o.gemaakt.alsMillis(), updatedAt = LocalDateTime.now().alsMillis(),
+                gemaakt = o.gemaakt.alsMillis(), updatedAt = LocalDateTime.now().alsMillis(), foto = o.foto,
             ),
         )
     }
 
     suspend fun verwijder(id: String) {
         val rij = db.onthoud().met(id) ?: return
-        db.onthoud().bewaar(rij.copy(verwijderd = true, updatedAt = LocalDateTime.now().alsMillis()))
+        rij.foto?.let { Fotos.gooiWeg(context, it) }
+        db.onthoud().bewaar(rij.copy(verwijderd = true, foto = null, updatedAt = LocalDateTime.now().alsMillis()))
     }
 
     // ---- Omzetten ----
@@ -111,7 +114,7 @@ class Opslag private constructor(context: Context) {
     private fun OnthoudRij.alsOnthoud() = Onthoud(
         id = id, tekst = tekst, wie = wie, wat = wat, waar = waar,
         wanneer = wanneer?.let(LocalDate::parse), groep = groep, seintje = seintje, klaar = klaar,
-        gemaakt = gemaakt.alsTijd(),
+        gemaakt = gemaakt.alsTijd(), foto = foto,
     )
 
     companion object {

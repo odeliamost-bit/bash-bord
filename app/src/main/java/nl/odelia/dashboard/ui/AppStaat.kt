@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
 import nl.odelia.dashboard.logica.Plek
@@ -18,6 +19,7 @@ data class AppStaat(
     val soorten: Map<LocalDate, DagSoort> = emptyMap(),
     val onthoud: List<Onthoud> = emptyList(),
     val zeilweer: ZeilweerStaat = ZeilweerStaat(),
+    val leren: LerenData = LerenData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -46,6 +48,12 @@ interface AppActies {
     fun bewaar(onthoud: Onthoud) {}
     fun verwijder(id: String) {}
 
+    /** Opent de camera; [klaar] krijgt de bestandsnaam van de foto. Geeft `false` als er geen camera-app is. */
+    fun maakFoto(klaar: (String) -> Unit): Boolean = false
+
+    /** De foto met deze naam (alleen op de telefoon), of `null`. */
+    fun foto(naam: String): ImageBitmap? = null
+
     /** Open Gmail (of een andere mail-app) met een nieuwe mail. Verstuurt niks. */
     fun openMail(onderwerp: String, tekst: String): Boolean = false
 
@@ -62,6 +70,9 @@ interface AppActies {
     fun haalZeilweer() {}
     fun zoekPlek(naam: String) {}
     fun kiesPlek(plek: Plek?) {}
+
+    /** Leren aanpassen (bakjes, quiz, eigen kaarten). Wordt meteen op de telefoon bewaard. Gaat nooit online. */
+    fun wijzigLeren(wat: (LerenData) -> LerenData) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

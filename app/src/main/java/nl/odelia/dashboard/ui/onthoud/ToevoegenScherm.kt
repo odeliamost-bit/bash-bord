@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.ui.onthoud
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -26,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -85,6 +88,7 @@ fun ToevoegenScherm(
     var wanneer by remember { mutableStateOf(oud?.wanneer) }
     var groep by remember { mutableStateOf(oud?.groep ?: start.groep) }
     var seintje by remember { mutableStateOf(oud?.seintje ?: true) }
+    var foto by remember { mutableStateOf(oud?.foto) }
     var nieuweNaam by remember { mutableStateOf<String?>(null) }
     var nieuweGroep by remember { mutableStateOf<String?>(null) }
     var kiesDatum by remember { mutableStateOf(false) }
@@ -97,6 +101,10 @@ fun ToevoegenScherm(
         if (wie == null) wie = Herken.uitLijst(t, mensen)
         if (wat == null) wat = Herken.soort(t)
         if (groep == null) groep = Herken.uitLijst(t, groepen)
+    }
+
+    fun fotoMaken() {
+        if (!acties.maakFoto { foto = it }) onMelding("Er is geen camera-app op deze telefoon.")
     }
 
     fun spreekIn() {
@@ -149,6 +157,39 @@ fun ToevoegenScherm(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icoon(Icoontjes.plakken, 24.dp)
+                }
+                Box(
+                    Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color(0xFFF5E8DA))
+                        .clickable(onClick = ::fotoMaken)
+                        .semantics { contentDescription = "Foto maken" },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icoon(Icoontjes.camera, 24.dp)
+                }
+            }
+
+            // Foto (alleen op de telefoon)
+            foto?.let { naam ->
+                val plaatje = remember(naam) { acties.foto(naam) }
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (plaatje != null) {
+                        Image(
+                            plaatje,
+                            contentDescription = "Foto",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 320.dp)
+                                .clip(RoundedCornerShape(24.dp)),
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ZachteKnop("📷 Andere foto", onClick = ::fotoMaken, Modifier.weight(1f))
+                        ZachteKnop("Foto weg", onClick = { foto = null }, Modifier.weight(1f), kleur = Kleur.KoraalDiep)
+                    }
                 }
             }
 
@@ -238,13 +279,13 @@ fun ToevoegenScherm(
 
             GroteKnop("Bewaren", icoon = Icoontjes.vinkje, onClick = {
                 val titel = tekst.trim()
-                if (titel.isBlank() && wat == null) {
+                if (titel.isBlank() && wat == null && foto == null) {
                     onMelding("Vul eerst in wat je wilt onthouden.")
                 } else {
                     acties.bewaar(
                         (oud ?: Onthoud(tekst = titel)).copy(
                             tekst = titel, wie = wie, wat = wat, waar = waar.trim().ifBlank { null },
-                            wanneer = wanneer, groep = groep, seintje = seintje,
+                            wanneer = wanneer, groep = groep, seintje = seintje, foto = foto,
                         ),
                     )
                     onMelding("Bewaard ✓")

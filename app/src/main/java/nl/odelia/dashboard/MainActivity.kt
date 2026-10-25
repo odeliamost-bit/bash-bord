@@ -19,11 +19,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.data.Fotos
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.ui.AppActies
@@ -40,6 +42,15 @@ class MainActivity : ComponentActivity() {
         val tekst = resultaat.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
         if (resultaat.resultCode == RESULT_OK && !tekst.isNullOrBlank()) naInspreken?.invoke(tekst)
         naInspreken = null
+    }
+    /** De foto die de camera nu aan het maken is. */
+    private var nieuweFoto: java.io.File? = null
+    private var naFoto: ((String) -> Unit)? = null
+    private val camera = registerForActivityResult(ActivityResultContracts.TakePicture()) { gelukt ->
+        val bestand = nieuweFoto
+        if (gelukt && bestand != null && bestand.length() > 0) naFoto?.invoke(bestand.name) else bestand?.delete()
+        nieuweFoto = null
+        naFoto = null
     }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
@@ -61,6 +72,8 @@ class MainActivity : ComponentActivity() {
             val acties = remember(model) {
                 object : AppActies by model {
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
+                    override fun maakFoto(klaar: (String) -> Unit) = openCamera(klaar)
+                    override fun foto(naam: String) = Fotos.plaatje(this@MainActivity, naam)
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
                     override fun openLink(link: String) = openInBrowser(link)
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
@@ -112,6 +125,25 @@ class MainActivity : ComponentActivity() {
             true
         } catch (_: ActivityNotFoundException) {
             naInspreken = null
+            false
+        }
+    }
+
+    /**
+     * Opent de camera-app. Die zet de foto in één bestand in de eigen map van de app.
+     * De app zelf heeft daardoor geen camera-toestemming nodig.
+     */
+    private fun openCamera(klaar: (String) -> Unit): Boolean {
+        val bestand = Fotos.nieuw(this)
+        val adres = FileProvider.getUriForFile(this, "$packageName.fotos", bestand)
+        return try {
+            nieuweFoto = bestand
+            naFoto = klaar
+            camera.launch(adres)
+            true
+        } catch (_: ActivityNotFoundException) {
+            nieuweFoto = null
+            naFoto = null
             false
         }
     }

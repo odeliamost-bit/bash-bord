@@ -128,6 +128,10 @@ object Icoontjes {
         Vorm(rechthoek(5f, 4.5f, 14f, 17f, 3f), lijn = Kleur.InktZacht, dikte = 2.2f),
         Vorm(rechthoek(8.5f, 2.5f, 7f, 4.5f, 1.5f), vul = Kleur.InktZacht),
     )
+    val camera = listOf(
+        Vorm("M4 8.5a2 2 0 0 1 2-2h2.5l1.5-2h4l1.5 2H18a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z", lijn = Kleur.InktZacht, dikte = 2.2f),
+        Vorm("M12 9.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z", vul = Kleur.InktZacht),
+    )
     val prullenbak = listOf(
         Vorm("M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3", lijn = Kleur.KoraalDiep, dikte = 2.2f),
     )

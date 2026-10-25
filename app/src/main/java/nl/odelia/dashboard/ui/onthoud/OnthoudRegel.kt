@@ -108,7 +108,7 @@ fun OnthoudRegel(
         }
         Column(Modifier.weight(1f)) {
             Tekst(o.titel, 17.sp)
-            val onder = listOfNotNull(o.wie, o.groep, o.waar).joinToString(" · ")
+            val onder = listOfNotNull(o.wie, o.groep, o.waar, if (o.foto != null) "📷" else null).joinToString(" · ")
             if (onder.isNotBlank()) Tekst(onder, 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
         }
         if (o.wanneer != null) {
