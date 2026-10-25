@@ -17,7 +17,9 @@ data class Onthoud(
     val seintje: Boolean = true,
     val klaar: Boolean = false,
     val gemaakt: LocalDateTime = LocalDateTime.now(),
+    /** Bestandsnaam van een foto (alleen op de telefoon, in de map "fotos"). */
+    val foto: String? = null,
 ) {
     /** Korte titel: wat er moet gebeuren. */
-    val titel: String get() = tekst.ifBlank { listOfNotNull(wat, wie).joinToString(" ") }
+    val titel: String get() = tekst.ifBlank { listOfNotNull(wat, wie).joinToString(" ").ifBlank { if (foto != null) "📷 Foto" else "" } }
 }

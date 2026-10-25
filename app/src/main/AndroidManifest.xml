@@ -50,6 +50,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Geeft de camera-app even één bestand om de foto in te zetten (Onthoud). Niet open voor andere apps. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fotos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/fotos" />
+        </provider>
+
         <receiver
             android:name=".meldingen.Ontvanger"
             android:exported="false" />

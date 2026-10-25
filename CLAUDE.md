@@ -139,4 +139,5 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Stap 2–5 (klokken, onthoud, meldingen, urenmail als nieuwe Gmail-mail): gebouwd, GitHub bouwt de app. **Nog niet getest op de telefoon.**
 - Extra: beveiliging, opzoeken/route via Chrome/Maps, Zeilweer (5 weermodellen, met toestemming online). **Nog niet getest op de telefoon.**
 - Leren (kaarten, quiz, overzicht, eigen kaarten, pauze-seintje): gebouwd op tak `claude/leren`. **Nog niet getest op de telefoon.**
+- Extra (25-10): zijbalk-icoontje tikken = meteen naar het scherm (alleen oranje knop klapt uit); foto bij Onthoud (camera-app, foto alleen op de telefoon in `fotos/`, geen camera-toestemming nodig); Leren-scherm en logica van Wensen, Cyclus en Geld samengevoegd. **Nog niet getest op de telefoon.**
 - Nog te doen: Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).

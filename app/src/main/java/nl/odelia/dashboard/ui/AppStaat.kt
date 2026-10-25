@@ -48,6 +48,12 @@ interface AppActies {
     fun bewaar(onthoud: Onthoud) {}
     fun verwijder(id: String) {}
 
+    /** Opent de camera; [klaar] krijgt de bestandsnaam van de foto. Geeft `false` als er geen camera-app is. */
+    fun maakFoto(klaar: (String) -> Unit): Boolean = false
+
+    /** De foto met deze naam (alleen op de telefoon), of `null`. */
+    fun foto(naam: String): ImageBitmap? = null
+
     /** Open Gmail (of een andere mail-app) met een nieuwe mail. Verstuurt niks. */
     fun openMail(onderwerp: String, tekst: String): Boolean = false
 
