@@ -17,9 +17,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,77 +27,152 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.klei
+import nl.odelia.dashboard.ui.onthoud.OnthoudLijstScherm
+import nl.odelia.dashboard.ui.onthoud.ToevoegenScherm
 import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
+import nl.odelia.dashboard.ui.werk.UrenmailScherm
 
-/**
- * De hele app: zijbalk links, het gekozen scherm rechts.
- *
- * @param onVoorlezen leest tekst voor; geeft `false` als dat (nog) niet lukt.
- */
+/** Welk scherm rechts van de zijbalk staat. */
+sealed interface Scherm {
+    data object Thuis : Scherm
+    data class Toevoegen(
+        val id: String? = null,
+        val tekst: String = "",
+        val inspreken: Boolean = false,
+        val wie: String? = null,
+        val groep: String? = null,
+    ) : Scherm
+    data class Lijst(val perPersoon: Boolean = false) : Scherm
+    data object Urenmail : Scherm
+    data class Later(val plek: Plek) : Scherm
+}
+
+/** De hele app: zijbalk links, het gekozen scherm rechts. */
 @Composable
 fun DashboardApp(
-    onVoorlezen: (String) -> Boolean,
-    nu: LocalDateTime = LocalDateTime.now(),
+    staat: AppStaat,
+    acties: AppActies,
+    opdracht: Opdracht? = null,
+    onOpdrachtGedaan: () -> Unit = {},
+    beginScherm: Scherm = Scherm.Thuis,
     beginTab: Tab = Tab.Vandaag,
     beginMenuOpen: Boolean = false,
 ) {
-    var plek by rememberSaveable { mutableStateOf(Plek.Thuis) }
-    var tab by rememberSaveable { mutableStateOf(beginTab) }
-    var menuOpen by rememberSaveable { mutableStateOf(beginMenuOpen) }
+    val stapel = remember { mutableStateListOf(beginScherm) }
+    val scherm = stapel.last()
+    var tab by remember { mutableStateOf(beginTab) }
+    var menuOpen by remember { mutableStateOf(beginMenuOpen) }
     var melding by remember { mutableStateOf<Melding?>(null) }
 
-    // Terug-knop van de telefoon: eerst menu dicht, daarna terug naar Thuis.
-    BackHandler(enabled = menuOpen || plek != Plek.Thuis) {
-        if (menuOpen) menuOpen = false else plek = Plek.Thuis
-    }
-
-    // Werk & uren en Onthoud zijn tabjes op het hoofdscherm.
-    val gekozen = when {
-        plek != Plek.Thuis -> plek
-        tab == Tab.Werk -> Plek.Werk
-        tab == Tab.Onthoud -> Plek.Onthoud
-        else -> Plek.Thuis
-    }
-
-    fun gaNaar(naar: Plek) {
-        when (naar) {
-            Plek.Thuis -> { plek = Plek.Thuis; tab = Tab.Vandaag }
-            Plek.Werk -> { plek = Plek.Thuis; tab = Tab.Werk }
-            Plek.Onthoud -> { plek = Plek.Thuis; tab = Tab.Onthoud }
-            else -> plek = naar
+    fun ga(naar: Scherm) {
+        if (naar == Scherm.Thuis) {
+            stapel.clear()
+            stapel.add(Scherm.Thuis)
+        } else {
+            stapel.add(naar)
         }
+    }
+
+    fun terug() {
+        if (stapel.size > 1) stapel.removeAt(stapel.lastIndex) else ga(Scherm.Thuis)
     }
 
     fun toon(tekst: String) {
         melding = Melding(tekst)
     }
 
+    fun naarPlek(plek: Plek) {
+        when (plek) {
+            Plek.Thuis -> { ga(Scherm.Thuis); tab = Tab.Vandaag }
+            Plek.Werk -> { ga(Scherm.Thuis); tab = Tab.Werk }
+            Plek.Onthoud -> { ga(Scherm.Thuis); ga(Scherm.Lijst()) }
+            Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
+            else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
+        }
+    }
+
+    // Van buitenaf: melding, widget of een andere app die iets deelt.
+    LaunchedEffect(opdracht) {
+        val o = opdracht ?: return@LaunchedEffect
+        menuOpen = false
+        when (o.scherm) {
+            "toevoegen" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(tekst = o.tekst.orEmpty())) }
+            "inspreken" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(inspreken = true)) }
+            "onthoud" -> naarPlek(Plek.Onthoud)
+            "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
+            "werk" -> naarPlek(Plek.Werk)
+        }
+        onOpdrachtGedaan()
+    }
+
+    // Terug-knop van de telefoon: eerst menu dicht, dan een scherm terug.
+    BackHandler(enabled = menuOpen || scherm != Scherm.Thuis) {
+        if (menuOpen) menuOpen = false else terug()
+    }
+
+    val gekozen = when (scherm) {
+        Scherm.Thuis -> when (tab) {
+            Tab.Vandaag -> Plek.Thuis
+            Tab.Werk -> Plek.Werk
+            Tab.Onthoud -> Plek.Onthoud
+        }
+        is Scherm.Toevoegen -> Plek.Onthoud
+        is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
+        Scherm.Urenmail -> Plek.Werk
+        is Scherm.Later -> scherm.plek
+    }
+
     Box(Modifier.fillMaxSize().background(Kleur.Achtergrond)) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             val inhoud = Modifier.padding(start = ZijbalkRuimte)
-            if (plek == Plek.Thuis) {
-                ThuisScherm(
+            when (scherm) {
+                Scherm.Thuis -> ThuisScherm(
+                    staat = staat,
+                    acties = acties,
                     tab = tab,
                     onTab = { tab = it },
-                    nu = nu,
                     onVoorlezen = { tekst ->
-                        if (!onVoorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
+                        if (!acties.voorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
                     },
                     onMelding = ::toon,
-                    onGaNaar = ::gaNaar,
+                    onGaNaar = ::ga,
+                    onPlek = ::naarPlek,
                     modifier = inhoud,
                 )
-            } else {
-                KomtLaterScherm(plek, onTerug = { gaNaar(Plek.Thuis) }, modifier = inhoud)
+                is Scherm.Toevoegen -> ToevoegenScherm(
+                    start = scherm,
+                    staat = staat,
+                    acties = acties,
+                    onKlaar = ::terug,
+                    onMelding = ::toon,
+                    modifier = inhoud,
+                )
+                is Scherm.Lijst -> OnthoudLijstScherm(
+                    perPersoon = scherm.perPersoon,
+                    staat = staat,
+                    acties = acties,
+                    onTerug = ::terug,
+                    onGaNaar = ::ga,
+                    onMelding = ::toon,
+                    modifier = inhoud,
+                )
+                Scherm.Urenmail -> UrenmailScherm(
+                    staat = staat,
+                    acties = acties,
+                    onTerug = ::terug,
+                    onNaarWerk = { naarPlek(Plek.Werk) },
+                    onMelding = ::toon,
+                    modifier = inhoud,
+                )
+                is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 
             // Waas achter het open menu: tik = menu dicht
@@ -118,11 +193,11 @@ fun DashboardApp(
                 open = menuOpen,
                 gekozen = gekozen,
                 onWissel = { menuOpen = !menuOpen },
-                onKies = { gekozenPlek ->
+                onKies = { plek ->
                     if (!menuOpen) {
                         menuOpen = true
                     } else {
-                        gaNaar(gekozenPlek)
+                        naarPlek(plek)
                         menuOpen = false
                     }
                 },

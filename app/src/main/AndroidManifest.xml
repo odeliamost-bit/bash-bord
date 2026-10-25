@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Nodig om de voorleesstem (tekst-naar-spraak) van de telefoon te vinden. -->
+    <!-- Meldingen tonen (Android 13+ vraagt hier toestemming voor). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Na het opstarten van de telefoon de herinneringen opnieuw zetten. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <queries>
+        <!-- Nodig om de voorleesstem (tekst-naar-spraak) van de telefoon te vinden. -->
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <!-- Nodig om inspreken (spraakherkenning) te vinden. -->
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+        <!-- Nodig om Gmail te vinden voor de urenmail. -->
+        <package android:name="com.google.android.gm" />
     </queries>
 
     <application
@@ -17,12 +28,59 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Vanuit een andere app tekst delen naar "Onthoud". -->
+            <intent-filter android:label="Onthoud">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".meldingen.Ontvanger"
+            android:exported="false" />
+
+        <receiver
+            android:name=".meldingen.OpstartOntvanger"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".widget.KlokWidgetOntvanger"
+            android:exported="true"
+            android:label="@string/widget_klok_naam">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/klok_widget" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.OnthoudWidgetOntvanger"
+            android:exported="true"
+            android:label="@string/widget_onthoud_naam">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/onthoud_widget" />
+        </receiver>
     </application>
 
 </manifest>

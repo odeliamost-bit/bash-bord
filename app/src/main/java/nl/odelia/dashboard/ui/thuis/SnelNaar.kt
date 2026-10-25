@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import nl.odelia.dashboard.ui.Plek
+import nl.odelia.dashboard.ui.Scherm
 import nl.odelia.dashboard.ui.onderdelen.IcoonBlok
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -28,7 +29,7 @@ import nl.odelia.dashboard.ui.theme.Pastels
 
 /** Tegels onderaan het hoofdscherm: snel naar andere schermen. */
 @Composable
-fun SnelNaar(onGaNaar: (Plek) -> Unit, onMelding: (String) -> Unit) {
+fun SnelNaar(onGaNaar: (Scherm) -> Unit, onPlek: (Plek) -> Unit) {
     val vorm = RoundedCornerShape(26.dp)
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(
@@ -36,7 +37,7 @@ fun SnelNaar(onGaNaar: (Plek) -> Unit, onMelding: (String) -> Unit) {
                 .fillMaxWidth()
                 .klei(Pastels.Abrikoos.kaart, vorm, Pastels.Abrikoos.donker, hoogte = 10.dp)
                 .clip(vorm)
-                .clickable { onGaNaar(Plek.Advies) }
+                .clickable { onPlek(Plek.Advies) }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -48,12 +49,12 @@ fun SnelNaar(onGaNaar: (Plek) -> Unit, onMelding: (String) -> Unit) {
             }
         }
         Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Tegel(Pastels.Lila, Icoontjes.praatwolk, "Mail-hulp", Modifier.weight(1f)) { onGaNaar(Plek.Mail) }
-            Tegel(Pastels.Salie, Icoontjes.mensen, "Mensen", Modifier.weight(1f)) { onGaNaar(Plek.Mensen) }
+            Tegel(Pastels.Lila, Icoontjes.praatwolk, "Mail-hulp", Modifier.weight(1f)) { onPlek(Plek.Mail) }
+            Tegel(Pastels.Salie, Icoontjes.mensen, "Mensen", Modifier.weight(1f)) { onPlek(Plek.Mensen) }
         }
         Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Tegel(Pastels.Blauw, Icoontjes.week, "Week", Modifier.weight(1f)) { onMelding("Het weekoverzicht komt later.") }
-            Tegel(Pastels.Roze, Icoontjes.hart, "Wensen", Modifier.weight(1f)) { onGaNaar(Plek.Wensen) }
+            Tegel(Pastels.Blauw, Icoontjes.week, "Week", Modifier.weight(1f)) { onGaNaar(Scherm.Lijst()) }
+            Tegel(Pastels.Roze, Icoontjes.hart, "Wensen", Modifier.weight(1f)) { onPlek(Plek.Wensen) }
         }
     }
 }
