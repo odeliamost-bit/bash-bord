@@ -54,7 +54,6 @@ import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Invoer
 import nl.odelia.dashboard.ui.onderdelen.Keuze
 import nl.odelia.dashboard.ui.onderdelen.Kopje
-import nl.odelia.dashboard.ui.onderdelen.Material
 import nl.odelia.dashboard.ui.onderdelen.Tekst
 import nl.odelia.dashboard.ui.onderdelen.TerugBalk
 import nl.odelia.dashboard.ui.onderdelen.Vorm
