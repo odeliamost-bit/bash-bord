@@ -41,12 +41,12 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
             werk()
-            Acties.naWijziging(getApplication())
+            Acties.naWijziging(getApplication<Application>())
         }
     }
 
     override fun wisselKlok() {
-        viewModelScope.launch { Acties.wisselKlok(getApplication()) }
+        viewModelScope.launch { Acties.wisselKlok(getApplication<Application>()) }
     }
 
     override fun zetDag(datum: LocalDate, soort: DagSoort, begin: LocalTime?, eind: LocalTime?) =

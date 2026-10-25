@@ -41,7 +41,7 @@ import nl.odelia.dashboard.ui.theme.Nunito
 fun TerugBalk(titel: String, onTerug: () -> Unit, rechts: @Composable RowScope.() -> Unit = {}) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         RondeKnop(Icoontjes.terug, "Terug", onTerug, maat = 52.dp)
-        Tekst(titel, 28.sp, Modifier.weight(1f), kleur = Color(0xFF5A3426))
+        Tekst(titel, 26.sp, Modifier.weight(1f), kleur = Color(0xFF5A3426), regel = 30.sp)
         rechts()
     }
 }
