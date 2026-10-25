@@ -89,7 +89,7 @@ object Advies {
         return uitleg.map { u ->
             val alles = (listOf(u.vraag, u.intro) + u.woorden + u.nodig.map { it.label } + u.stappen.map { it.tekst })
                 .joinToString(" ").lowercase()
-            val score = woorden.sumOf { w ->
+            val score: Int = woorden.sumOf { w: String ->
                 when {
                     u.woorden.any { it == w || w.startsWith(it) || it.startsWith(w) } -> 3
                     w in alles -> 1
