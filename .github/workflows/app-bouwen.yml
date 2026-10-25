@@ -37,9 +37,11 @@ jobs:
           java-version: 17
 
       # Controleert ook of gradle-wrapper.jar echt van Gradle is.
+      # "basic" = de openbare (open-source) cache, niet de gesloten variant.
       - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
         with:
           validate-wrappers: true
+          cache-provider: basic
 
       - name: Vaste handtekening klaarzetten (als die is ingesteld)
         env:
