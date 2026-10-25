@@ -19,6 +19,10 @@
         </intent>
         <!-- Nodig om Gmail te vinden voor de urenmail. -->
         <package android:name="com.google.android.gm" />
+        <!-- Weer-apps voor de knoppen in Zeilweer (zie Zeilweer.weerApps). -->
+        <package android:name="com.windyty.android" />
+        <package android:name="com.studioeleven.windfinder" />
+        <package android:name="com.xs2theworld.weeronline" />
     </queries>
 
     <application

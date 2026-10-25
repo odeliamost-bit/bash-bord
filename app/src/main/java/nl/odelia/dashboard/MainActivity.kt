@@ -17,6 +17,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -60,6 +63,8 @@ class MainActivity : ComponentActivity() {
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
                     override fun openLink(link: String) = openInBrowser(link)
+                    override fun appIcoon(pakket: String) = icoonVan(pakket)
+                    override fun openApp(pakket: String) = openAndereApp(pakket)
                 }
             }
             DashboardThema {
@@ -112,6 +117,22 @@ class MainActivity : ComponentActivity() {
     }
 
     /** Opent een https-link in Chrome of Google Maps. De app zelf gaat hierbij niet online. */
+    private fun icoonVan(pakket: String): ImageBitmap? = try {
+        packageManager.getApplicationIcon(pakket).toBitmap(144, 144).asImageBitmap()
+    } catch (_: PackageManager.NameNotFoundException) {
+        null
+    }
+
+    private fun openAndereApp(pakket: String): Boolean {
+        val open = packageManager.getLaunchIntentForPackage(pakket) ?: return false
+        return try {
+            startActivity(open)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
+    }
+
     private fun openInBrowser(link: String): Boolean {
         if (!link.startsWith("https://")) return false
         return try {

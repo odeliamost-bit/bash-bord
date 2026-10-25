@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.ui
 
+import androidx.compose.ui.graphics.ImageBitmap
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -50,6 +51,12 @@ interface AppActies {
 
     /** Open een https-link in Chrome of Google Maps (de app zelf gaat dan niet online). */
     fun openLink(link: String): Boolean = false
+
+    /** Het icoontje van een app op de telefoon, of `null` als die app er niet op staat. */
+    fun appIcoon(pakket: String): ImageBitmap? = null
+
+    /** Open een andere app (bijv. een weer-app). Geeft `false` als dat niet lukt. */
+    fun openApp(pakket: String): Boolean = false
 
     // Zeilweer. Deze gaan wél online: alleen aanroepen nadat Odelia "ja" heeft gezegd.
     fun haalZeilweer() {}

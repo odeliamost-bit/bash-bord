@@ -29,8 +29,18 @@ data class Weerbericht(val plek: Plek, val opgehaald: LocalDateTime, val perMode
 
 data class Oordeel(val emoji: String, val tekst: String)
 
+/** Een weer-app op de telefoon. [pakket] is de interne naam (zie de link in Google Play). */
+data class WeerApp(val naam: String, val pakket: String)
+
 /** Zeilweer: alles uitrekenen uit wat Open-Meteo stuurt. */
 object Zeilweer {
+    /** Odelia's eigen weer-apps. Nieuwe erbij? Ook in AndroidManifest.xml (<queries>) zetten. */
+    val weerApps = listOf(
+        WeerApp("Windy", "com.windyty.android"),
+        WeerApp("Windfinder", "com.studioeleven.windfinder"),
+        WeerApp("Weeronline", "com.xs2theworld.weeronline"),
+    )
+
     val modellen = listOf(
         Weermodel("knmi_harmonie_arome_netherlands", "HARMONIE", "🇳🇱"),
         Weermodel("icon_d2", "ICON", "🇩🇪"),
