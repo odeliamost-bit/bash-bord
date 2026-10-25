@@ -16,7 +16,24 @@ android {
         versionName = "0.1"
     }
 
+    // Vaste handtekening, zodat een nieuwe versie over de oude heen gaat en je gegevens blijven.
+    // De sleutel staat NIET in git: GitHub zet hem klaar uit een geheim (zie README).
+    val sleutelPad = System.getenv("SLEUTEL_PAD")
+    if (sleutelPad != null) {
+        signingConfigs {
+            create("vast") {
+                storeFile = file(sleutelPad)
+                storePassword = System.getenv("SLEUTEL_WACHTWOORD")
+                keyAlias = "dashboard"
+                keyPassword = System.getenv("SLEUTEL_WACHTWOORD")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfigs.findByName("vast")?.let { signingConfig = it }
+        }
         release {
             isMinifyEnabled = false
         }
