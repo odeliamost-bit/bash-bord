@@ -27,14 +27,8 @@ import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.logica.CyclusData
 import nl.odelia.dashboard.data.AdviesOpslag
-import nl.odelia.dashboard.data.LerenOpslag
-import nl.odelia.dashboard.data.Opslag
-import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.logica.AdviesData
 import nl.odelia.dashboard.data.KluisOpslag
-import nl.odelia.dashboard.data.LerenOpslag
-import nl.odelia.dashboard.data.Opslag
-import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
@@ -83,11 +77,11 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         }
 
     val staat: StateFlow<AppStaat> =
-        combine(basis, leren.data, cyclus.data, wensen.data) { s, l, c, w -> s.copy(leren = l, cyclus = c, wensen = w) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
-        combine(basis, leren.data, geld.data) { s, l, g -> s.copy(leren = l, geld = g) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
-        combine(basis, leren.data, fotos.data) { s, l, f -> s.copy(leren = l, fotos = f) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
-        combine(basis, leren.data, advies.data) { s, l, a -> s.copy(leren = l, advies = a) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
-        combine(basis, leren.data, kluis, recepten.data) { s, l, k, r -> s.copy(leren = l, kluis = k, recepten = r) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        combine(
+            combine(basis, leren.data, cyclus.data, wensen.data, geld.data) { s, l, c, w, g -> s.copy(leren = l, cyclus = c, wensen = w, geld = g) },
+            fotos.data, advies.data, kluis, recepten.data,
+        ) { s, f, a, k, r -> s.copy(fotos = f, advies = a, kluis = k, recepten = r) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {

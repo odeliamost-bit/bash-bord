@@ -139,4 +139,5 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Stap 2–5 (klokken, onthoud, meldingen, urenmail als nieuwe Gmail-mail): gebouwd, GitHub bouwt de app. **Nog niet getest op de telefoon.**
 - Extra: beveiliging, opzoeken/route via Chrome/Maps, Zeilweer (5 weermodellen, met toestemming online). **Nog niet getest op de telefoon.**
 - Leren (kaarten, quiz, overzicht, eigen kaarten, pauze-seintje): gebouwd op tak `claude/leren`. **Nog niet getest op de telefoon.**
+- Alle schermen uit het ontwerp (Geld, Cyclus, Wensen, Mensen, Mail-hulp, Advies, Wachtwoorden, Recepten, Leren-extra's, foto bij Onthoud, menu direct) gebouwd op tak `claude/alle-schermen` (okt 2026). Elk scherm eigen JSON-bestand; Room niet veranderd. Geen AI (vaste teksten). **Nog niet getest op de telefoon.**
 - Nog te doen: Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).
