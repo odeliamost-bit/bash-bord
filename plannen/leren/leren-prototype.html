@@ -1,0 +1,696 @@
+<title>Kompas Elektrotechniek</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one calm column, one card at a time; the 5 Leitner boxes drawn as groups in a meter cupboard. */
+:root{
+  --bg:#edf0f4; --surface:#ffffff; --ink:#18212c; --muted:#5a6676; --line:#d3dae3;
+  --accent:#1d5bbf; --accent-ink:#ffffff; --soft:#e3ebf8;
+  --ok:#2c7a48; --warn:#a86b12; --bad:#b03c2c;
+  --w-bruin:#8a4b1f; --w-blauw:#1d5bbf; --w-grijs:#8d949c; --w-zwart:#232323; --w-geel:#e2c11b; --w-groen:#2f8a3c; --w-amber:#c8811c;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#11161c; --surface:#1a2129; --ink:#e7ecf2; --muted:#9ca8b7; --line:#2d3743;
+  --accent:#6f9fff; --accent-ink:#0d1520; --soft:#1f2d45;
+  --ok:#5fc082; --warn:#e2aa4c; --bad:#e8755f;
+  --w-bruin:#c07a45; --w-blauw:#6f9fff; --w-grijs:#9aa2ab; --w-zwart:#0b0d10; --w-geel:#e8cb34; --w-groen:#45ad55; --w-amber:#e2a54a;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --surface:#1a2129; --ink:#e7ecf2; --muted:#9ca8b7; --line:#2d3743;
+  --accent:#6f9fff; --accent-ink:#0d1520; --soft:#1f2d45;
+  --ok:#5fc082; --warn:#e2aa4c; --bad:#e8755f;
+  --w-bruin:#c07a45; --w-blauw:#6f9fff; --w-grijs:#9aa2ab; --w-zwart:#0b0d10; --w-geel:#e8cb34; --w-groen:#45ad55; --w-amber:#e2a54a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 10px;display:grid;gap:10px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:1.45rem;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.brand .sync{font-size:.8rem;color:var(--muted)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs button{font:inherit;font-weight:700;font-size:.98rem;border:0;border-radius:9px;padding:10px 6px;background:transparent;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.view{display:grid;gap:16px;padding-top:6px}
+.label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0}
+.muted{color:var(--muted)}
+.note{font-size:.92rem;color:var(--muted);margin:0}
+
+/* Groepenkast */
+.kast{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
+.kast-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.mod{border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:8px 2px 6px;display:grid;justify-items:center;gap:4px}
+.lever{width:42%;height:12px;border-radius:3px;background:var(--line)}
+.mod.on .lever{background:var(--accent)}
+.mod b{font-family:var(--f-mono);font-size:1.15rem;font-variant-numeric:tabular-nums;line-height:1}
+.mod span{font-size:.72rem;color:var(--muted);font-family:var(--f-mono)}
+.kast-cap{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+
+/* Filters */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.92rem;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);font-weight:700}
+.ader{width:10px;height:10px;border-radius:50%;border:1px solid var(--line);flex:none}
+.ader.bruin{background:var(--w-bruin)} .ader.blauw{background:var(--w-blauw)} .ader.grijs{background:var(--w-grijs)}
+.ader.zwart{background:var(--w-zwart)} .ader.amber{background:var(--w-amber)} .ader.eigen{background:var(--muted)}
+.ader.ge{background:repeating-linear-gradient(135deg,var(--w-geel) 0 3px,var(--w-groen) 3px 6px)}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:14px}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.88rem;color:var(--muted)}
+.cat{display:inline-flex;align-items:center;gap:7px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.q{font-family:var(--f-display);font-weight:600;font-size:1.4rem;line-height:1.3;margin:0;text-wrap:balance}
+.ans{border-top:2px dashed var(--line);padding-top:14px;display:grid;gap:8px}
+.ans .a{font-size:1.2rem;font-weight:700;margin:0}
+.ans .x{margin:0;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-size:.95em}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;min-height:48px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.small{min-height:38px;padding:7px 12px;font-size:.92rem;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:default}
+.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grade .btn{padding:12px 4px;font-size:.98rem}
+.g-bad{background:color-mix(in srgb,var(--bad) 14%,var(--surface));border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.g-warn{background:color-mix(in srgb,var(--warn) 14%,var(--surface));border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.g-ok{background:color-mix(in srgb,var(--ok) 14%,var(--surface));border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.keys{font-size:.78rem;color:var(--muted)}
+@media (hover:none){.keys{display:none}}
+.done{text-align:center;display:grid;gap:10px;justify-items:center}
+.done h2{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.tally{display:flex;gap:16px;justify-content:center;font-variant-numeric:tabular-nums}
+.tally span{display:grid;justify-items:center;font-size:.85rem;color:var(--muted)}
+.tally b{font-family:var(--f-mono);font-size:1.4rem;color:var(--ink)}
+
+/* Tutor */
+.chat{display:grid;gap:10px}
+.msg{padding:12px 14px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:92%}
+.msg.user{justify-self:end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.msg.ai{justify-self:start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px;display:grid;gap:8px}
+.msg.ai .txt{min-width:0}
+.msg.ai .tools{display:flex;gap:6px}
+.msg.err{font-size:.9rem;color:var(--bad)}
+.compose{display:grid;gap:8px;position:sticky;bottom:0;background:var(--bg);padding-block:8px calc(8px + env(safe-area-inset-bottom,0px))}
+textarea,select,input[type=text]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+textarea{resize:vertical;min-height:52px}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:16px;display:grid;gap:10px}
+.empty p{margin:0}
+
+/* Kaarten */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
+.panel h2{font-family:var(--f-display);font-size:1.15rem;margin:0}
+.list{display:grid;gap:0;border-top:1px solid var(--line)}
+.li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.li .t{min-width:0}
+.li .t p{margin:0}
+.li .t small{color:var(--muted)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+.field{display:grid;gap:6px}
+.field label{font-weight:700;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>Elektrotechniek</h1><span class="sync" id="sync">Opgeslagen op dit apparaat</span></div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="tab-oefenen" aria-selected="true" data-view="oefenen">Oefenen</button>
+      <button role="tab" id="tab-tutor" aria-selected="false" data-view="tutor">Tutor</button>
+      <button role="tab" id="tab-kaarten" aria-selected="false" data-view="kaarten">Kaarten</button>
+    </nav>
+  </header>
+
+  <!-- OEFENEN -->
+  <section class="view" id="v-oefenen">
+    <div class="kast" aria-label="Voortgang per groep">
+      <div class="kast-row" id="kast"></div>
+      <div class="kast-cap"><span>Groep 1: vaak herhalen</span><span>Groep 5: zit erin</span></div>
+    </div>
+    <div class="chips" id="filters" aria-label="Onderwerp"></div>
+    <div id="practice"></div>
+  </section>
+
+  <!-- TUTOR -->
+  <section class="view" id="v-tutor" hidden>
+    <div class="chat" id="chat"></div>
+    <div class="compose">
+      <div class="chips" id="quick"></div>
+      <textarea id="ask" rows="2" placeholder="Stel je vraag, bijvoorbeeld: hoe reken ik parallel weerstanden uit?"></textarea>
+      <div class="row end">
+        <button class="btn small ghost" id="newchat">Nieuw gesprek</button>
+        <button class="btn small" id="stop" hidden>Stop</button>
+        <button class="btn primary small" id="send">Vraag</button>
+      </div>
+      <p class="note" id="tutor-note">De tutor wordt geladen…</p>
+    </div>
+  </section>
+
+  <!-- KAARTEN -->
+  <section class="view" id="v-kaarten" hidden>
+    <div class="panel">
+      <h2>Nieuwe kaarten maken</h2>
+      <div class="field">
+        <label for="gen-in">Onderwerp, of plak tekst uit je les</label>
+        <textarea id="gen-in" rows="3" placeholder="Bijvoorbeeld: stertdriehoekschakeling, of een stuk uit je lesboek"></textarea>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="gen-btn">Maak 8 kaarten</button>
+        <button class="btn ghost small" id="gen-stop" hidden>Stop</button>
+      </div>
+      <p class="note" id="gen-note"></p>
+      <div id="gen-out"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Jouw niveau</h2>
+      <div class="field">
+        <label for="niveau">De tutor en nieuwe kaarten passen zich hierop aan</label>
+        <select id="niveau">
+          <option value="2">MBO niveau 2</option>
+          <option value="3" selected>MBO niveau 3</option>
+          <option value="4">MBO niveau 4</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Onderwerpen</h2>
+      <div class="list" id="catlist"></div>
+    </div>
+
+    <div class="panel" id="eigen-panel" hidden>
+      <h2>Eigen kaarten</h2>
+      <div class="list" id="eigenlist"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Voortgang</h2>
+      <p class="note">Begin opnieuw met alle kaarten in groep 1. Je eigen kaarten blijven bewaard.</p>
+      <div class="row"><button class="btn small" id="reset">Voortgang wissen</button></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===== Data (portable: copy CATS + BASE into the Kompas app) ===== */
+const CATS = [
+  {id:'basis', name:'Basis', ader:'blauw'},
+  {id:'vermogen', name:'Vermogen', ader:'bruin'},
+  {id:'schakel', name:'Schakelingen', ader:'grijs'},
+  {id:'wissel', name:'Wisselstroom', ader:'zwart'},
+  {id:'install', name:'Installatie', ader:'ge'},
+  {id:'comp', name:'Componenten', ader:'amber'},
+  {id:'eigen', name:'Eigen kaarten', ader:'eigen'}
+];
+const BASE = [
+  {id:'b01',c:'basis',q:'Wat is de wet van Ohm?',a:'U = I × R',x:'Spanning (V) = stroom (A) × weerstand (Ω).'},
+  {id:'b02',c:'basis',q:'Wat is de eenheid van spanning?',a:'Volt (V)'},
+  {id:'b03',c:'basis',q:'Wat is de eenheid van stroom?',a:'Ampère (A)'},
+  {id:'b04',c:'basis',q:'Wat is de eenheid van weerstand?',a:'Ohm (Ω)'},
+  {id:'b05',c:'basis',q:'Een lamp op 230 V trekt 0,5 A. Hoe groot is de weerstand?',a:'460 Ω',x:'R = U / I = 230 / 0,5 = 460 Ω'},
+  {id:'b06',c:'basis',q:'Er staat 12 V over een weerstand van 4 Ω. Hoe groot is de stroom?',a:'3 A',x:'I = U / R = 12 / 4 = 3 A'},
+  {id:'b07',c:'basis',q:'Hoe sluit je een voltmeter aan?',a:'Parallel over het onderdeel',x:'Een voltmeter meet het spanningsverschil tussen twee punten.'},
+  {id:'b08',c:'basis',q:'Hoe sluit je een ampèremeter aan?',a:'In serie, in de stroomkring',x:'Alle stroom moet door de meter lopen.'},
+  {id:'b09',c:'basis',q:'Hoeveel ohm is 4,7 kΩ?',a:'4700 Ω',x:'kilo = × 1000'},
+  {id:'b10',c:'basis',q:'Hoeveel ampère is 250 mA?',a:'0,25 A',x:'milli = ÷ 1000'},
+  {id:'v01',c:'vermogen',q:'Wat is de formule voor elektrisch vermogen?',a:'P = U × I',x:'Vermogen in watt (W).'},
+  {id:'v02',c:'vermogen',q:'Een waterkoker van 2300 W op 230 V. Hoeveel stroom?',a:'10 A',x:'I = P / U = 2300 / 230 = 10 A'},
+  {id:'v03',c:'vermogen',q:'Wat is de formule voor elektrische energie?',a:'E = P × t',x:'In kWh: vermogen in kW × tijd in uren.'},
+  {id:'v04',c:'vermogen',q:'Een kachel van 2 kW staat 3 uur aan. Hoeveel energie?',a:'6 kWh',x:'E = 2 kW × 3 h = 6 kWh'},
+  {id:'v05',c:'vermogen',q:'Hoe reken je vermogen uit met stroom en weerstand?',a:'P = I² × R',x:'Volgt uit P = U × I en U = I × R.'},
+  {id:'v06',c:'vermogen',q:'Wat is rendement?',a:'Nuttig vermogen ÷ toegevoerd vermogen',x:'η = P_nuttig / P_toe × 100%. Altijd minder dan 100%.'},
+  {id:'s01',c:'schakel',q:'Hoe bereken je de totale weerstand in serie?',a:'Rt = R1 + R2 + R3 …'},
+  {id:'s02',c:'schakel',q:'100 Ω en 200 Ω in serie. Totale weerstand?',a:'300 Ω'},
+  {id:'s03',c:'schakel',q:'Twee weerstanden van 100 Ω parallel. Totale weerstand?',a:'50 Ω',x:'Gelijke weerstanden parallel: R ÷ aantal = 100 / 2.'},
+  {id:'s04',c:'schakel',q:'Formule voor twee weerstanden parallel?',a:'Rt = (R1 × R2) / (R1 + R2)',x:'Algemeen: 1/Rt = 1/R1 + 1/R2 + …'},
+  {id:'s05',c:'schakel',q:'Wat is overal gelijk in een serieschakeling?',a:'De stroom'},
+  {id:'s06',c:'schakel',q:'Wat is overal gelijk in een parallelschakeling?',a:'De spanning'},
+  {id:'s07',c:'schakel',q:'Wat zegt de stroomwet van Kirchhoff?',a:'Stroom erin = stroom eruit',x:'In een knooppunt is de som van de stromen die erin gaan gelijk aan de som die eruit gaat.'},
+  {id:'s08',c:'schakel',q:'Is de totale weerstand parallel groter of kleiner dan de kleinste weerstand?',a:'Kleiner',x:'Elke extra parallelle tak geeft de stroom een extra weg.'},
+  {id:'w01',c:'wissel',q:'Wat is de netfrequentie in Nederland?',a:'50 Hz'},
+  {id:'w02',c:'wissel',q:'Spanning tussen fase en nul in Nederland?',a:'230 V'},
+  {id:'w03',c:'wissel',q:'Spanning tussen twee fasen (driefase)?',a:'400 V',x:'230 V × √3 ≈ 400 V'},
+  {id:'w04',c:'wissel',q:'Wat is de topwaarde van 230 V wisselspanning?',a:'Ongeveer 325 V',x:'Û = U_eff × √2 = 230 × 1,414'},
+  {id:'w05',c:'wissel',q:'Wat doet een transformator?',a:'Zet wisselspanning om naar hoger of lager',x:'U1 / U2 = N1 / N2 (verhouding van de windingen).'},
+  {id:'w06',c:'wissel',q:'Trafo: 230 V, N1 = 1000, N2 = 100. Secundaire spanning?',a:'23 V',x:'U2 = U1 × N2 / N1 = 230 × 100 / 1000'},
+  {id:'i01',c:'install',q:'Welke kleur heeft de fasedraad (L1)?',a:'Bruin',x:'Bij driefase: L1 bruin, L2 zwart, L3 grijs.'},
+  {id:'i02',c:'install',q:'Welke kleur heeft de nuldraad?',a:'Blauw'},
+  {id:'i03',c:'install',q:'Welke kleur heeft de beschermingsleiding (aarde)?',a:'Geel-groen'},
+  {id:'i04',c:'install',q:'Wat doet een aardlekschakelaar?',a:'Schakelt uit als er stroom weglekt',x:'Meet verschil tussen heengaande en teruggaande stroom. In woningen meestal 30 mA.'},
+  {id:'i05',c:'install',q:'Waartegen beschermt een installatieautomaat?',a:'Overbelasting en kortsluiting'},
+  {id:'i06',c:'install',q:'Wat betekent B16 op een installatieautomaat?',a:'B-karakteristiek, 16 A',x:'De letter zegt hoe snel hij bij kortsluiting afschakelt.'},
+  {id:'i07',c:'install',q:'Welke norm geldt voor laagspanningsinstallaties?',a:'NEN 1010'},
+  {id:'i08',c:'install',q:'Welke norm gaat over veilig werken aan elektrische installaties?',a:'NEN 3140'},
+  {id:'i09',c:'install',q:'Wat zijn de 5 veiligheidsregels voor spanningsloos werken?',a:'Vrijschakelen, beveiligen tegen inschakelen, spanningsloosheid vaststellen, aarden en kortsluiten, afschermen',x:'Altijd in deze volgorde.'},
+  {id:'c01',c:'comp',q:'Wat doet een diode?',a:'Laat stroom maar in één richting door'},
+  {id:'c02',c:'comp',q:'Wat doet een condensator en wat is de eenheid?',a:'Slaat lading op, in farad (F)'},
+  {id:'c03',c:'comp',q:'Wat doet een LDR?',a:'Weerstand wordt lager bij meer licht'},
+  {id:'c04',c:'comp',q:'Wat doet een NTC-weerstand?',a:'Weerstand daalt als de temperatuur stijgt',x:'NTC = negatieve temperatuurcoëfficiënt.'},
+  {id:'c05',c:'comp',q:'Wat is een relais?',a:'Een schakelaar die elektrisch bediend wordt',x:'Een kleine stroom door de spoel schakelt de contacten.'}
+];
+const DAY = 864e5;
+const WAIT_DAYS = {1:0, 2:1, 3:3, 4:7, 5:14};   // Leitner: dagen tot de kaart terugkomt
+const SESSION_SIZE = 10;
+const K = 'kompas-elektro-';
+
+/* ===== State ===== */
+let custom = load('custom', []);
+let progress = load('progress', {});      // cardId -> {b, due, at}
+let niveau = load('niveau', '3');
+let filter = 'alles';
+let session = null;
+let view = 'oefenen';
+let sample = null, aiOff = false;
+let turns = load('chat', []);
+
+function load(k, d){ try{ const v = localStorage.getItem(K+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function keep(k, v){ try{ localStorage.setItem(K+k, JSON.stringify(v)); }catch(e){} }
+const $ = s => document.querySelector(s);
+function el(tag, attrs={}, ...kids){
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)){
+    if (k === 'class') n.className = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) n.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) n.append(kid);
+  return n;
+}
+const allCards = () => BASE.concat(custom);
+const catOf = id => CATS.find(c => c.id === id) || CATS[CATS.length-1];
+const byId = id => allCards().find(c => c.id === id);
+
+/* ===== Storage: device first, synced to Claude when available ===== */
+const store = {
+  db:null, refs:null, chain:Promise.resolve(), timers:{},
+  save(kind){
+    keep(kind, kind === 'progress' ? progress : custom);
+    if (!this.refs) return;
+    clearTimeout(this.timers[kind]);
+    this.timers[kind] = setTimeout(() => {
+      const ref = this.refs[kind];
+      const body = kind === 'progress' ? {p: progress} : {cards: custom};
+      this.chain = this.chain.then(() => ref.set(body)).catch(() => {
+        $('#sync').textContent = 'Opslaan lukte even niet';
+      });
+    }, 1200);
+  }
+};
+async function initSync(){
+  if (typeof window.claude?.use !== 'function') return;
+  const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+  const uid = user ? await user.id() : null;
+  if (!db || !uid) return;
+  const refs = {progress: db.doc(`data/users/${uid}/progress`), custom: db.doc(`data/users/${uid}/custom`)};
+  try {
+    const [ps, cs] = await Promise.all([refs.progress.get(), refs.custom.get()]);
+    let changed = false;
+    const remoteP = ps.exists ? (ps.data().p || {}) : {};
+    const merged = {...remoteP};
+    for (const [id, v] of Object.entries(progress)){
+      if (!merged[id] || (v.at||0) > (merged[id].at||0)){ merged[id] = v; changed = true; }
+    }
+    progress = merged;
+    const remoteC = cs.exists ? (cs.data().cards || []) : [];
+    const ids = new Set(remoteC.map(c => c.id));
+    const extra = custom.filter(c => !ids.has(c.id));
+    custom = remoteC.concat(extra);
+    store.refs = refs;
+    if (changed) store.save('progress');
+    if (extra.length) store.save('custom');
+    keep('progress', progress); keep('custom', custom);
+    $('#sync').textContent = 'Bewaard op al je apparaten';
+    renderKast(); renderFilters(); renderCardsTab();
+    if (!session) renderPractice();
+  } catch(e){ /* blijf lokaal werken */ }
+}
+
+/* ===== Oefenen ===== */
+function matches(c){ return filter === 'alles' || c.c === filter; }
+function boxOf(id){ return progress[id]?.b || 1; }
+function renderKast(){
+  const counts = [0,0,0,0,0];
+  allCards().filter(matches).forEach(c => counts[boxOf(c.id)-1]++);
+  $('#kast').replaceChildren(...counts.map((n,i) =>
+    el('div', {class:'mod' + (n ? ' on':''), 'aria-label':`Groep ${i+1}: ${n} kaarten`},
+      el('div',{class:'lever'}), el('b',{}, String(n)), el('span',{}, 'G'+(i+1)))));
+}
+function renderFilters(){
+  const present = new Set(allCards().map(c => c.c));
+  const opts = [{id:'alles', name:'Alles'}].concat(CATS.filter(c => present.has(c.id)));
+  $('#filters').replaceChildren(...opts.map(o => el('button', {class:'chip', 'aria-pressed': String(filter === o.id),
+    onclick: () => { filter = o.id; session = null; renderFilters(); renderKast(); renderPractice(); }},
+    o.ader ? el('span',{class:'ader '+o.ader}) : null, o.name)));
+}
+function dueList(force){
+  const now = Date.now();
+  const pool = allCards().filter(matches);
+  let due = pool.filter(c => !progress[c.id] || progress[c.id].due <= now);
+  const seen = due.filter(c => progress[c.id]).sort((a,b) => boxOf(a.id) - boxOf(b.id));
+  const fresh = due.filter(c => !progress[c.id]);
+  due = seen.concat(fresh);
+  if (!due.length && force) due = pool.slice().sort((a,b) => boxOf(a.id) - boxOf(b.id) || Math.random() - .5);
+  return due;
+}
+function startSession(force){
+  const list = dueList(force).slice(0, SESSION_SIZE);
+  if (!list.length){ session = null; renderPractice(); return; }
+  session = {queue: list.map(c => c.id), pos: 0, total: list.length, revealed: false, again: new Set(), tally: {ok:0, warn:0, bad:0}};
+  renderPractice();
+}
+function grade(kind){
+  if (!session || !session.revealed) return;
+  const id = session.queue[session.pos];
+  const now = Date.now();
+  let b = boxOf(id);
+  if (kind === 'ok') b = Math.min(5, b + 1);
+  if (kind === 'bad') b = 1;
+  const due = kind === 'bad' ? now : kind === 'warn' ? now + DAY : now + WAIT_DAYS[b] * DAY;
+  progress[id] = {b, due, at: now};
+  session.tally[kind]++;
+  if (kind === 'bad' && !session.again.has(id)){ session.again.add(id); session.queue.push(id); session.total++; }
+  session.pos++; session.revealed = false;
+  store.save('progress');
+  renderKast(); renderPractice();
+}
+function renderPractice(){
+  const box = $('#practice');
+  stopSpeech();
+  if (!session){
+    const n = dueList(false).length;
+    box.replaceChildren(el('div', {class:'card done'},
+      el('h2', {}, n ? `${n} kaarten klaar om te oefenen` : 'Alles is bijgewerkt'),
+      el('p', {class:'muted', style:'margin:0'}, n ? `Een rondje is ${Math.min(n, SESSION_SIZE)} kaarten.` : 'Kom later terug, of oefen toch een rondje.'),
+      el('button', {class:'btn primary', onclick: () => startSession(!n)}, n ? 'Start' : 'Toch oefenen')));
+    return;
+  }
+  if (session.pos >= session.queue.length){
+    const t = session.tally;
+    session = null;
+    const left = dueList(false).length;
+    box.replaceChildren(el('div', {class:'card done'},
+      el('h2', {}, 'Rondje klaar'),
+      el('div', {class:'tally'},
+        el('span', {}, el('b',{}, String(t.ok)), 'Wist ik'),
+        el('span', {}, el('b',{}, String(t.warn)), 'Twijfel'),
+        el('span', {}, el('b',{}, String(t.bad)), 'Nog niet')),
+      left ? el('button', {class:'btn primary', onclick: () => startSession(false)}, 'Nog een rondje') :
+             el('p', {class:'muted', style:'margin:0'}, 'Goed bezig. Alles voor vandaag is gedaan.')));
+    return;
+  }
+  const c = byId(session.queue[session.pos]);
+  if (!c){ session.pos++; return renderPractice(); }
+  const cat = catOf(c.c);
+  const pct = Math.round(session.pos / session.queue.length * 100);
+  const readText = session.revealed ? `${c.q}. Antwoord: ${c.a}. ${c.x || ''}` : c.q;
+  const kids = [
+    el('div', {class:'card-top'},
+      el('span', {class:'cat'}, el('span',{class:'ader '+cat.ader}), c.c === 'eigen' && c.t ? c.t : cat.name),
+      el('span', {class:'num'}, `${session.pos + 1} / ${session.queue.length}`)),
+    el('div', {class:'bar'}, el('i', {style:`width:${pct}%`})),
+    el('p', {class:'q'}, c.q)
+  ];
+  if (!session.revealed){
+    kids.push(el('div', {class:'row'},
+      el('button', {class:'btn primary', id:'reveal', style:'flex:1', onclick: () => { session.revealed = true; renderPractice(); }}, 'Toon antwoord'),
+      speakBtn(readText)));
+    kids.push(el('span', {class:'keys'}, 'Spatie = antwoord tonen'));
+  } else {
+    kids.push(el('div', {class:'ans'},
+      el('p', {class:'a'}, c.a),
+      c.x ? el('p', {class:'x'}, c.x) : null));
+    kids.push(el('div', {class:'grade'},
+      el('button', {class:'btn g-bad', onclick: () => grade('bad')}, 'Wist ik niet'),
+      el('button', {class:'btn g-warn', onclick: () => grade('warn')}, 'Twijfel'),
+      el('button', {class:'btn g-ok', onclick: () => grade('ok')}, 'Wist ik')));
+    kids.push(el('div', {class:'row'},
+      el('button', {class:'btn small ghost', hidden: aiOff, onclick: () => explain(c)}, 'Leg dit uit'),
+      speakBtn(readText),
+      el('span', {class:'keys', style:'margin-left:auto'}, 'Toetsen 1, 2, 3')));
+  }
+  box.replaceChildren(el('div', {class:'card'}, ...kids));
+}
+document.addEventListener('keydown', e => {
+  if (view !== 'oefenen' || !session || /TEXTAREA|INPUT|SELECT/.test(document.activeElement?.tagName)) return;
+  if (!session.revealed && (e.key === ' ' || e.key === 'Enter')){ e.preventDefault(); session.revealed = true; renderPractice(); }
+  else if (session.revealed && ['1','2','3'].includes(e.key)) grade(['bad','warn','ok'][+e.key - 1]);
+});
+
+/* ===== Voorlezen ===== */
+const canSpeak = 'speechSynthesis' in window;
+function stopSpeech(){ try{ if (canSpeak) speechSynthesis.cancel(); }catch(e){} }
+function speakBtn(text){
+  if (!canSpeak) return null;
+  return el('button', {class:'btn small ghost', onclick: () => {
+    try{
+      if (speechSynthesis.speaking){ speechSynthesis.cancel(); return; }
+      const u = new SpeechSynthesisUtterance(text.replace(/×/g,' keer ').replace(/÷/g,' gedeeld door ').replace(/Ω/g,' ohm'));
+      u.lang = 'nl-NL'; u.rate = 0.95;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }}, 'Lees voor');
+}
+
+/* ===== Tutor ===== */
+function rules(){
+  return `Je bent een geduldige bijlesdocent elektrotechniek voor een MBO-student (niveau ${niveau}) in Nederland. Volg deze regels:
+- Schrijf in eenvoudig Nederlands met korte zinnen. Houd antwoorden kort: ongeveer 120 woorden, tenzij de student om meer vraagt. Lezen kost de student energie.
+- Leg uit in kleine stappen, één idee per alinea.
+- Bij een som: 1) formule, 2) getallen invullen, 3) uitkomst met eenheid.
+- Gebruik Nederlandse vaktermen en normen (zoals NEN 1010 en NEN 3140) waar dat past.
+- Eindig met één korte controlevraag, zodat de student kan checken of het begrepen is.
+- Vraagt de student om overhoord te worden: stel één vraag tegelijk, wacht op het antwoord, zeg kort of het goed is en waarom, en stel dan de volgende.
+- Gaat het over praktisch werk aan een installatie: noem veilig werken (spanningsloos maken) als dat relevant is. Zeg nooit dat werken onder spanning veilig is.
+- Gebruik geen Markdown: geen kopjes, tabellen, sterretjes of vet. Gewone tekst met witregels. Een lijst met 1) 2) 3) mag.
+- Weet je iets niet zeker, zeg dat dan en raad aan het na te vragen bij de docent.`;
+}
+const QUICK = [
+  ['Overhoor mij', () => `Overhoor mij over ${filter === 'alles' ? 'basis elektrotechniek' : catOf(filter).name.toLowerCase()}. Eén vraag tegelijk.`],
+  ['Help met een som', () => 'Ik wil een som oefenen. Geef me een rekenopgave op mijn niveau en help me stap voor stap.'],
+  ['Leg de wet van Ohm uit', () => 'Leg de wet van Ohm uit met een voorbeeld uit het dagelijks leven.']
+];
+let ctl = null, busy = false;
+function renderChat(){
+  const box = $('#chat');
+  if (!turns.length){
+    box.replaceChildren(el('div', {class:'empty'},
+      el('p', {}, el('b', {}, 'Vraag alles over elektrotechniek.')),
+      el('p', {class:'muted'}, 'De tutor legt uit in kleine stappen, helpt met sommen en kan je overhoren.')));
+    return;
+  }
+  box.replaceChildren(...turns.map(t => t.role === 'user'
+    ? el('div', {class:'msg user'}, t.content)
+    : aiBubble(t.content)));
+}
+function aiBubble(text){
+  const txt = el('div', {class:'txt'}, text);
+  const b = el('div', {class:'msg ai'}, txt, el('div', {class:'tools'}, speakBtn(text)));
+  b._txt = txt;
+  return b;
+}
+function setBusy(on){
+  busy = on;
+  $('#send').disabled = on || aiOff;
+  $('#stop').hidden = !on;
+  $('#gen-btn').disabled = on || aiOff;
+}
+function shownText(t){ return t.length > 300 ? t.slice(0, 300) + '…' : t; }
+async function send(text){
+  text = (text || '').trim();
+  if (!text || busy || !sample) return;
+  turns.push({role:'user', content:text});
+  $('#ask').value = '';
+  renderChat();
+  const bubble = el('div', {class:'msg ai'}, el('div', {class:'txt muted'}, 'Denkt na…'));
+  $('#chat').append(bubble);
+  bubble.scrollIntoView({block:'end', behavior:'smooth'});
+  setBusy(true);
+  ctl = new AbortController();
+  try {
+    const recent = turns.slice(-16);
+    const {text: answer, truncated} = await sample([{role:'user', content: rules()}, ...recent], {
+      cache:false, signal: ctl.signal,
+      onText: ({text}) => { const t = bubble.querySelector('.txt'); t.classList.remove('muted'); t.textContent = text; }
+    });
+    turns.push({role:'assistant', content: answer + (truncated ? '\n\n(Afgebroken. Vraag om de rest.)' : '')});
+    keep('chat', turns.slice(-30));
+    renderChat();
+  } catch(e){
+    if (e && e.text){ turns.push({role:'assistant', content: e.text}); keep('chat', turns.slice(-30)); }
+    renderChat();
+    if (e?.code !== 'cancelled') $('#chat').append(el('div', {class:'msg err'}, errCopy(e?.code)));
+  } finally {
+    setBusy(false);
+    $('#chat').lastElementChild?.scrollIntoView({block:'end', behavior:'smooth'});
+  }
+}
+function explain(c){
+  go('tutor');
+  send(`Leg deze oefenkaart uit in kleine stappen.\nVraag: ${c.q}\nAntwoord: ${c.a}${c.x ? '\nToelichting: ' + c.x : ''}`);
+}
+const PERMANENT = ['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'];
+function errCopy(code){
+  if (PERMANENT.includes(code)){ disableAI('De tutor heeft geen toestemming in deze weergave. Je kunt dat aanpassen via het menu van deze pagina.'); return 'De tutor is uitgeschakeld.'; }
+  switch(code){
+    case 'rate_limited': return 'Even te veel vragen achter elkaar. Probeer het over een paar minuten opnieuw.';
+    case 'session_expired': return 'Log opnieuw in bij Claude en probeer het dan opnieuw.';
+    case 'refused': return 'Daar kan de tutor geen antwoord op geven. Stel de vraag anders.';
+    case 'prompt_too_large': return 'De tekst is te lang. Probeer een kleiner stuk.';
+    case 'invalid_json': return 'Het maken van kaarten lukte niet. Probeer het opnieuw.';
+    case 'empty_completion': return 'Er kwam geen antwoord. Stel de vraag iets anders.';
+    default: return 'De verbinding viel weg. Probeer het opnieuw.';
+  }
+}
+function disableAI(msg){
+  aiOff = true;
+  $('#tutor-note').textContent = msg; $('#tutor-note').hidden = false;
+  $('#gen-note').textContent = msg;
+  setBusy(false); renderQuick();
+  if (session) renderPractice();
+}
+function renderQuick(){
+  $('#quick').replaceChildren(...QUICK.map(([label, fn]) =>
+    el('button', {class:'chip', disabled: aiOff || !sample, onclick: () => send(fn())}, label)));
+}
+$('#send').addEventListener('click', () => send($('#ask').value));
+$('#ask').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && matchMedia('(hover:hover)').matches){ e.preventDefault(); send($('#ask').value); } });
+$('#stop').addEventListener('click', () => ctl?.abort());
+$('#newchat').addEventListener('click', () => { if (busy) ctl?.abort(); turns = []; keep('chat', turns); renderChat(); });
+
+/* ===== Kaarten maken ===== */
+let gen = null, genCtl = null;
+async function generate(){
+  const input = $('#gen-in').value.trim();
+  if (!input){ $('#gen-note').textContent = 'Typ eerst een onderwerp of plak een stuk tekst.'; return; }
+  if (!sample || busy) return;
+  setBusy(true); $('#gen-stop').hidden = false;
+  $('#gen-note').textContent = 'Kaarten worden gemaakt… dit duurt ongeveer een halve minuut.';
+  $('#gen-out').replaceChildren();
+  genCtl = new AbortController();
+  const prompt = `Maak 8 oefenkaarten (flashcards) elektrotechniek voor een MBO-student niveau ${niveau} in Nederland, over het onderwerp of de tekst hieronder.
+Per kaart: "q" is een korte vraag (maximaal 15 woorden), "a" is een kort antwoord (maximaal 15 woorden), "x" is een korte uitleg of berekening (maximaal 25 woorden, mag leeg zijn).
+Bij rekenvragen: zet de formule en de uitkomst met eenheid in "x". Gebruik Nederlandse vaktermen. Alles moet inhoudelijk kloppen; laat twijfelachtige feiten weg.
+Antwoord met alleen een JSON-object in deze vorm:
+{"onderwerp":"korte naam van max 3 woorden","kaarten":[{"q":"...","a":"...","x":"..."}]}
+
+Onderwerp of tekst:
+${input.slice(0, 8000)}`;
+  try {
+    const res = await sample.json(prompt, {signal: genCtl.signal});
+    const items = (Array.isArray(res?.kaarten) ? res.kaarten : [])
+      .filter(k => k && typeof k.q === 'string' && typeof k.a === 'string' && k.q.trim() && k.a.trim())
+      .slice(0, 12)
+      .map(k => ({q: k.q.trim(), a: k.a.trim(), x: typeof k.x === 'string' ? k.x.trim() : ''}));
+    if (!items.length) throw {code:'invalid_json'};
+    gen = {topic: String(res.onderwerp || input.slice(0, 30)).slice(0, 40), items};
+    $('#gen-note').textContent = 'Kijk ze even na. Haal weg wat niet klopt of niet nodig is.';
+    renderGen();
+  } catch(e){
+    $('#gen-note').textContent = e?.code === 'cancelled' ? '' : errCopy(e?.code);
+  } finally {
+    setBusy(false); $('#gen-stop').hidden = true;
+  }
+}
+function renderGen(){
+  const out = $('#gen-out');
+  if (!gen || !gen.items.length){ out.replaceChildren(); gen = null; return; }
+  out.replaceChildren(
+    el('p', {class:'label'}, gen.topic),
+    el('div', {class:'list'}, ...gen.items.map((k, i) => el('div', {class:'li'},
+      el('span', {class:'num'}, String(i + 1)),
+      el('div', {class:'t'}, el('p', {}, el('b', {}, k.q)), el('p', {}, k.a), k.x ? el('small', {}, k.x) : null),
+      el('button', {class:'btn small ghost', 'aria-label':'Haal weg', onclick: () => { gen.items.splice(i, 1); renderGen(); }}, 'Weg')))),
+    el('div', {class:'row', style:'margin-top:10px'},
+      el('button', {class:'btn primary', onclick: saveGen}, `Bewaar ${gen.items.length} kaarten`),
+      el('button', {class:'btn ghost small', onclick: () => { gen = null; renderGen(); $('#gen-note').textContent = ''; }}, 'Niet bewaren')));
+}
+function saveGen(){
+  const stamp = Date.now().toString(36);
+  gen.items.forEach((k, i) => custom.push({id: `e${stamp}${i}`, c:'eigen', t: gen.topic, q:k.q, a:k.a, x:k.x}));
+  const n = gen.items.length;
+  gen = null; renderGen();
+  $('#gen-in').value = '';
+  $('#gen-note').textContent = `${n} kaarten bewaard. Je vindt ze bij Oefenen onder "Eigen kaarten".`;
+  store.save('custom');
+  renderFilters(); renderKast(); renderCardsTab();
+  if (!session) renderPractice();
+}
+$('#gen-btn').addEventListener('click', generate);
+$('#gen-stop').addEventListener('click', () => genCtl?.abort());
+
+/* ===== Kaarten-tab overzicht ===== */
+let confirmId = null;
+function renderCardsTab(){
+  const cards = allCards();
+  $('#catlist').replaceChildren(...CATS.filter(c => cards.some(k => k.c === c.id)).map(cat => {
+    const list = cards.filter(k => k.c === cat.id);
+    const good = list.filter(k => boxOf(k.id) >= 4).length;
+    return el('div', {class:'li'},
+      el('span', {class:'ader ' + cat.ader}),
+      el('div', {class:'t'}, el('p', {}, cat.name), el('small', {}, `${good} van ${list.length} zitten erin`)),
+      el('button', {class:'btn small ghost', onclick: () => { filter = cat.id; session = null; go('oefenen'); renderFilters(); renderKast(); renderPractice(); }}, 'Oefen'));
+  }));
+  $('#eigen-panel').hidden = !custom.length;
+  $('#eigenlist').replaceChildren(...custom.map(k => el('div', {class:'li'},
+    el('span', {class:'ader eigen'}),
+    el('div', {class:'t'}, el('p', {}, el('b', {}, k.q)), el('small', {}, `${k.a}${k.t ? ' · ' + k.t : ''}`)),
+    el('button', {class:'btn small ghost', onclick: () => {
+      if (confirmId !== k.id){ confirmId = k.id; renderCardsTab(); return; }
+      custom = custom.filter(x => x.id !== k.id); delete progress[k.id]; confirmId = null;
+      store.save('custom'); store.save('progress');
+      if (session) session.queue = session.queue.filter(id => id !== k.id);
+      renderCardsTab(); renderFilters(); renderKast();
+    }}, confirmId === k.id ? 'Zeker?' : 'Verwijder'))));
+}
+let resetArmed = false;
+$('#reset').addEventListener('click', () => {
+  if (!resetArmed){ resetArmed = true; $('#reset').textContent = 'Ja, wis mijn voortgang'; setTimeout(() => { resetArmed = false; $('#reset').textContent = 'Voortgang wissen'; }, 5000); return; }
+  resetArmed = false; $('#reset').textContent = 'Voortgang gewist';
+  progress = {}; session = null; store.save('progress');
+  renderKast(); renderPractice(); renderCardsTab();
+});
+$('#niveau').value = niveau;
+$('#niveau').addEventListener('change', e => { niveau = e.target.value; keep('niveau', niveau); });
+
+/* ===== Navigatie ===== */
+function go(v){
+  view = v;
+  for (const name of ['oefenen','tutor','kaarten']){
+    $('#v-' + name).hidden = name !== v;
+    $('#tab-' + name).setAttribute('aria-selected', String(name === v));
+  }
+  if (v === 'kaarten') renderCardsTab();
+  if (v !== 'oefenen') stopSpeech();
+}
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
+
+/* ===== Start ===== */
+renderKast(); renderFilters(); renderPractice(); renderChat(); renderQuick(); renderCardsTab();
+setBusy(false); $('#send').disabled = true; $('#gen-btn').disabled = true;
+const start = ['oefenen','tutor','kaarten'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'oefenen';
+go(start);
+initSync();
+(async () => {
+  if (typeof window.claude?.use !== 'function'){ disableAI('De tutor werkt als je deze pagina in Claude opent.'); return; }
+  sample = await claude.use('sample');
+  if (!sample){ disableAI('De tutor werkt als je deze pagina in Claude opent.'); return; }
+  $('#tutor-note').hidden = true;
+  setBusy(false); renderQuick();
+  if (session) renderPractice();
+})();
+</script>

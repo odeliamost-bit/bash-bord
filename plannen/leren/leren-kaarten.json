@@ -1,0 +1,345 @@
+{
+  "versie": 1,
+  "onderwerpen": [
+    {
+      "id": "basis",
+      "naam": "Basis",
+      "ader": "blauw"
+    },
+    {
+      "id": "vermogen",
+      "naam": "Vermogen",
+      "ader": "bruin"
+    },
+    {
+      "id": "schakel",
+      "naam": "Schakelingen",
+      "ader": "grijs"
+    },
+    {
+      "id": "wissel",
+      "naam": "Wisselstroom",
+      "ader": "zwart"
+    },
+    {
+      "id": "install",
+      "naam": "Installatie",
+      "ader": "ge"
+    },
+    {
+      "id": "comp",
+      "naam": "Componenten",
+      "ader": "amber"
+    }
+  ],
+  "kaarten": [
+    {
+      "id": "b01",
+      "onderwerp": "basis",
+      "vraag": "Wat is de wet van Ohm?",
+      "antwoord": "U = I × R",
+      "uitleg": "Spanning (V) = stroom (A) × weerstand (Ω)."
+    },
+    {
+      "id": "b02",
+      "onderwerp": "basis",
+      "vraag": "Wat is de eenheid van spanning?",
+      "antwoord": "Volt (V)",
+      "uitleg": ""
+    },
+    {
+      "id": "b03",
+      "onderwerp": "basis",
+      "vraag": "Wat is de eenheid van stroom?",
+      "antwoord": "Ampère (A)",
+      "uitleg": ""
+    },
+    {
+      "id": "b04",
+      "onderwerp": "basis",
+      "vraag": "Wat is de eenheid van weerstand?",
+      "antwoord": "Ohm (Ω)",
+      "uitleg": ""
+    },
+    {
+      "id": "b05",
+      "onderwerp": "basis",
+      "vraag": "Een lamp op 230 V trekt 0,5 A. Hoe groot is de weerstand?",
+      "antwoord": "460 Ω",
+      "uitleg": "R = U / I = 230 / 0,5 = 460 Ω"
+    },
+    {
+      "id": "b06",
+      "onderwerp": "basis",
+      "vraag": "Er staat 12 V over een weerstand van 4 Ω. Hoe groot is de stroom?",
+      "antwoord": "3 A",
+      "uitleg": "I = U / R = 12 / 4 = 3 A"
+    },
+    {
+      "id": "b07",
+      "onderwerp": "basis",
+      "vraag": "Hoe sluit je een voltmeter aan?",
+      "antwoord": "Parallel over het onderdeel",
+      "uitleg": "Een voltmeter meet het spanningsverschil tussen twee punten."
+    },
+    {
+      "id": "b08",
+      "onderwerp": "basis",
+      "vraag": "Hoe sluit je een ampèremeter aan?",
+      "antwoord": "In serie, in de stroomkring",
+      "uitleg": "Alle stroom moet door de meter lopen."
+    },
+    {
+      "id": "b09",
+      "onderwerp": "basis",
+      "vraag": "Hoeveel ohm is 4,7 kΩ?",
+      "antwoord": "4700 Ω",
+      "uitleg": "kilo = × 1000"
+    },
+    {
+      "id": "b10",
+      "onderwerp": "basis",
+      "vraag": "Hoeveel ampère is 250 mA?",
+      "antwoord": "0,25 A",
+      "uitleg": "milli = ÷ 1000"
+    },
+    {
+      "id": "v01",
+      "onderwerp": "vermogen",
+      "vraag": "Wat is de formule voor elektrisch vermogen?",
+      "antwoord": "P = U × I",
+      "uitleg": "Vermogen in watt (W)."
+    },
+    {
+      "id": "v02",
+      "onderwerp": "vermogen",
+      "vraag": "Een waterkoker van 2300 W op 230 V. Hoeveel stroom?",
+      "antwoord": "10 A",
+      "uitleg": "I = P / U = 2300 / 230 = 10 A"
+    },
+    {
+      "id": "v03",
+      "onderwerp": "vermogen",
+      "vraag": "Wat is de formule voor elektrische energie?",
+      "antwoord": "E = P × t",
+      "uitleg": "In kWh: vermogen in kW × tijd in uren."
+    },
+    {
+      "id": "v04",
+      "onderwerp": "vermogen",
+      "vraag": "Een kachel van 2 kW staat 3 uur aan. Hoeveel energie?",
+      "antwoord": "6 kWh",
+      "uitleg": "E = 2 kW × 3 h = 6 kWh"
+    },
+    {
+      "id": "v05",
+      "onderwerp": "vermogen",
+      "vraag": "Hoe reken je vermogen uit met stroom en weerstand?",
+      "antwoord": "P = I² × R",
+      "uitleg": "Volgt uit P = U × I en U = I × R."
+    },
+    {
+      "id": "v06",
+      "onderwerp": "vermogen",
+      "vraag": "Wat is rendement?",
+      "antwoord": "Nuttig vermogen ÷ toegevoerd vermogen",
+      "uitleg": "η = P_nuttig / P_toe × 100%. Altijd minder dan 100%."
+    },
+    {
+      "id": "s01",
+      "onderwerp": "schakel",
+      "vraag": "Hoe bereken je de totale weerstand in serie?",
+      "antwoord": "Rt = R1 + R2 + R3 …",
+      "uitleg": ""
+    },
+    {
+      "id": "s02",
+      "onderwerp": "schakel",
+      "vraag": "100 Ω en 200 Ω in serie. Totale weerstand?",
+      "antwoord": "300 Ω",
+      "uitleg": ""
+    },
+    {
+      "id": "s03",
+      "onderwerp": "schakel",
+      "vraag": "Twee weerstanden van 100 Ω parallel. Totale weerstand?",
+      "antwoord": "50 Ω",
+      "uitleg": "Gelijke weerstanden parallel: R ÷ aantal = 100 / 2."
+    },
+    {
+      "id": "s04",
+      "onderwerp": "schakel",
+      "vraag": "Formule voor twee weerstanden parallel?",
+      "antwoord": "Rt = (R1 × R2) / (R1 + R2)",
+      "uitleg": "Algemeen: 1/Rt = 1/R1 + 1/R2 + …"
+    },
+    {
+      "id": "s05",
+      "onderwerp": "schakel",
+      "vraag": "Wat is overal gelijk in een serieschakeling?",
+      "antwoord": "De stroom",
+      "uitleg": ""
+    },
+    {
+      "id": "s06",
+      "onderwerp": "schakel",
+      "vraag": "Wat is overal gelijk in een parallelschakeling?",
+      "antwoord": "De spanning",
+      "uitleg": ""
+    },
+    {
+      "id": "s07",
+      "onderwerp": "schakel",
+      "vraag": "Wat zegt de stroomwet van Kirchhoff?",
+      "antwoord": "Stroom erin = stroom eruit",
+      "uitleg": "In een knooppunt is de som van de stromen die erin gaan gelijk aan de som die eruit gaat."
+    },
+    {
+      "id": "s08",
+      "onderwerp": "schakel",
+      "vraag": "Is de totale weerstand parallel groter of kleiner dan de kleinste weerstand?",
+      "antwoord": "Kleiner",
+      "uitleg": "Elke extra parallelle tak geeft de stroom een extra weg."
+    },
+    {
+      "id": "w01",
+      "onderwerp": "wissel",
+      "vraag": "Wat is de netfrequentie in Nederland?",
+      "antwoord": "50 Hz",
+      "uitleg": ""
+    },
+    {
+      "id": "w02",
+      "onderwerp": "wissel",
+      "vraag": "Spanning tussen fase en nul in Nederland?",
+      "antwoord": "230 V",
+      "uitleg": ""
+    },
+    {
+      "id": "w03",
+      "onderwerp": "wissel",
+      "vraag": "Spanning tussen twee fasen (driefase)?",
+      "antwoord": "400 V",
+      "uitleg": "230 V × √3 ≈ 400 V"
+    },
+    {
+      "id": "w04",
+      "onderwerp": "wissel",
+      "vraag": "Wat is de topwaarde van 230 V wisselspanning?",
+      "antwoord": "Ongeveer 325 V",
+      "uitleg": "Û = U_eff × √2 = 230 × 1,414"
+    },
+    {
+      "id": "w05",
+      "onderwerp": "wissel",
+      "vraag": "Wat doet een transformator?",
+      "antwoord": "Zet wisselspanning om naar hoger of lager",
+      "uitleg": "U1 / U2 = N1 / N2 (verhouding van de windingen)."
+    },
+    {
+      "id": "w06",
+      "onderwerp": "wissel",
+      "vraag": "Trafo: 230 V, N1 = 1000, N2 = 100. Secundaire spanning?",
+      "antwoord": "23 V",
+      "uitleg": "U2 = U1 × N2 / N1 = 230 × 100 / 1000"
+    },
+    {
+      "id": "i01",
+      "onderwerp": "install",
+      "vraag": "Welke kleur heeft de fasedraad (L1)?",
+      "antwoord": "Bruin",
+      "uitleg": "Bij driefase: L1 bruin, L2 zwart, L3 grijs."
+    },
+    {
+      "id": "i02",
+      "onderwerp": "install",
+      "vraag": "Welke kleur heeft de nuldraad?",
+      "antwoord": "Blauw",
+      "uitleg": ""
+    },
+    {
+      "id": "i03",
+      "onderwerp": "install",
+      "vraag": "Welke kleur heeft de beschermingsleiding (aarde)?",
+      "antwoord": "Geel-groen",
+      "uitleg": ""
+    },
+    {
+      "id": "i04",
+      "onderwerp": "install",
+      "vraag": "Wat doet een aardlekschakelaar?",
+      "antwoord": "Schakelt uit als er stroom weglekt",
+      "uitleg": "Meet verschil tussen heengaande en teruggaande stroom. In woningen meestal 30 mA."
+    },
+    {
+      "id": "i05",
+      "onderwerp": "install",
+      "vraag": "Waartegen beschermt een installatieautomaat?",
+      "antwoord": "Overbelasting en kortsluiting",
+      "uitleg": ""
+    },
+    {
+      "id": "i06",
+      "onderwerp": "install",
+      "vraag": "Wat betekent B16 op een installatieautomaat?",
+      "antwoord": "B-karakteristiek, 16 A",
+      "uitleg": "De letter zegt hoe snel hij bij kortsluiting afschakelt."
+    },
+    {
+      "id": "i07",
+      "onderwerp": "install",
+      "vraag": "Welke norm geldt voor laagspanningsinstallaties?",
+      "antwoord": "NEN 1010",
+      "uitleg": ""
+    },
+    {
+      "id": "i08",
+      "onderwerp": "install",
+      "vraag": "Welke norm gaat over veilig werken aan elektrische installaties?",
+      "antwoord": "NEN 3140",
+      "uitleg": ""
+    },
+    {
+      "id": "i09",
+      "onderwerp": "install",
+      "vraag": "Wat zijn de 5 veiligheidsregels voor spanningsloos werken?",
+      "antwoord": "Vrijschakelen, beveiligen tegen inschakelen, spanningsloosheid vaststellen, aarden en kortsluiten, afschermen",
+      "uitleg": "Altijd in deze volgorde."
+    },
+    {
+      "id": "c01",
+      "onderwerp": "comp",
+      "vraag": "Wat doet een diode?",
+      "antwoord": "Laat stroom maar in één richting door",
+      "uitleg": ""
+    },
+    {
+      "id": "c02",
+      "onderwerp": "comp",
+      "vraag": "Wat doet een condensator en wat is de eenheid?",
+      "antwoord": "Slaat lading op, in farad (F)",
+      "uitleg": ""
+    },
+    {
+      "id": "c03",
+      "onderwerp": "comp",
+      "vraag": "Wat doet een LDR?",
+      "antwoord": "Weerstand wordt lager bij meer licht",
+      "uitleg": ""
+    },
+    {
+      "id": "c04",
+      "onderwerp": "comp",
+      "vraag": "Wat doet een NTC-weerstand?",
+      "antwoord": "Weerstand daalt als de temperatuur stijgt",
+      "uitleg": "NTC = negatieve temperatuurcoëfficiënt."
+    },
+    {
+      "id": "c05",
+      "onderwerp": "comp",
+      "vraag": "Wat is een relais?",
+      "antwoord": "Een schakelaar die elektrisch bediend wordt",
+      "uitleg": "Een kleine stroom door de spoel schakelt de contacten."
+    }
+  ]
+}
