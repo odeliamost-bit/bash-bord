@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
+import nl.odelia.dashboard.ui.leren.LerenBegin
+import nl.odelia.dashboard.ui.leren.LerenScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -54,6 +56,7 @@ sealed interface Scherm {
     data class Lijst(val perPersoon: Boolean = false) : Scherm
     data object Urenmail : Scherm
     data object Zeilweer : Scherm
+    data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -98,6 +101,7 @@ fun DashboardApp(
             Plek.Onthoud -> { ga(Scherm.Thuis); ga(Scherm.Lijst()) }
             Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
+            Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -131,6 +135,7 @@ fun DashboardApp(
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
         Scherm.Urenmail -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
+        is Scherm.Leren -> Plek.Leren
         is Scherm.Later -> scherm.plek
     }
 
@@ -177,6 +182,7 @@ fun DashboardApp(
                     modifier = inhoud,
                 )
                 Scherm.Zeilweer -> ZeilweerScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
+                is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 

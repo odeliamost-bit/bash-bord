@@ -12,6 +12,13 @@ import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.Scherm
 import nl.odelia.dashboard.ui.Voorbeeld
+import nl.odelia.dashboard.logica.Leren
+import nl.odelia.dashboard.logica.PauzeReden
+import nl.odelia.dashboard.logica.Rondje
+import nl.odelia.dashboard.ui.leren.LerenBegin
+import nl.odelia.dashboard.ui.leren.LerenTab
+import java.time.Instant
+import kotlin.random.Random
 import nl.odelia.dashboard.ui.theme.DashboardThema
 import nl.odelia.dashboard.ui.thuis.Tab
 import org.jetbrains.skia.EncodedImageFormat
@@ -50,4 +57,17 @@ fun main(args: Array<String>) {
     }
     teken("11-zeilweer", 411, 2150) { DashboardApp(metWeer, metApps, beginScherm = Scherm.Zeilweer) }
     teken("12-zeilweer-plek", 411, 870) { DashboardApp(staat, geen, beginScherm = Scherm.Zeilweer) }
+    val leer = staat.copy(leren = Voorbeeld.leren())
+    fun leren(naam: String, h: Int, begin: LerenBegin) = teken(naam, 411, h) { DashboardApp(leer, geen, beginScherm = Scherm.Leren(begin)) }
+    leren("13-leren-overzicht", 1900, LerenBegin())
+    leren("14-leren-kaarten", 1200, LerenBegin(LerenTab.Kaarten, onderwerp = "relais"))
+    val rondje = Rondje(listOf("r3", "r4", "r5"), totaal = 8, goed = 5)
+    leren("15-leren-kaart-vraag", 1200, LerenBegin(LerenTab.Kaarten, onderwerp = "relais", rondje = rondje))
+    leren("16-leren-kaart-antwoord", 1300, LerenBegin(LerenTab.Kaarten, onderwerp = "relais", rondje = rondje, omgedraaid = true))
+    leren("17-leren-quiz", 1300, LerenBegin(LerenTab.Quiz, onderwerp = "spelling", quiz = Leren.nieuweQuiz("spelling", Random(2))))
+    leren("18-leren-rekenen", 1100, LerenBegin(LerenTab.Quiz, onderwerp = "ohm", quiz = Leren.nieuweQuiz("ohm", Random(5))))
+    leren("19-leren-maken", 1700, LerenBegin(LerenTab.Maken, onderwerp = "project"))
+    leren("20-leren-pauze-vraag", 870, LerenBegin(LerenTab.Kaarten, onderwerp = "relais", rondje = rondje, seintje = PauzeReden.Langzamer))
+    leren("21-leren-pauze", 870, LerenBegin(LerenTab.Kaarten, pauzeTot = Instant.now().plusSeconds(263)))
+    leren("22-leren-burgerschap", 1200, LerenBegin(LerenTab.Kaarten, onderwerp = "politiek"))
 }
