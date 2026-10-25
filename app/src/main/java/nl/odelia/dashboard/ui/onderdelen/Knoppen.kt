@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -152,6 +153,7 @@ fun Invoer(
     hint: String,
     modifier: Modifier = Modifier,
     regels: Int = 1,
+    toetsen: KeyboardType = KeyboardType.Text,
     rechts: @Composable RowScope.() -> Unit = {},
 ) {
     val vorm = RoundedCornerShape(if (regels > 1) 22.dp else 999.dp)
@@ -173,7 +175,7 @@ fun Invoer(
             minLines = regels,
             maxLines = if (regels > 1) 8 else 1,
             singleLine = regels == 1,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, keyboardType = toetsen),
             cursorBrush = SolidColor(Kleur.Koraal),
             decorationBox = { veld ->
                 Box {

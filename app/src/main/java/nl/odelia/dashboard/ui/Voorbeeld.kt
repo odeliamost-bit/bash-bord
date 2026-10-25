@@ -2,7 +2,11 @@ package nl.odelia.dashboard.ui
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import nl.odelia.dashboard.logica.Kaart
+import nl.odelia.dashboard.logica.KaartStand
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.LerenData
+import nl.odelia.dashboard.logica.QuizScore
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
 import nl.odelia.dashboard.logica.Plek
@@ -48,5 +52,23 @@ object Voorbeeld {
             }
         }.toMap()
         return ZeilweerStaat(plek = plek, bericht = Weerbericht(plek, nu.withHour(9).withMinute(41), perModel))
+    }
+
+    /** Verzonnen voortgang voor Leren: een paar kaarten geoefend, één quiz gedaan, één eigen kaart. */
+    fun leren(nu: LocalDateTime = this.nu): LerenData {
+        val dag = nu.toLocalDate()
+        return LerenData(
+            standen = mapOf(
+                "r1" to KaartStand(4, dag.plusDays(5)),
+                "r2" to KaartStand(3, dag.plusDays(2)),
+                "r3" to KaartStand(2, dag),
+                "r4" to KaartStand(1, dag),
+                "o1" to KaartStand(5, dag.plusDays(10)),
+                "o2" to KaartStand(2, dag.plusDays(1)),
+            ),
+            quiz = mapOf("relais" to QuizScore(4, 5, 4, dag.minusDays(1))),
+            eigen = listOf(Kaart("voorbeeld-1", "project", "Wat is het onderwerp van mijn project?", "Een slimme schakeling voor de verlichting thuis.", eigen = true)),
+            geoefend = mapOf(dag.minusDays(4) to 12, dag.minusDays(3) to 8, dag.minusDays(1) to 10, dag to 6),
+        )
     }
 }

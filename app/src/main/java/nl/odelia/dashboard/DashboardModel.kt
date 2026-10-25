@@ -16,10 +16,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Plek
 import nl.odelia.dashboard.logica.Zeilweer
@@ -32,6 +34,7 @@ import nl.odelia.dashboard.ui.ZeilweerStaat
 class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val opslag = Opslag.van(app)
     private val voorlezer = Voorlezer(app)
+    private val leren = LerenOpslag.van(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -43,10 +46,13 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     private val zeilweer = MutableStateFlow(ZeilweerStaat(plek = PlekOpslag.lees(app)))
 
-    val staat: StateFlow<AppStaat> =
+    private val basis =
         combine(opslag.perioden(), opslag.dagSoorten(), opslag.onthoud(), tik, zeilweer) { perioden, soorten, onthoud, nu, weer ->
             AppStaat(KlokStaat.maak(perioden, soorten, nu), perioden, soorten, onthoud, weer)
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        }
+
+    val staat: StateFlow<AppStaat> =
+        combine(basis, leren.data) { s, l -> s.copy(leren = l) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
@@ -69,6 +75,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun bewaar(onthoud: Onthoud) = doe { opslag.bewaar(onthoud) }
 
     override fun verwijder(id: String) = doe { opslag.verwijder(id) }
+
+    override fun wijzigLeren(wat: (LerenData) -> LerenData) = leren.wijzig(wat)
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----
 
