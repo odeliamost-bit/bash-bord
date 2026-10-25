@@ -249,11 +249,11 @@ private fun WeerBericht(bericht: nl.odelia.dashboard.logica.Weerbericht, vandaag
     if (middag.size > 1) {
         Kaart {
             Tekst("⚖️ Modellen naast elkaar", 17.sp, kleur = Diep)
-            Row {
-                Tekst("model", 13.sp, Modifier.weight(1.6f), dikte = FontWeight.ExtraBold, kleur = Zacht)
-                Tekst("wind", 13.sp, Modifier.weight(1f), dikte = FontWeight.ExtraBold, kleur = Zacht)
+            Row(Modifier.padding(horizontal = 10.dp)) {
+                Tekst("model", 13.sp, Modifier.weight(2.6f), dikte = FontWeight.ExtraBold, kleur = Zacht)
+                Tekst("Bft", 13.sp, Modifier.weight(0.8f), dikte = FontWeight.ExtraBold, kleur = Zacht)
                 Tekst("stoot", 13.sp, Modifier.weight(1f), dikte = FontWeight.ExtraBold, kleur = Zacht)
-                Tekst("regen", 13.sp, Modifier.weight(1f), dikte = FontWeight.ExtraBold, kleur = Zacht)
+                Tekst("regen", 13.sp, Modifier.weight(1.4f), dikte = FontWeight.ExtraBold, kleur = Zacht)
             }
             middag.forEach { (m, u) ->
                 val wind = u.mapNotNull { it.wind }.average().takeIf { !it.isNaN() }
@@ -266,13 +266,13 @@ private fun WeerBericht(bericht: nl.odelia.dashboard.logica.Weerbericht, vandaag
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Tekst("${m.vlag} ${m.naam}", 15.sp, Modifier.weight(1.6f), kleur = Diep)
-                    Tekst(wind?.let { "${Zeilweer.bft(it)} Bft" } ?: "–", 15.sp, Modifier.weight(1f), kleur = Diep)
+                    Tekst("${m.vlag} ${m.naam}", 13.sp, Modifier.weight(2.6f), eenRegel = true, kleur = Diep)
+                    Tekst(wind?.let { Zeilweer.bft(it).toString() } ?: "–", 15.sp, Modifier.weight(0.8f), eenRegel = true, kleur = Diep)
                     Tekst(
-                        stoot?.roundToInt()?.toString() ?: "–", 15.sp, Modifier.weight(1f),
+                        stoot?.roundToInt()?.toString() ?: "–", 15.sp, Modifier.weight(1f), eenRegel = true,
                         kleur = if ((stoot ?: 0.0) > Zeilweer.TE_VEEL_STOOT) Color(0xFFC0392B) else Diep,
                     )
-                    Tekst("${"%.1f".format(u.sumOf { it.regen ?: 0.0 })} mm", 15.sp, Modifier.weight(1f), kleur = Diep)
+                    Tekst("${"%.1f".format(u.sumOf { it.regen ?: 0.0 })} mm", 15.sp, Modifier.weight(1.4f), eenRegel = true, kleur = Diep)
                 }
             }
         }
@@ -291,15 +291,22 @@ private fun UurRegel(u: Uurweer) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Tekst("${u.tijd.hour}:00", 16.sp, Modifier.width(52.dp), kleur = Diep)
-        u.richting?.let { r ->
-            Icoon(Icoontjes.windPijl, 22.dp, Modifier.rotate((r + 180).toFloat()))
-            Tekst(Zeilweer.richtingNaam(r), 15.sp, Modifier.width(30.dp), kleur = Zacht)
+        Tekst("${u.tijd.hour}:00", 16.sp, Modifier.width(48.dp), kleur = Diep)
+        // Pijl met daaronder de richting (bijv. ZW)
+        Column(Modifier.width(36.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            u.richting?.let { r ->
+                Icoon(Icoontjes.windPijl, 22.dp, Modifier.rotate((r + 180).toFloat()))
+                Tekst(Zeilweer.richtingNaam(r), 13.sp, eenRegel = true, kleur = Zacht)
+            }
         }
-        Tekst(u.wind?.let { "${Zeilweer.bft(it)} Bft" } ?: "–", 16.sp, Modifier.weight(1f), kleur = Diep)
-        Tekst(u.wind?.let { "${it.roundToInt()}" } ?: "", 15.sp, dikte = FontWeight.Bold, kleur = Zacht)
-        Tekst(u.stoot?.let { "↑${it.roundToInt()}" } ?: "", 15.sp, kleur = if (teVeel) Color(0xFFC0392B) else Zacht)
-        Tekst(u.regen?.let { "💧${"%.1f".format(it)}" } ?: "", 14.sp, dikte = FontWeight.Bold, kleur = Zacht)
+        Column(Modifier.weight(1f)) {
+            Tekst(u.wind?.let { "${Zeilweer.bft(it)} Bft" } ?: "–", 17.sp, eenRegel = true, kleur = Diep)
+            u.wind?.let { Tekst("${it.roundToInt()} km/u", 13.sp, eenRegel = true, dikte = FontWeight.Bold, kleur = Zacht) }
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Tekst(u.stoot?.let { "↑${it.roundToInt()}" } ?: "", 15.sp, eenRegel = true, kleur = if (teVeel) Color(0xFFC0392B) else Zacht)
+            Tekst(u.regen?.let { "💧${"%.1f".format(it)}" } ?: "", 13.sp, eenRegel = true, dikte = FontWeight.Bold, kleur = Zacht)
+        }
     }
 }
 
