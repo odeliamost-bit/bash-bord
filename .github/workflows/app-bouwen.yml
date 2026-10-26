@@ -57,15 +57,23 @@ jobs:
       - name: Bouwen en testen
         env:
           SLEUTEL_WACHTWOORD: ${{ secrets.APP_SLEUTEL_WACHTWOORD }}
+          # Sync: eigen Supabase-project. Leeg = de app bouwt zonder sync.
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: ./gradlew assembleRelease testReleaseUnitTest --stacktrace
 
-      - name: Controle — online alleen via Online.kt, naar Open-Meteo
+      - name: Controle — online alleen via online/, naar Open-Meteo en de eigen Supabase
         run: |
-          # Netwerkcode mag alleen in app/.../online/Online.kt staan.
+          # Netwerkcode mag alleen in Online.kt (weer) en Supabase.kt (sync) staan.
           buiten=$(grep -rlE "openConnection|HttpURLConnection|HttpsURLConnection|Socket\(|okhttp|io\.ktor|import java\.net\.URL$" app/src/main/java \
-            | grep -v "/online/Online.kt$" || true)
+            | grep -vE "/online/(Online|Supabase)\.kt$" || true)
           if [ -n "$buiten" ]; then
-            echo "::error::Netwerkcode buiten Online.kt gevonden: $buiten"
+            echo "::error::Netwerkcode buiten online/Online.kt en online/Supabase.kt gevonden: $buiten"
+            exit 1
+          fi
+          # De sync mag alleen de onderdelen die Odelia koos. Uren, cyclus, mail, advies, weer en thuis: nooit.
+          if ! grep -q 'val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos")' app/src/main/java/nl/odelia/dashboard/logica/SyncRegels.kt; then
+            echo "::error::De lijst met online-onderdelen in SyncRegels.kt is veranderd. Pas deze controle (en CLAUDE.md) bewust mee aan."
             exit 1
           fi
           # En Online.kt mag alleen naar de weerdienst Open-Meteo.

@@ -13,8 +13,12 @@ android {
         applicationId = "nl.odelia.dashboard"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
+
+        // Sync (Supabase). Uit GitHub-geheimen, niet uit git (zie README). Leeg = geen sync in deze versie.
+        buildConfigField("String", "SUPABASE_URL", "\"${System.getenv("SUPABASE_URL").orEmpty().trim()}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${System.getenv("SUPABASE_ANON_KEY").orEmpty().trim()}\"")
     }
 
     // Vaste handtekening, zodat een nieuwe versie over de oude heen gaat en je gegevens blijven.
@@ -51,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -72,6 +77,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.glance.appwidget)
+    // Alleen voor de sync (online/Supabase.kt): https en realtime (websocket).
+    implementation(libs.okhttp)
     debugImplementation(libs.androidx.ui.tooling)
     testImplementation(libs.junit)
     // Op de telefoon zit org.json in Android zelf; voor de testjes op de computer deze echte versie.

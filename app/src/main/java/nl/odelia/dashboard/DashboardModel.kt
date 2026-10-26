@@ -40,6 +40,7 @@ import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.logica.ReceptenData
 import nl.odelia.dashboard.logica.Zeilweer
 import nl.odelia.dashboard.online.Online
+import nl.odelia.dashboard.online.Sync
 import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.AppStaat
 import nl.odelia.dashboard.ui.ZeilweerStaat
@@ -74,8 +75,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     val staat: StateFlow<AppStaat> =
         combine(
             combine(basis, leren.data, cyclus.data, wensen.data, geld.data) { s, l, c, w, g -> s.copy(leren = l, cyclus = c, wensen = w, geld = g) },
-            fotos.data, advies.data, recepten.data,
-        ) { s, f, a, r -> s.copy(fotos = f, advies = a, recepten = r) }
+            fotos.data, advies.data, recepten.data, Sync.staat,
+        ) { s, f, a, r, y -> s.copy(fotos = f, advies = a, recepten = r, sync = y) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -131,6 +132,11 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     override fun wijzigWensen(wat: (WensenData) -> WensenData) = wensen.wijzig(wat)
     override fun wijzigGeld(wat: (GeldData) -> GeldData) = geld.wijzig(wat)
+
+    override fun vraagSyncCode(email: String) = Sync.vraagCode(email)
+    override fun logInSync(code: String) = Sync.logIn(code)
+    override fun logUitSync() = Sync.logUit()
+    override fun syncNu() = Sync.nu()
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
 
