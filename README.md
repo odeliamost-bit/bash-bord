@@ -35,6 +35,33 @@ Daarom zet je één keer een vaste handtekening klaar. Dit doet je broer op de l
 5. Bewaar `dashboard.keystore` veilig op de laptop. **Nooit** in git zetten.
 6. Daarna: oude app **één keer** verwijderen en de nieuwe installeren. Vanaf dan gaan updates gewoon over de oude heen.
 
+## ☁️ Sync tussen apparaten (één keer instellen)
+
+Dan staat Geld (en later meer) op je telefoon, tablet en laptop tegelijk.
+Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het apparaat.
+
+**1. Tabel maken in Supabase**
+- Open je project op supabase.com ➜ **SQL Editor** ➜ **New query**.
+- Plak alles uit `supabase/kompas.sql` en tik **Run**.
+
+**2. Inloggen met een code aanzetten**
+- **Authentication ➜ Sign In / Providers ➜ Email**: aan.
+- **Authentication ➜ Emails**: zet bij **Magic Link** én **Confirm signup** de code in de mail: `{{ .Token }}`.
+
+**3. Twee geheimen in GitHub**
+- Supabase ➜ **Project Settings ➜ API**: kopieer de **Project URL** en de **anon/publishable key**.
+- GitHub ➜ **Settings ➜ Secrets and variables ➜ Actions ➜ New repository secret**:
+  - `SUPABASE_URL` = de Project URL (begint met `https://`)
+  - `SUPABASE_ANON_KEY` = de anon/publishable key
+- Nooit de **service_role/secret key** gebruiken.
+
+**4. Inloggen in de app**
+- Eerst op de **telefoon**: Geld ➜ ☁️-kaart ➜ e-mail ➜ code uit de mail.
+- Daarna op de tablet. Let op: de eerste keer wint wat online staat. (Wat er op de tablet stond, blijft als reserve bewaard.)
+
+**5. Alleen jij**
+- Na je eerste inlog: **Authentication ➜ Sign In / Providers** ➜ **Allow new users to sign up** uit.
+
 ## 🛡️ Beveiliging
 
 **Wat de app al doet**

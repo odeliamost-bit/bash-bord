@@ -126,7 +126,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Herinneringen:** inklokken 7:50, uitklokken 15:50 (ma–vr), seintje voor een afspraak de dag ervoor om 16:15. Vaste tijden in `logica/Klok.kt` (`Instellingen`).
 - **Urenmail:** de app opent Gmail met een **nieuwe** mail (onderwerp "Urenregistratie"). Antwoorden in de bestaande draad kan pas met de Gmail-koppeling (Google-account nodig). Nooit zelf versturen.
 - **Beveiliging:** de telefoon krijgt de release-versie (niet debuggable), acties in het bouw-recept staan vast op een commit-SHA, minste rechten, Gradle-checksum, Dependabot elke zaterdag. CI controleert: alleen bekende Android-toestemmingen, netwerkcode alleen in `online/Online.kt`.
-- **Online (gekozen door Odelia):** de app gaat alleen online na "ja" (`OnlineVraag`), alleen voor Zeilweer, alleen naar Open-Meteo (https, max 2 MB). Opzoeken en route openen Chrome/Maps; de app zelf gaat dan niet online. Uren en afspraken gaan nooit online. De zeilplek staat op de telefoon, niet in de (openbare) code.
+- **Online (gekozen door Odelia):** Zeilweer gaat alleen online na "ja" (`OnlineVraag`), alleen naar Open-Meteo (https, max 2 MB). De sync gaat alleen online na inloggen, alleen naar de eigen Supabase (zie hieronder). Opzoeken en route openen Chrome/Maps; de app zelf gaat dan niet online. De zeilplek staat op de telefoon, niet in de (openbare) code.
 - **Weer-apps in Zeilweer:** knoppen naar Windy, Windfinder en Weeronline (gekozen door Odelia), met het echte icoontje van de telefoon. Logo's staan niet in de code. Lijst in `logica/Zeilweer.kt` (`weerApps`) én in `AndroidManifest.xml` (`<queries>`).
 - **Leren (gekozen door Odelia, okt 2026):** eerder gebouwd dan de rest van fase 2. Vakken: Elektrotechniek, Burgerschap, Nederlands, Keuzedeel (= project/bewijsstuk). Kaarten met 5 groepen (G1–G5), quiz (meerkeuze + rekenen), overzicht, zelf kaarten maken (typen of 🎤). Inhoud in `logica/LerenInhoud.kt`, uit de Leerplek-pagina op claude.ai. Bewaard in `leren.json` op de telefoon (los van de database). Werkt zonder internet.
 - **Pauze-seintje (Leren):** na 20 min leren, of als de laatste 3 antwoorden 2× zo traag zijn als de eerste 5 (en minstens 10 s). Keuze: 5 min pauze of "nog even door" (dan 10 min stil). De app kan niet echt zien of ze moe is; zeg dat eerlijk.
@@ -134,7 +134,12 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Geen wachtwoorden (gekozen door Odelia, okt 2026):** de app slaat geen wachtwoorden op. Het Wachtwoorden-scherm is weggehaald, ook uit het ontwerp. Niet opnieuw bouwen.
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
 - **Potjes (gekozen door Odelia, okt 2026):** vast eerst: Vaste lasten € 41,30, Zorg € 180, Snoep € 50. Rest: Vrije geld 20%, Investeren 30% (Giro), Goede doelen 10%, Noodpot 20%, Spaarpot 20% (ING-spaar). Saldo blijft staan. In `logica/GeldData.kt`.
-- **Sync (gewenst, okt 2026):** één keer invullen, overal zien (telefoon + tablet). Plan staat in `SYNC-EN-POTTEN.md`. Nog niet gebouwd: eerst Odelia vragen wat er online mag.
+- **Wat mag online (gekozen door Odelia, okt 2026):**
+  - ☁️ Sync (eigen Supabase, alleen na inloggen): Geld, Onthoud (afspraken), Leren, Wensen, Recepten, Mensen, foto's.
+  - 🔒 Nooit online, alleen op het apparaat: **Uren, Cyclus, Mail-hulp, Advies, Weer, Thuis.** Niet synchroniseren tussen telefoon en tablet.
+  - Lijst staat in `logica/SyncRegels.kt` (`ONLINE`), in `supabase/kompas.sql` (check) én in de CI-controle. Altijd alle drie samen aanpassen, en alleen als Odelia het vraagt.
+- **Sync (okt 2026):** eigen Supabase-project. Inloggen met code per e-mail (geen wachtwoord). Eén rij per onderdeel (JSON), nieuwste wijziging wint (tijd van de server). Realtime via websocket zolang de app open is; bij openen alles bijwerken. Netwerkcode alleen in `online/Online.kt` (weer) en `online/Supabase.kt` (sync). Sleutels via GitHub-geheimen `SUPABASE_URL` en `SUPABASE_ANON_KEY` (zie README). Inlog en sync-stand in `noBackupFilesDir`. Eerste inlog op een apparaat: online wint, oude data in `reserve-<onderdeel>.json`.
+- **Google Agenda (gewenst, okt 2026):** afspraken van vandaag en deze week op het dashboard, alleen lezen. Plan: de agenda van de telefoon lezen (Android `CalendarContract`, toestemming `READ_CALENDAR`), geen Google-login nodig. Nog niet gebouwd.
 
 ## Status
 
@@ -144,4 +149,5 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Leren (kaarten, quiz, overzicht, eigen kaarten, pauze-seintje): gebouwd op tak `claude/leren`. **Nog niet getest op de telefoon.**
 - Alle schermen uit het ontwerp (Geld, Cyclus, Wensen, Mensen, Mail-hulp, Advies, Recepten, Leren-extra's, foto bij Onthoud, menu direct) gebouwd op tak `claude/alle-schermen` (okt 2026). Elk scherm eigen JSON-bestand; Room niet veranderd. Geen AI (vaste teksten). **Nog niet getest op de telefoon.**
 - Versie 0.3: echte potjes-bedragen (deel 2 van `SYNC-EN-POTTEN.md`). Geldt alleen als Geld nog leeg is; staat er al iets in `geld.json`, dan past Odelia de potjes in de app aan. **Nog niet getest op de telefoon.**
-- Nog te doen: Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens), sync (deel 1 van `SYNC-EN-POTTEN.md`).
+- Versie 0.4: sync stap 1+2 (inloggen + Geld via Supabase, realtime). Compileert en testjes slagen in de cloud; **nog niet getest met echte Supabase en niet op de telefoon.**
+- Nog te doen: sync voor Onthoud, Leren, Wensen, Recepten, Mensen, foto's; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).

@@ -68,7 +68,8 @@ private val munt = listOf(
 /**
  * Geld (ontwerp/Geld.dc.html): potjes, uitgaven, "ik heb iets gekocht" en inkomen verdelen.
  * Potjes zijn enveloppen in de app. De app maakt nooit echt geld over; bij een echte rekening
- * (ING-spaarrekening, Giro-rekening) komt alleen een geheugensteuntje. Gaat nooit online.
+ * (ING-spaarrekening, Giro-rekening) komt alleen een geheugensteuntje. Gaat alleen online na
+ * inloggen bij de sync (☁️-kaart), naar Odelia's eigen Supabase.
  */
 @Composable
 fun GeldScherm(
@@ -114,6 +115,7 @@ fun GeldScherm(
             }
 
             TotaalKaart(data.totaal, onLees = { lees("Totaal: ${GeldBoek.uitspraak(data.totaal)}.") })
+            SyncKaart(staat.sync, acties)
 
             Segment(
                 keuzes = GeldTab.entries,

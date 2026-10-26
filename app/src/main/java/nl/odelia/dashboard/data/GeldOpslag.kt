@@ -19,7 +19,7 @@ import nl.odelia.dashboard.logica.GeldJson
 /**
  * Bewaart Geld (potjes, uitgaven, tags) in één bestandje op de telefoon.
  * Een los bestand, zodat de database van uren en afspraken niet hoeft te veranderen.
- * Gaat nooit online.
+ * Gaat mee met de sync tussen apparaten (zie online/Sync.kt), alleen als Odelia is ingelogd.
  */
 class GeldOpslag private constructor(context: Context) {
     private val bestand = AtomicFile(File(context.filesDir, "geld.json"))
@@ -37,16 +37,37 @@ class GeldOpslag private constructor(context: Context) {
         if (tekst != null) _data.value = GeldJson.lees(tekst)
     }
 
+    /** Voor de sync: na elke eigen wijziging. */
+    @Volatile var naWijziging: (() -> Unit)? = null
+
     /** Pas iets aan en bewaar het meteen. Eén wijziging tegelijk, in de goede volgorde. */
     fun wijzig(wat: (GeldData) -> GeldData) {
         werk.launch {
             geladen.await()
-            slot.withLock {
+            val veranderd = slot.withLock {
                 val nieuw = wat(_data.value)
-                if (nieuw == _data.value) return@withLock
+                if (nieuw == _data.value) return@withLock false
                 _data.value = nieuw
                 schrijf(nieuw)
+                true
             }
+            if (veranderd) naWijziging?.invoke()
+        }
+    }
+
+    /** Alles als tekst, voor de sync. */
+    suspend fun alsTekst(): String {
+        geladen.await()
+        return slot.withLock { GeldJson.schrijf(_data.value) }
+    }
+
+    /** Gegevens van een ander apparaat: vervangt alles (zonder [naWijziging]). */
+    suspend fun vervang(tekst: String) {
+        geladen.await()
+        slot.withLock {
+            val nieuw = GeldJson.lees(tekst)
+            _data.value = nieuw
+            schrijf(nieuw)
         }
     }
 

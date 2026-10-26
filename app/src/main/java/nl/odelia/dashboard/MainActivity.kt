@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
+import nl.odelia.dashboard.online.Sync
 import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.Opdracht
@@ -66,6 +67,7 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
         )
         Meldingen.maakKanalen(this)
+        Sync.start(this)
         vraagToestemmingVoorMeldingen()
         lifecycleScope.launch { Planner.plan(applicationContext) }
         lees(intent)
@@ -94,6 +96,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    // Sync: verbinding open zolang de app in beeld is.
+    override fun onStart() {
+        super.onStart()
+        Sync.aan()
+    }
+
+    override fun onStop() {
+        Sync.uit()
+        super.onStop()
+    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

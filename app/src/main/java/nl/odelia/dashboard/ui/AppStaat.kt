@@ -33,6 +33,7 @@ data class AppStaat(
     val fotos: Map<String, String> = emptyMap(),
     val advies: AdviesData = AdviesData(),
     val recepten: ReceptenData = ReceptenData(ReceptenStart.recepten),
+    val sync: SyncStaat = SyncStaat(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -44,6 +45,21 @@ data class ZeilweerStaat(
     val plekken: List<Plek> = emptyList(),
     val bezig: Boolean = false,
     val fout: String? = null,
+)
+
+/** Sync tussen apparaten (Supabase). */
+data class SyncStaat(
+    /** Is Supabase ingesteld in deze versie van de app? (GitHub-geheimen, zie README) */
+    val kan: Boolean = false,
+    /** Ingelogd als … (`null` = niet ingelogd). */
+    val email: String? = null,
+    /** Code gestuurd naar dit adres; wacht op de code. */
+    val codeVoor: String? = null,
+    val bezig: Boolean = false,
+    /** Realtime-verbinding open: wijzigingen van andere apparaten komen meteen binnen. */
+    val live: Boolean = false,
+    val laatste: LocalDateTime? = null,
+    val bericht: String? = null,
 )
 
 /** Alles wat de schermen kunnen laten gebeuren. Standaard doet alles niks (handig voor voorbeelden). */
@@ -86,7 +102,7 @@ interface AppActies {
 
     /** Wensen aanpassen. Wordt meteen op de telefoon bewaard. Gaat nooit online. */
     fun wijzigWensen(wat: (WensenData) -> WensenData) {}
-    /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen op de telefoon bewaard. Gaat nooit online. */
+    /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen bewaard, en gesynct als Odelia is ingelogd. */
     fun wijzigGeld(wat: (GeldData) -> GeldData) {}
 
     /** Deel tekst met een andere app (bijv. Google Drive of Sheets). Geeft `false` als dat niet lukt. */
@@ -106,6 +122,12 @@ interface AppActies {
     fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
     /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
     fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
+
+    // Sync tussen apparaten. Inloggen met een code per e-mail, geen wachtwoord.
+    fun vraagSyncCode(email: String) {}
+    fun logInSync(code: String) {}
+    fun logUitSync() {}
+    fun syncNu() {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */
