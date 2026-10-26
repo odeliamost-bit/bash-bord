@@ -39,6 +39,41 @@ class GeldTest {
     }
 
     @Test
+    fun startPotjes_echteBedragenVanOdelia() {
+        val p = GeldStart.potjes.associateBy { it.id }
+        assertEquals(41_30L, p.getValue("vast").vastCent)
+        assertEquals(180_00L, p.getValue("zorg").vastCent)
+        assertEquals(50_00L, p.getValue("lekkers").vastCent)
+        assertEquals(20, p.getValue("vrij").procent)
+        assertEquals(30, p.getValue("inv").procent)
+        assertEquals(10, p.getValue("kerk").procent)
+        assertEquals(20, p.getValue("nood").procent)
+        assertEquals(20, p.getValue("spaar").procent)
+        assertEquals(100, GeldStart.potjes.sumOf { it.procent ?: 0 })
+        // Alleen Spaarpot en Investeren zijn echte rekeningen.
+        assertEquals(setOf("inv", "spaar"), GeldStart.potjes.filter { it.echteRekening }.map { it.id }.toSet())
+        assertEquals(GeldStart.GIRO, p.getValue("inv").rekening)
+        assertEquals(GeldStart.ING_SPAAR, p.getValue("spaar").rekening)
+    }
+
+    @Test
+    fun verdelen_metDeEchtePotjes() {
+        val v = Geld.verdeel(1000_00, GeldStart.potjes)
+        assertEquals(728_70, v.rest) // 1000 − 41,30 − 180 − 50
+        assertEquals(41_30L, v.perPotje["vast"])
+        assertEquals(180_00L, v.perPotje["zorg"])
+        assertEquals(50_00L, v.perPotje["lekkers"])
+        assertEquals(145_74L, v.perPotje["vrij"])
+        assertEquals(218_61L, v.perPotje["inv"])
+        assertEquals(72_87L, v.perPotje["kerk"])
+        assertEquals(145_74L, v.perPotje["nood"])
+        assertEquals(145_74L, v.perPotje["spaar"])
+        assertEquals(1000_00L, v.perPotje.values.sum())
+        assertEquals(0L, v.over)
+        assertTrue(v.klopt)
+    }
+
+    @Test
     fun verdelen_losseCentenRakenNietZoek() {
         val drie = listOf(Potje("a", "A", "", procent = 33), Potje("b", "B", "", procent = 33), Potje("c", "C", "", procent = 34))
         val v = Geld.verdeel(1_00, drie)

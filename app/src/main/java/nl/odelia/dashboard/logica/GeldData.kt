@@ -21,7 +21,10 @@ data class GeldData(
     val totaal: Long get() = Geld.totaal(potjes, boekingen)
 }
 
-/** Verzonnen voorbeeld-potjes voor de eerste keer. Geen echte bedragen; Odelia past ze zelf aan. */
+/**
+ * Odelia's eigen potjes (okt 2026), alleen voor de eerste keer. Daarna staan ze in geld.json en past ze ze in de app aan.
+ * Eerst de vaste bedragen, dan de rest in procenten (samen 100%). Saldo blijft staan, geen reset per maand.
+ */
 object GeldStart {
     const val ING_SPAAR = "ING-spaarrekening"
     const val GIRO = "Giro-rekening"
