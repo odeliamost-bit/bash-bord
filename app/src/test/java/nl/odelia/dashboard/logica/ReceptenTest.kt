@@ -1,37 +1,11 @@
 package nl.odelia.dashboard.logica
 
-import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Alleen verzonnen voorbeelden, geen echte wachtwoorden. */
-class WachtwoordenReceptenTest {
-    private val a = Inlog("a1", WachtwoordGroep.School, "Schoolportaal", "voorbeeld@school.nl", "Voorbeeld123")
-    private val b = Inlog("a4", WachtwoordGroep.Thuis, "Streaming", "voorbeeld@mail.nl", "Popcorn42")
-    private val data = WachtwoordenData(listOf(b, a))
-
-    @Test
-    fun zoek_perGroep_enZoekwoordInAlleGroepen() {
-        assertEquals(listOf(a), Wachtwoorden.zoek(data, WachtwoordGroep.School, ""))
-        assertEquals(listOf(b), Wachtwoorden.zoek(data, WachtwoordGroep.School, "stream"))
-        assertEquals(listOf(a, b), Wachtwoorden.zoek(data, WachtwoordGroep.Werk, "voorbeeld"))
-    }
-
-    @Test
-    fun opSlot_naDrieMinuten() {
-        val t = Instant.parse("2026-10-25T10:00:00Z")
-        assertFalse(Wachtwoorden.moetOpSlot(t, t.plusSeconds(170)))
-        assertTrue(Wachtwoorden.moetOpSlot(t, t.plusSeconds(180)))
-    }
-
-    @Test
-    fun wachtwoordenJson_heenEnTerug() {
-        assertEquals(data, WachtwoordenJson.lees(WachtwoordenJson.schrijf(data)))
-        assertEquals(WachtwoordenData(), WachtwoordenJson.lees("kapot"))
-    }
-
+class ReceptenTest {
     @Test
     fun recepten_zoekenOpIngredientEnSnel() {
         val d = ReceptenData(ReceptenStart.recepten)

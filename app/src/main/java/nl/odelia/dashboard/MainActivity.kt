@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -26,7 +25,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import nl.odelia.dashboard.data.Ontgrendelen
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.ui.AppActies
@@ -60,11 +58,6 @@ class MainActivity : ComponentActivity() {
     }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    /** Oude telefoons (voor Android 10): ontgrendelen met het gewone schermslot. */
-    private val schermslot = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultaat ->
-        if (resultaat.resultCode == RESULT_OK) model?.kluisOpen() else model?.kluisFout(null)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Achtergrond loopt door achter de statusbalk; donkere icoontjes op de lichte kleur.
@@ -93,17 +86,6 @@ class MainActivity : ComponentActivity() {
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
                     override fun deelTekst(titel: String, tekst: String) = deel(titel, tekst)
-                    override fun ontgrendel() = Ontgrendelen.vraag(
-                        this@MainActivity,
-                        gelukt = model::kluisOpen,
-                        mislukt = model::kluisFout,
-                        startOud = { schermslot.launch(it) },
-                    )
-                    override fun kopieerGeheim(tekst: String) = Ontgrendelen.kopieerGeheim(this@MainActivity, tekst)
-                    override fun geheimScherm(aan: Boolean) {
-                        if (aan) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                        else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                    }
                 }
             }
             DashboardThema {
@@ -112,11 +94,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** App weg (ander scherm, telefoon op slot): wachtwoorden meteen weer op slot. */
-    override fun onStop() {
-        super.onStop()
-        model?.opSlot()
-    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

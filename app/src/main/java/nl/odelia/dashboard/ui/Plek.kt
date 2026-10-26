@@ -13,6 +13,5 @@ enum class Plek(val label: String) {
     Geld("Geld"),
     Wensen("Wensen"),
     Zeilweer("Zeilweer"),
-    Wachtwoorden("Wachtwoorden"),
     Recepten("Recepten"),
 }

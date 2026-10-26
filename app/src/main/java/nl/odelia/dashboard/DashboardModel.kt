@@ -28,19 +28,16 @@ import nl.odelia.dashboard.data.PlekOpslag
 import nl.odelia.dashboard.logica.CyclusData
 import nl.odelia.dashboard.data.AdviesOpslag
 import nl.odelia.dashboard.logica.AdviesData
-import nl.odelia.dashboard.data.KluisOpslag
 import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
-import nl.odelia.dashboard.logica.KluisStaat
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Plek
 import nl.odelia.dashboard.logica.WensenData
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.logica.ReceptenData
-import nl.odelia.dashboard.logica.WachtwoordenData
 import nl.odelia.dashboard.logica.Zeilweer
 import nl.odelia.dashboard.online.Online
 import nl.odelia.dashboard.ui.AppActies
@@ -58,8 +55,6 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val fotos = FotoOpslag.van(app)
     private val advies = AdviesOpslag.van(app)
     private val recepten = ReceptenOpslag.van(app)
-    private val kluisOpslag = KluisOpslag.van(app)
-    private val kluis = MutableStateFlow(KluisStaat())
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -79,8 +74,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     val staat: StateFlow<AppStaat> =
         combine(
             combine(basis, leren.data, cyclus.data, wensen.data, geld.data) { s, l, c, w, g -> s.copy(leren = l, cyclus = c, wensen = w, geld = g) },
-            fotos.data, advies.data, kluis, recepten.data,
-        ) { s, f, a, k, r -> s.copy(fotos = f, advies = a, kluis = k, recepten = r) }
+            fotos.data, advies.data, recepten.data,
+        ) { s, f, a, r -> s.copy(fotos = f, advies = a, recepten = r) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -139,44 +134,6 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
 
-    // ---- Wachtwoorden (versleuteld; ontgrendelen doet MainActivity met de telefoon zelf) ----
-
-    /** Na gelukt ontgrendelen: ontsleutelen en laten zien. */
-    fun kluisOpen() {
-        viewModelScope.launch {
-            kluis.value = try {
-                KluisStaat(open = true, data = kluisOpslag.lees())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                KluisStaat(fout = "Openen lukte niet. Probeer het nog een keer.")
-            }
-        }
-    }
-
-    fun kluisFout(tekst: String?) {
-        kluis.value = KluisStaat(fout = tekst)
-    }
-
-    override fun opSlot() {
-        if (kluis.value != KluisStaat()) kluis.value = KluisStaat()
-    }
-
-    override fun wijzigWachtwoorden(wat: (WachtwoordenData) -> WachtwoordenData) {
-        val nu = kluis.value
-        if (!nu.open) return
-        val nieuw = wat(nu.data)
-        kluis.value = nu.copy(data = nieuw)
-        viewModelScope.launch {
-            try {
-                kluisOpslag.bewaar(nieuw)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                kluis.update { it.copy(fout = "Bewaren lukte niet.") }
-            }
-        }
-    }
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----
 
