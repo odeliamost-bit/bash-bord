@@ -28,11 +28,11 @@ object GeldStart {
 
     val potjes = listOf(
         Potje("inkomsten", "Inkomsten", "💜"),
-        Potje("vast", "Vaste lasten", "📱", vastCent = 50_00),
-        Potje("zorg", "Zorg", "🩺", vastCent = 100_00),
-        Potje("lekkers", "Snoep/lekkers", "🍬", vastCent = 20_00),
-        Potje("vrij", "Vrije geld", "👛", procent = 30),
-        Potje("inv", "Investeren", "📈", procent = 20, echteRekening = true, rekening = GIRO),
+        Potje("vast", "Vaste lasten", "📱", vastCent = 41_30),
+        Potje("zorg", "Zorg", "🩺", vastCent = 180_00),
+        Potje("lekkers", "Snoep/lekkers", "🍬", vastCent = 50_00),
+        Potje("vrij", "Vrije geld", "👛", procent = 20),
+        Potje("inv", "Investeren", "📈", procent = 30, echteRekening = true, rekening = GIRO),
         Potje("spaar", "Spaarpot", "🐷", procent = 20, echteRekening = true, rekening = ING_SPAAR),
         Potje("nood", "Noodpot", "🛟", procent = 20),
         Potje("kerk", "Goede doelen/kerk", "⛪", procent = 10),

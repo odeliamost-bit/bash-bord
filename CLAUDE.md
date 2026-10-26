@@ -133,6 +133,8 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Leren met Claude** (uitleg-chat, kaarten laten maken): nog niet. Kan pas met een backend voor de sleutel (Odelia koos: sleutel via backend, nooit in de app).
 - **Geen wachtwoorden (gekozen door Odelia, okt 2026):** de app slaat geen wachtwoorden op. Het Wachtwoorden-scherm is weggehaald, ook uit het ontwerp. Niet opnieuw bouwen.
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
+- **Potjes (gekozen door Odelia, okt 2026):** vast eerst: Vaste lasten € 41,30, Zorg € 180, Snoep € 50. Rest: Vrije geld 20%, Investeren 30% (Giro), Goede doelen 10%, Noodpot 20%, Spaarpot 20% (ING-spaar). Saldo blijft staan. In `logica/GeldData.kt`.
+- **Sync (gewenst, okt 2026):** één keer invullen, overal zien (telefoon + tablet). Plan staat in `SYNC-EN-POTTEN.md`. Nog niet gebouwd: eerst Odelia vragen wat er online mag.
 
 ## Status
 
