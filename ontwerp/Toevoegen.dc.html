@@ -17,14 +17,14 @@ button,input{font-family:inherit}
 button{cursor:pointer}
 </style>
 </helmet>
-<div style="width: 390px; height: 1040px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0%, #F8CDB9 25%, #FBE6D9 60%, #FDF6EF 100%); padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; font-family: 'Nunito', system-ui, sans-serif; color: #3A3046;">
+<div style="width: 390px; min-height: 1200px; box-sizing: border-box; background: linear-gradient(180deg, #F4B29C 0%, #F8CDB9 25%, #FBE6D9 60%, #FDF6EF 100%); padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; font-family: 'Nunito', system-ui, sans-serif; color: #3A3046;">
 
 <div style="display: flex; align-items: center; gap: 12px;">
 <a href="Main.dc.html" aria-label="Terug" style="width: 48px; height: 48px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 0 #EEE6F8;">
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4F3399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
 </a>
 <div style="font-size: 28px; font-weight: 900; flex-grow: 1;">Onthoud dit</div>
-<button aria-label="Inspreken" style="width: 64px; height: 64px; border-radius: 50%; border: 5px solid #FFFFFF; background: linear-gradient(160deg, #F4A58B, #D9694F); display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 0 #B9533C, 0 8px 18px rgba(217,105,79,0.3);">
+<button onClick="{{listen}}" aria-label="Inspreken" style="width: 64px; height: 64px; border-radius: 50%; border: 5px solid #FFFFFF; background: linear-gradient(160deg, #F4A58B, #D9694F); display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 0 #B9533C, 0 8px 18px rgba(217,105,79,0.3);">
 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
 </button>
 </div>
@@ -116,10 +116,10 @@ Wanneer klaar?
 <!-- Notitie -->
 <label style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border-radius: 20px; padding: 6px 6px 6px 16px; box-shadow: 0 2px 0 #EEE6F8;">
 <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Notitie</span>
-<input type="text" placeholder="notitie (mag leeg)" style="flex-grow: 1; min-width: 0; border: none; outline: none; font-size: 17px; font-weight: 700; color: #3A3046; background: transparent; min-height: 44px;">
-<span style="width: 44px; height: 44px; border-radius: 14px; background: #E6DBFF; display: flex; align-items: center; justify-content: center;">
+<input type="text" value="{{note}}" onChange="{{onNote}}" placeholder="{{notePh}}" style="flex-grow: 1; min-width: 0; border: none; outline: none; font-size: 17px; font-weight: 700; color: #3A3046; background: transparent; min-height: 44px;">
+<button onClick="{{listen}}" aria-label="Notitie inspreken" style="border: none; width: 44px; height: 44px; border-radius: 14px; background: #E6DBFF; display: flex; align-items: center; justify-content: center;">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6A4BC4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
-</span>
+</button>
 </label>
 
 <!-- Melding -->
@@ -135,18 +135,23 @@ Wanneer klaar?
 
 <div style="flex-grow: 1;"></div>
 
-<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; border-radius: 24px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 21px; font-weight: 900; text-decoration: none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 0 #B9533C, 0 10px 22px rgba(217,105,79,0.3);">
+<sc-if value="{{notSaved}}" hint-placeholder-val="{{true}}">
+<button onClick="{{save}}" style="border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; border-radius: 24px; background: linear-gradient(160deg, #F4A58B, #D9694F); color: #FFFFFF; font-size: 21px; font-weight: 900; text-decoration: none; box-shadow: inset 0 3px 0 rgba(255,255,255,0.4), 0 6px 0 #B9533C, 0 10px 22px rgba(217,105,79,0.3);">
 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
 Bewaren
-</a>
+</button>
+</sc-if>
+<sc-if value="{{saved}}" hint-placeholder-val="{{false}}">
+<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; border-radius: 24px; background: #3F9A64; color: #FFFFFF; font-size: 21px; font-weight: 900; text-decoration: none; box-shadow: 0 6px 0 #2E7A4C;">Bewaard! Terug naar start</a>
+</sc-if>
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1040}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1200}}'>
 class Component extends DCLogic {
 constructor(props) {
 super(props);
-this.state = { who: 'jansen', what: 'inleveren', when: 'ma', remind: true, photo: '' };
+this.state = { who: 'jansen', what: 'inleveren', when: 'ma', remind: true, photo: '', note: '', listening: false, saved: false };
 }
 renderVals() {
 var s = this.state;
@@ -181,6 +186,21 @@ switchBg: s.remind ? '#3F9A64' : '#C9BFD6',
 switchSide: s.remind ? 'flex-end' : 'flex-start',
 toggleRemind: function () { self.setState({ remind: !s.remind }); },
 photo: s.photo,
+note: s.note,
+notePh: s.listening ? 'ik luister…' : 'notitie (mag leeg)',
+onNote: function (e) { self.setState({ note: e.target.value }); },
+listen: function () {
+var R = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!R) { self.setState({ note: 'Inspreken werkt niet in deze browser' }); return; }
+var r = new R(); r.lang = 'nl-NL'; r.interimResults = false;
+r.onresult = function (ev) { var t = ev.results[0][0].transcript; self.setState({ note: (self.state.note ? self.state.note + ' ' : '') + t }); };
+r.onend = function () { self.setState({ listening: false }); };
+r.onerror = function () { self.setState({ listening: false }); };
+self.setState({ listening: true }); r.start();
+},
+saved: s.saved,
+notSaved: !s.saved,
+save: function () { self.setState({ saved: true }); },
 hasPhoto: !!s.photo,
 noPhoto: !s.photo,
 onPhoto: function (e) { var f = e && e.target && e.target.files && e.target.files[0]; if (e && e.target) { e.target.value = ''; } if (!f) { return; } if (s.photo) { URL.revokeObjectURL(s.photo); } self.setState({ photo: URL.createObjectURL(f) }); },
