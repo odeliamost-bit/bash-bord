@@ -78,7 +78,7 @@ In deze volgorde, tenzij Odelia iets anders kiest:
 ## Later (fase 2 en verder)
 
 Die schermen staan al in het ontwerp, maar komen pas na fase 1:
-Mensen, Mail-hulp (chat die voorbeeldmails schrijft), Advies, Leren, Cyclus, Geld (potjes, uitgaven, verdelen), Wachtwoorden (op slot met vingerafdruk/patroon), Wensen, Recepten, Zeilweer.
+Mensen, Mail-hulp (chat die voorbeeldmails schrijft), Advies, Leren, Cyclus, Geld (potjes, uitgaven, verdelen), Wensen, Recepten, Zeilweer.
 
 Wensen die nog uitgezocht moeten worden (eerlijk bespreken of het kan):
 - Geld: ING- en Google Pay-meldingen lezen en uitgaven automatisch invullen.
@@ -97,7 +97,7 @@ Het zijn `.dc.html`-bestanden uit een ontwerp-tool. Ze openen **niet** goed als 
 | Toevoegen | Onthoud: snel vastleggen |
 | Navigatie / NavigatieOpen | Menu dicht / open |
 | Mensen | Mensen + afspraken + zoeken |
-| Cyclus, Geld*, Mail, Advies, Leren, Wensen, Wachtwoorden*, Recepten, Weer | Latere schermen |
+| Cyclus, Geld*, Mail, Advies, Leren, Wensen, Recepten, Weer | Latere schermen |
 
 De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een groot scherm.
 
@@ -128,6 +128,10 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Beveiliging:** de telefoon krijgt de release-versie (niet debuggable), acties in het bouw-recept staan vast op een commit-SHA, minste rechten, Gradle-checksum, Dependabot elke zaterdag. CI controleert: alleen bekende Android-toestemmingen, netwerkcode alleen in `online/Online.kt`.
 - **Online (gekozen door Odelia):** de app gaat alleen online na "ja" (`OnlineVraag`), alleen voor Zeilweer, alleen naar Open-Meteo (https, max 2 MB). Opzoeken en route openen Chrome/Maps; de app zelf gaat dan niet online. Uren en afspraken gaan nooit online. De zeilplek staat op de telefoon, niet in de (openbare) code.
 - **Weer-apps in Zeilweer:** knoppen naar Windy, Windfinder en Weeronline (gekozen door Odelia), met het echte icoontje van de telefoon. Logo's staan niet in de code. Lijst in `logica/Zeilweer.kt` (`weerApps`) én in `AndroidManifest.xml` (`<queries>`).
+- **Leren (gekozen door Odelia, okt 2026):** eerder gebouwd dan de rest van fase 2. Vakken: Elektrotechniek, Burgerschap, Nederlands, Keuzedeel (= project/bewijsstuk). Kaarten met 5 groepen (G1–G5), quiz (meerkeuze + rekenen), overzicht, zelf kaarten maken (typen of 🎤). Inhoud in `logica/LerenInhoud.kt`, uit de Leerplek-pagina op claude.ai. Bewaard in `leren.json` op de telefoon (los van de database). Werkt zonder internet.
+- **Pauze-seintje (Leren):** na 20 min leren, of als de laatste 3 antwoorden 2× zo traag zijn als de eerste 5 (en minstens 10 s). Keuze: 5 min pauze of "nog even door" (dan 10 min stil). De app kan niet echt zien of ze moe is; zeg dat eerlijk.
+- **Leren met Claude** (uitleg-chat, kaarten laten maken): nog niet. Kan pas met een backend voor de sleutel (Odelia koos: sleutel via backend, nooit in de app).
+- **Geen wachtwoorden (gekozen door Odelia, okt 2026):** de app slaat geen wachtwoorden op. Het Wachtwoorden-scherm is weggehaald, ook uit het ontwerp. Niet opnieuw bouwen.
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
 
 ## Status
@@ -135,4 +139,6 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Stap 1 (basis-app): gebouwd.
 - Stap 2–5 (klokken, onthoud, meldingen, urenmail als nieuwe Gmail-mail): gebouwd, GitHub bouwt de app. **Nog niet getest op de telefoon.**
 - Extra: beveiliging, opzoeken/route via Chrome/Maps, Zeilweer (5 weermodellen, met toestemming online). **Nog niet getest op de telefoon.**
+- Leren (kaarten, quiz, overzicht, eigen kaarten, pauze-seintje): gebouwd op tak `claude/leren`. **Nog niet getest op de telefoon.**
+- Alle schermen uit het ontwerp (Geld, Cyclus, Wensen, Mensen, Mail-hulp, Advies, Recepten, Leren-extra's, foto bij Onthoud, menu direct) gebouwd op tak `claude/alle-schermen` (okt 2026). Elk scherm eigen JSON-bestand; Room niet veranderd. Geen AI (vaste teksten). **Nog niet getest op de telefoon.**
 - Nog te doen: Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).

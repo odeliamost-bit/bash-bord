@@ -17,10 +17,12 @@ object Meldingen {
     const val KANAAL_ONTHOUD = "onthoud"
     const val KANAAL_OCHTEND = "ochtend"
     const val KANAAL_URENMAIL = "urenmail"
+    const val KANAAL_CYCLUS = "cyclus"
 
     const val ID_KLOK = 1
     const val ID_OCHTEND = 2
     const val ID_URENMAIL = 3
+    const val ID_CYCLUS = 4
     private const val ID_SEINTJE_BASIS = 1000
 
     /** Extra bij het openen van de app: welk scherm. */
@@ -34,6 +36,7 @@ object Meldingen {
                 NotificationChannel(KANAAL_ONTHOUD, "Onthoud: seintje de dag ervoor", NotificationManager.IMPORTANCE_HIGH),
                 NotificationChannel(KANAAL_OCHTEND, "Ochtendmelding", NotificationManager.IMPORTANCE_DEFAULT),
                 NotificationChannel(KANAAL_URENMAIL, "Urenmail klaar", NotificationManager.IMPORTANCE_HIGH),
+                NotificationChannel(KANAAL_CYCLUS, "Cyclus: seintje 2 dagen ervoor", NotificationManager.IMPORTANCE_DEFAULT),
             ),
         )
     }
@@ -55,6 +58,8 @@ object Meldingen {
         tekst: String,
         scherm: String? = null,
         knop: Pair<String, PendingIntent>? = null,
+        /** Op een vergrendeld scherm alleen "Dashboard" laten zien, niet de tekst. */
+        geheim: Boolean = false,
     ) {
         val nm = NotificationManagerCompat.from(context)
         if (!nm.areNotificationsEnabled()) return
@@ -67,6 +72,7 @@ object Meldingen {
             .setContentIntent(openApp(context, scherm, id))
             .setAutoCancel(true)
             .apply { knop?.let { addAction(0, it.first, it.second) } }
+            .apply { if (geheim) setVisibility(NotificationCompat.VISIBILITY_PRIVATE) }
             .build()
         try {
             nm.notify(id, melding)

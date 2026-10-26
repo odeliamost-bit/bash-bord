@@ -28,7 +28,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import nl.odelia.dashboard.ui.cyclus.CyclusScherm
+import nl.odelia.dashboard.ui.geld.GeldBegin
+import nl.odelia.dashboard.ui.geld.GeldScherm
+import nl.odelia.dashboard.ui.advies.AdviesBegin
+import nl.odelia.dashboard.ui.advies.AdviesScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
+import nl.odelia.dashboard.ui.leren.LerenBegin
+import nl.odelia.dashboard.ui.leren.LerenScherm
+import nl.odelia.dashboard.ui.mail.MailBegin
+import nl.odelia.dashboard.ui.mail.MailScherm
+import nl.odelia.dashboard.ui.mensen.MensenBegin
+import nl.odelia.dashboard.ui.mensen.MensenScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -36,9 +47,12 @@ import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.onthoud.OnthoudLijstScherm
 import nl.odelia.dashboard.ui.onthoud.ToevoegenScherm
 import nl.odelia.dashboard.ui.theme.Kleur
+import nl.odelia.dashboard.ui.recepten.ReceptenScherm
 import nl.odelia.dashboard.ui.thuis.Tab
 import nl.odelia.dashboard.ui.thuis.ThuisScherm
 import nl.odelia.dashboard.ui.weer.ZeilweerScherm
+import nl.odelia.dashboard.ui.wensen.WensenBegin
+import nl.odelia.dashboard.ui.wensen.WensenScherm
 import nl.odelia.dashboard.ui.werk.UrenmailScherm
 
 /** Welk scherm rechts van de zijbalk staat. */
@@ -54,6 +68,14 @@ sealed interface Scherm {
     data class Lijst(val perPersoon: Boolean = false) : Scherm
     data object Urenmail : Scherm
     data object Zeilweer : Scherm
+    data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
+    data object Cyclus : Scherm
+    data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
+    data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
+    data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
+    data class Mail(val begin: MailBegin = MailBegin()) : Scherm
+    data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
+    data class Recepten(val gekozen: String? = null) : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -96,8 +118,15 @@ fun DashboardApp(
             Plek.Thuis -> { ga(Scherm.Thuis); tab = Tab.Vandaag }
             Plek.Werk -> { ga(Scherm.Thuis); tab = Tab.Werk }
             Plek.Onthoud -> { ga(Scherm.Thuis); ga(Scherm.Lijst()) }
-            Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Lijst(perPersoon = true)) }
+            Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Mensen()) }
+            Plek.Mail -> { ga(Scherm.Thuis); ga(Scherm.Mail()) }
+            Plek.Advies -> { ga(Scherm.Thuis); ga(Scherm.Advies()) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
+            Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
+            Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
+            Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
+            Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
+            Plek.Recepten -> { ga(Scherm.Thuis); ga(Scherm.Recepten()) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -112,6 +141,7 @@ fun DashboardApp(
             "onthoud" -> naarPlek(Plek.Onthoud)
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
             "werk" -> naarPlek(Plek.Werk)
+            "cyclus" -> naarPlek(Plek.Cyclus)
         }
         onOpdrachtGedaan()
     }
@@ -131,6 +161,14 @@ fun DashboardApp(
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
         Scherm.Urenmail -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
+        is Scherm.Leren -> Plek.Leren
+        Scherm.Cyclus -> Plek.Cyclus
+        is Scherm.Wensen -> Plek.Wensen
+        is Scherm.Geld -> Plek.Geld
+        is Scherm.Mensen -> Plek.Mensen
+        is Scherm.Mail -> Plek.Mail
+        is Scherm.Advies -> Plek.Advies
+        is Scherm.Recepten -> Plek.Recepten
         is Scherm.Later -> scherm.plek
     }
 
@@ -177,6 +215,14 @@ fun DashboardApp(
                     modifier = inhoud,
                 )
                 Scherm.Zeilweer -> ZeilweerScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
+                is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
+                is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Mensen -> MensenScherm(staat, acties, onTerug = ::terug, onGaNaar = ::ga, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Advies -> AdviesScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 
@@ -199,12 +245,9 @@ fun DashboardApp(
                 gekozen = gekozen,
                 onWissel = { menuOpen = !menuOpen },
                 onKies = { plek ->
-                    if (!menuOpen) {
-                        menuOpen = true
-                    } else {
-                        naarPlek(plek)
-                        menuOpen = false
-                    }
+                    // Tik op een icoontje = meteen daarheen. Uitschuiven alleen met de bovenste knop.
+                    naarPlek(plek)
+                    menuOpen = false
                 },
                 modifier = Modifier.padding(12.dp),
             )

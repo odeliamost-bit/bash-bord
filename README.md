@@ -77,6 +77,7 @@ Fout? Kopieer de rode foutmelding en plak hem bij Claude.
 | `app/src/main/java/.../ui/thuis/` | Hoofdscherm: welkomkaart, tabjes Vandaag / Werk / Onthoud |
 | `app/src/main/java/.../ui/onthoud/` | Onthoud dit, lijst met zoeken, per persoon |
 | `app/src/main/java/.../ui/werk/` | Urenmail |
+| `app/src/main/java/.../ui/leren/` | Leren: kaarten, quiz, zelf kaarten maken, pauze |
 | `app/src/main/java/.../ui/menu/` | Zijbalk (menu) |
 | `app/src/main/java/.../ui/onderdelen/` | Bouwsteentjes: klei-kaarten, knoppen, icoontjes |
 | `app/src/main/java/.../meldingen/` | Herinneringen en meldingen |

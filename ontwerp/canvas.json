@@ -14,7 +14,7 @@
       "x": 0,
       "y": 0,
       "w": 390,
-      "h": 1650,
+      "h": 2100,
       "title": "Dashboard (telefoon)",
       "is_interactive": true,
       "radius": 36
@@ -31,8 +31,8 @@
       "x": 940,
       "y": 0,
       "w": 390,
-      "h": 900,
-      "title": "Geheugen 1: snel vastleggen",
+      "h": 1200,
+      "title": "Onthoud dit",
       "is_interactive": true,
       "radius": 36
     },
@@ -41,7 +41,7 @@
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "Menu dicht (tik = open)",
+      "title": "Menu dicht (tik icoon = ga erheen)",
       "is_interactive": true,
       "radius": 36
     },
@@ -153,26 +153,8 @@
       "is_interactive": true,
       "radius": 36
     },
-    "Wachtwoorden.dc.html": {
-      "x": 7520,
-      "y": 0,
-      "w": 390,
-      "h": 1150,
-      "title": "Wachtwoorden (op slot)",
-      "is_interactive": true,
-      "radius": 36
-    },
-    "WachtwoordenOpen.dc.html": {
-      "x": 7990,
-      "y": 0,
-      "w": 390,
-      "h": 1150,
-      "title": "Wachtwoorden: na vingerafdruk",
-      "is_interactive": true,
-      "radius": 36
-    },
     "Recepten.dc.html": {
-      "x": 8460,
+      "x": 7520,
       "y": 0,
       "w": 390,
       "h": 1750,
@@ -181,11 +163,20 @@
       "radius": 36
     },
     "Weer.dc.html": {
-      "x": 8930,
+      "x": 7990,
       "y": 0,
       "w": 390,
       "h": 1500,
       "title": "Zeilweer (12–16 uur)",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Week.dc.html": {
+      "x": 8460,
+      "y": 0,
+      "w": 390,
+      "h": 900,
+      "title": "Week",
       "is_interactive": true,
       "radius": 36
     }
@@ -207,10 +198,9 @@
     "Leren.dc.html",
     "Wensen.dc.html",
     "GeldVerdelen.dc.html",
-    "Wachtwoorden.dc.html",
-    "WachtwoordenOpen.dc.html",
     "Recepten.dc.html",
-    "Weer.dc.html"
+    "Weer.dc.html",
+    "Week.dc.html"
   ],
   "notes": {},
   "designSystems": []

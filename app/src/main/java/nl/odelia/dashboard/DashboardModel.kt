@@ -16,12 +16,28 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.data.Bestanden
+import nl.odelia.dashboard.data.GeldOpslag
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.compose.ui.graphics.asImageBitmap
+import nl.odelia.dashboard.data.FotoOpslag
+import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.PlekOpslag
+import nl.odelia.dashboard.logica.CyclusData
+import nl.odelia.dashboard.data.AdviesOpslag
+import nl.odelia.dashboard.logica.AdviesData
+import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.DagSoort
+import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Plek
+import nl.odelia.dashboard.logica.WensenData
+import nl.odelia.dashboard.meldingen.Planner
+import nl.odelia.dashboard.logica.ReceptenData
 import nl.odelia.dashboard.logica.Zeilweer
 import nl.odelia.dashboard.online.Online
 import nl.odelia.dashboard.ui.AppActies
@@ -32,6 +48,13 @@ import nl.odelia.dashboard.ui.ZeilweerStaat
 class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val opslag = Opslag.van(app)
     private val voorlezer = Voorlezer(app)
+    private val leren = LerenOpslag.van(app)
+    private val cyclus = Bestanden.cyclus(app)
+    private val wensen = Bestanden.wensen(app)
+    private val geld = GeldOpslag.van(app)
+    private val fotos = FotoOpslag.van(app)
+    private val advies = AdviesOpslag.van(app)
+    private val recepten = ReceptenOpslag.van(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -43,10 +66,17 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     private val zeilweer = MutableStateFlow(ZeilweerStaat(plek = PlekOpslag.lees(app)))
 
-    val staat: StateFlow<AppStaat> =
+    private val basis =
         combine(opslag.perioden(), opslag.dagSoorten(), opslag.onthoud(), tik, zeilweer) { perioden, soorten, onthoud, nu, weer ->
             AppStaat(KlokStaat.maak(perioden, soorten, nu), perioden, soorten, onthoud, weer)
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
+        }
+
+    val staat: StateFlow<AppStaat> =
+        combine(
+            combine(basis, leren.data, cyclus.data, wensen.data, geld.data) { s, l, c, w, g -> s.copy(leren = l, cyclus = c, wensen = w, geld = g) },
+            fotos.data, advies.data, recepten.data,
+        ) { s, f, a, r -> s.copy(fotos = f, advies = a, recepten = r) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
         viewModelScope.launch {
@@ -68,7 +98,42 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     override fun bewaar(onthoud: Onthoud) = doe { opslag.bewaar(onthoud) }
 
-    override fun verwijder(id: String) = doe { opslag.verwijder(id) }
+    override fun verwijder(id: String) {
+        fotos.zet(id, null)
+        doe { opslag.verwijder(id) }
+    }
+
+    override fun zetFoto(id: String, pad: String?) = fotos.zet(id, pad)
+
+    override fun gooiFotoWeg(pad: String) {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) { fotos.gooiWeg(pad) }
+    }
+
+    override fun laadFoto(pad: String) = fotos.laad(pad)?.asImageBitmap()
+
+    /** Camera-foto of gekozen foto opslaan in de app (niet op de hoofdlijn). */
+    fun bewaarFoto(beeld: Bitmap, klaar: (String?) -> Unit) {
+        viewModelScope.launch {
+            klaar(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { fotos.bewaarBitmap(beeld) })
+        }
+    }
+
+    fun bewaarFoto(uri: Uri, klaar: (String?) -> Unit) {
+        viewModelScope.launch {
+            klaar(kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { fotos.bewaarUri(uri) })
+        }
+    }
+
+    override fun wijzigLeren(wat: (LerenData) -> LerenData) = leren.wijzig(wat)
+
+    override fun wijzigCyclus(wat: (CyclusData) -> CyclusData) =
+        cyclus.wijzig(wat) { Planner.plan(getApplication<Application>()) }
+
+    override fun wijzigWensen(wat: (WensenData) -> WensenData) = wensen.wijzig(wat)
+    override fun wijzigGeld(wat: (GeldData) -> GeldData) = geld.wijzig(wat)
+    override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
+    override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
+
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----
 

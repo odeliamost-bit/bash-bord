@@ -13,6 +13,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,20 @@ class MainActivity : ComponentActivity() {
         if (resultaat.resultCode == RESULT_OK && !tekst.isNullOrBlank()) naInspreken?.invoke(tekst)
         naInspreken = null
     }
+    private var naFoto: ((String?) -> Unit)? = null
+    private var model: DashboardModel? = null
+    private val maakFotoContract = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { beeld ->
+        val klaar = naFoto
+        naFoto = null
+        val m = model
+        if (beeld == null || klaar == null || m == null) klaar?.invoke(null) else m.bewaarFoto(beeld, klaar)
+    }
+    private val kiesFotoContract = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        val klaar = naFoto
+        naFoto = null
+        val m = model
+        if (uri == null || klaar == null || m == null) klaar?.invoke(null) else m.bewaarFoto(uri, klaar)
+    }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,14 +72,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val model: DashboardModel = viewModel()
+            this.model = model
             val staat by model.staat.collectAsStateWithLifecycle()
             val acties = remember(model) {
                 object : AppActies by model {
+                    override fun maakFoto(klaar: (String?) -> Unit) = startFoto(klaar) { maakFotoContract.launch(null) }
+                    override fun kiesFoto(klaar: (String?) -> Unit) = startFoto(klaar) {
+                        kiesFotoContract.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
                     override fun openLink(link: String) = openInBrowser(link)
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
+                    override fun deelTekst(titel: String, tekst: String) = deel(titel, tekst)
                 }
             }
             DashboardThema {
@@ -72,6 +93,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -99,6 +121,15 @@ class MainActivity : ComponentActivity() {
         ) {
             vraagMeldingen.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    private fun startFoto(klaar: (String?) -> Unit, open: () -> Unit): Boolean = try {
+        naFoto = klaar
+        open()
+        true
+    } catch (_: ActivityNotFoundException) {
+        naFoto = null
+        false
     }
 
     private fun spreekIn(klaar: (String) -> Unit): Boolean {
@@ -144,6 +175,20 @@ class MainActivity : ComponentActivity() {
     }
 
     /** Zet een nieuwe mail klaar in Gmail (of laat kiezen). Versturen doet Odelia zelf. */
+    /** Tekst delen met een andere app (Drive, Sheets, ...). De app zelf gaat niet online. */
+    private fun deel(titel: String, tekst: String): Boolean {
+        val stuur = Intent(Intent.ACTION_SEND)
+            .setType("text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, titel)
+            .putExtra(Intent.EXTRA_TEXT, tekst)
+        return try {
+            startActivity(Intent.createChooser(stuur, titel))
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
+    }
+
     private fun openMailApp(onderwerp: String, tekst: String): Boolean {
         val mail = Intent(Intent.ACTION_SEND)
             .setType("text/plain")
