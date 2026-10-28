@@ -34,6 +34,7 @@ import nl.odelia.dashboard.ui.geld.GeldScherm
 import nl.odelia.dashboard.ui.advies.AdviesBegin
 import nl.odelia.dashboard.ui.advies.AdviesScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
+import nl.odelia.dashboard.ui.instellingen.InstellingenScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
 import nl.odelia.dashboard.ui.leren.LerenScherm
 import nl.odelia.dashboard.ui.mail.MailBegin
@@ -76,6 +77,7 @@ sealed interface Scherm {
     data class Mail(val begin: MailBegin = MailBegin()) : Scherm
     data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
     data class Recepten(val gekozen: String? = null) : Scherm
+    data object Instellingen : Scherm
     data class Later(val plek: Plek) : Scherm
 }
 
@@ -127,6 +129,7 @@ fun DashboardApp(
             Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
             Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
             Plek.Recepten -> { ga(Scherm.Thuis); ga(Scherm.Recepten()) }
+            Plek.Instellingen -> { ga(Scherm.Thuis); ga(Scherm.Instellingen) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
     }
@@ -169,6 +172,7 @@ fun DashboardApp(
         is Scherm.Mail -> Plek.Mail
         is Scherm.Advies -> Plek.Advies
         is Scherm.Recepten -> Plek.Recepten
+        Scherm.Instellingen -> Plek.Instellingen
         is Scherm.Later -> scherm.plek
     }
 
@@ -223,6 +227,7 @@ fun DashboardApp(
                 is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Advies -> AdviesScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
+                Scherm.Instellingen -> InstellingenScherm(acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 

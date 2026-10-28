@@ -141,6 +141,9 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Sync (okt 2026):** eigen Supabase-project. Inloggen met code per e-mail (geen wachtwoord). Eén rij per onderdeel (JSON), nieuwste wijziging wint (tijd van de server). Realtime via websocket zolang de app open is; bij openen alles bijwerken. Netwerkcode alleen in `online/Online.kt` (weer) en `online/Supabase.kt` (sync). Sleutels via GitHub-geheimen `SUPABASE_URL` en `SUPABASE_ANON_KEY` (zie README). Inlog en sync-stand in `noBackupFilesDir`. Eerste inlog op een apparaat: online wint, oude data in `reserve-<onderdeel>.json`.
 - **Google Agenda (gewenst, okt 2026):** afspraken van vandaag en deze week op het dashboard, alleen lezen. Plan: de agenda van de telefoon lezen (Android `CalendarContract`, toestemming `READ_CALENDAR`), geen Google-login nodig. Nog niet gebouwd.
 
+- **Kompas samenvoegen (gekozen door Odelia, okt 2026):** de oude Kompas-pagina (claude.ai) gaat op in bash-bord, met de opmaak van bash-bord. Overnemen: Papieren (document → samenvatting + actiepunten), Nu doen-kaart, grote tekst, back-up. Kompas-taken en -wensen worden ingelezen uit Kompas' eigen back-up (`logica/KompasImport.kt`). Taak-in-stapjes niet overnemen.
+- **Back-up (okt 2026):** menu "Back-up" (`ui/instellingen/`). Eén .zip met database, alle JSON, foto's, instellingen en cyclus; niet de sync-inlog. Odelia kiest zelf waar het bestand komt. Terugzetten vervangt alles en start de app opnieuw (`data/Backup.kt`).
+
 ## Status
 
 - Stap 1 (basis-app): gebouwd.
@@ -150,4 +153,6 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Alle schermen uit het ontwerp (Geld, Cyclus, Wensen, Mensen, Mail-hulp, Advies, Recepten, Leren-extra's, foto bij Onthoud, menu direct) gebouwd op tak `claude/alle-schermen` (okt 2026). Elk scherm eigen JSON-bestand; Room niet veranderd. Geen AI (vaste teksten). **Nog niet getest op de telefoon.**
 - Versie 0.3: echte potjes-bedragen (deel 2 van `SYNC-EN-POTTEN.md`). Geldt alleen als Geld nog leeg is; staat er al iets in `geld.json`, dan past Odelia de potjes in de app aan. **Nog niet getest op de telefoon.**
 - Versie 0.4: sync stap 1+2 (inloggen + Geld via Supabase, realtime). Compileert en testjes slagen in de cloud; **nog niet getest met echte Supabase en niet op de telefoon.**
+- Kompas stap 1: back-up maken/terugzetten + Kompas-bestand inlezen, op tak `claude/kompas-samen`. **Nog niet getest op de telefoon.**
+- Kompas stap 2–4 (nog te doen): Nu doen-kaart, grote tekst, Papieren.
 - Nog te doen: sync voor Onthoud, Leren, Wensen, Recepten, Mensen, foto's; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).

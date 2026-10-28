@@ -123,6 +123,14 @@ interface AppActies {
     /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
     fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
 
+    // Back-up en Kompas. Odelia kiest zelf waar het bestand komt; de app gaat niet online.
+    /** Back-up maken (.zip). [klaar] krijgt een kort berichtje. Geeft `false` als het niet kan. */
+    fun maakBackup(klaar: (String) -> Unit): Boolean = false
+    /** Back-up terugzetten. Vervangt alles; daarna start de app opnieuw. */
+    fun zetBackupTerug(klaar: (String) -> Unit): Boolean = false
+    /** Taken, ideeën en wensen uit een Kompas-back-up (.json) inlezen. */
+    fun leesKompas(klaar: (String) -> Unit): Boolean = false
+
     // Sync tussen apparaten. Inloggen met een code per e-mail, geen wachtwoord.
     fun vraagSyncCode(email: String) {}
     fun logInSync(code: String) {}

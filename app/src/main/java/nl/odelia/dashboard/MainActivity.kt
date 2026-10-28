@@ -59,6 +59,46 @@ class MainActivity : ComponentActivity() {
     }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
+    // Back-up en Kompas: Odelia kiest zelf het bestand (Downloads, Drive, …).
+    private var naBestand: ((String) -> Unit)? = null
+    private val backupMaken = registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        val klaar = naBestand.also { naBestand = null } ?: return@registerForActivityResult
+        val m = model
+        if (uri == null || m == null) return@registerForActivityResult
+        m.schrijfBackup(uri, klaar)
+    }
+    private val backupTerug = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val klaar = naBestand.also { naBestand = null } ?: return@registerForActivityResult
+        val m = model
+        if (uri == null || m == null) return@registerForActivityResult
+        klaar("Bezig met terugzetten…")
+        m.zetTerug(uri) { fout -> if (fout == null) herstart() else klaar(fout) }
+    }
+    private val kompasLezen = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val klaar = naBestand.also { naBestand = null } ?: return@registerForActivityResult
+        val m = model
+        if (uri == null || m == null) return@registerForActivityResult
+        m.importeerKompas(uri, klaar)
+    }
+
+    private fun kiesBestand(klaar: (String) -> Unit, open: () -> Unit): Boolean = try {
+        naBestand = klaar
+        open()
+        true
+    } catch (_: ActivityNotFoundException) {
+        naBestand = null
+        false
+    }
+
+    /** Na terugzetten: app helemaal opnieuw starten, zodat alles uit de nieuwe bestanden komt. */
+    private fun herstart() {
+        val start = packageManager.getLaunchIntentForPackage(packageName)
+            ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        if (start != null) startActivity(start)
+        finishAffinity()
+        Runtime.getRuntime().exit(0)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Achtergrond loopt door achter de statusbalk; donkere icoontjes op de lichte kleur.
@@ -88,6 +128,15 @@ class MainActivity : ComponentActivity() {
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
                     override fun deelTekst(titel: String, tekst: String) = deel(titel, tekst)
+                    override fun maakBackup(klaar: (String) -> Unit) = kiesBestand(klaar) {
+                        backupMaken.launch("bash-bord-backup-${java.time.LocalDate.now()}.zip")
+                    }
+                    override fun zetBackupTerug(klaar: (String) -> Unit) = kiesBestand(klaar) {
+                        backupTerug.launch(arrayOf("application/zip", "application/octet-stream"))
+                    }
+                    override fun leesKompas(klaar: (String) -> Unit) = kiesBestand(klaar) {
+                        kompasLezen.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
+                    }
                 }
             }
             DashboardThema {

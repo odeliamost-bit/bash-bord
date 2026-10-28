@@ -116,5 +116,11 @@ abstract class AppDatabase : RoomDatabase() {
                 .build()
                 .also { instantie = it }
         }
+
+        /** Database dicht (voor het terugzetten van een back-up). Daarna start de app opnieuw. */
+        fun sluit() = synchronized(this) {
+            instantie?.close()
+            instantie = null
+        }
     }
 }

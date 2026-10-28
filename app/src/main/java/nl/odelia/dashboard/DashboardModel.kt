@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.data.Backup
 import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.GeldOpslag
 import android.graphics.Bitmap
@@ -32,6 +33,7 @@ import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.KompasImport
 import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Plek
@@ -179,7 +181,87 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         }
     }
 
+    /** Back-up naar het gekozen bestand schrijven. */
+    fun schrijfBackup(uri: Uri, klaar: (String) -> Unit) {
+        val app = getApplication<Application>()
+        viewModelScope.launch {
+            val tekst = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val n = app.contentResolver.openOutputStream(uri, "wt")?.use { Backup.maak(app, it) }
+                    if (n == null) "Back-up lukte niet." else "Back-up gemaakt ✅"
+                } catch (_: Exception) {
+                    "Back-up lukte niet."
+                }
+            }
+            klaar(tekst)
+        }
+    }
+
+    /** Back-up terugzetten. [klaar] krijgt `null` als het gelukt is (dan moet de app opnieuw starten). */
+    fun zetTerug(uri: Uri, klaar: (String?) -> Unit) {
+        val app = getApplication<Application>()
+        viewModelScope.launch {
+            val fout = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    app.contentResolver.openInputStream(uri)?.use { Backup.zetTerug(app, it) } ?: "Bestand openen lukte niet."
+                } catch (_: Exception) {
+                    "Bestand openen lukte niet."
+                }
+            }
+            klaar(fout)
+        }
+    }
+
+    /** Kompas-back-up inlezen. Bestaande items (zelfde id) blijven zoals ze zijn. */
+    fun importeerKompas(uri: Uri, klaar: (String) -> Unit) {
+        val app = getApplication<Application>()
+        viewModelScope.launch {
+            val inhoud = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    app.contentResolver.openInputStream(uri)?.use { s ->
+                        val bytes = s.readNBytesVeilig(MAX_KOMPAS) ?: return@use null
+                        KompasImport.lees(String(bytes, Charsets.UTF_8), System.currentTimeMillis())
+                    }
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            if (inhoud == null) {
+                klaar("Dit is geen Kompas-back-up.")
+                return@launch
+            }
+            val bestaand = opslag.onthoudNu().map { it.id }.toSet()
+            val nieuweOnthoud = inhoud.onthoud.filterNot { it.id in bestaand }
+            nieuweOnthoud.forEach { opslag.bewaar(it) }
+            val wensIds = wensen.nu().lijst.map { it.id }.toSet()
+            val nieuweWensen = inhoud.wensen.filterNot { it.id in wensIds }
+            if (nieuweWensen.isNotEmpty()) wensen.wijzig({ d -> nieuweWensen.fold(d) { acc, w -> acc.bewaar(w) } })
+            Acties.naWijziging(app)
+            klaar(
+                if (nieuweOnthoud.isEmpty() && nieuweWensen.isEmpty()) "Alles stond er al in."
+                else "Ingelezen: ${nieuweOnthoud.size} in Onthoud, ${nieuweWensen.size} wensen ✅",
+            )
+        }
+    }
+
+    private fun java.io.InputStream.readNBytesVeilig(max: Int): ByteArray? {
+        val uit = java.io.ByteArrayOutputStream()
+        val buf = ByteArray(64 * 1024)
+        while (true) {
+            val n = read(buf)
+            if (n < 0) break
+            uit.write(buf, 0, n)
+            if (uit.size() > max) return null
+        }
+        return uit.toByteArray()
+    }
+
     override fun onCleared() {
         voorlezer.stop()
+    }
+
+    private companion object {
+        /** Een Kompas-back-up is tekst; groter dan 10 MB is het niet goed. */
+        const val MAX_KOMPAS = 10 * 1024 * 1024
     }
 }
