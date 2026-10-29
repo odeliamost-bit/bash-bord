@@ -39,12 +39,17 @@ import nl.odelia.dashboard.ui.advies.AdviesScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.instellingen.InstellingenScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
+import nl.odelia.dashboard.ui.leren.LerenTab
 import nl.odelia.dashboard.ui.leren.LerenScherm
 import nl.odelia.dashboard.ui.mail.MailBegin
 import nl.odelia.dashboard.ui.mail.MailScherm
 import nl.odelia.dashboard.ui.mensen.MensenBegin
 import nl.odelia.dashboard.ui.mensen.MensenScherm
 import nl.odelia.dashboard.ui.menu.Groep
+import nl.odelia.dashboard.ui.leren.LerenTegel
+import nl.odelia.dashboard.ui.leren.LerenTegelsScherm
+import nl.odelia.dashboard.ui.leren.SimDeel
+import nl.odelia.dashboard.ui.leren.SimulatorScherm
 import nl.odelia.dashboard.ui.menu.GroepScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
@@ -85,6 +90,8 @@ sealed interface Scherm {
     data object Instellingen : Scherm
     data class Later(val plek: Plek) : Scherm
     data class GroepTegels(val groep: Groep) : Scherm
+    data object LerenTegels : Scherm
+    data class Simulator(val deel: SimDeel = SimDeel.Kast) : Scherm
 }
 
 /** De hele app: zijbalk links, het gekozen scherm rechts. */
@@ -130,7 +137,7 @@ fun DashboardApp(
             Plek.Mail -> { ga(Scherm.Thuis); ga(Scherm.Mail()) }
             Plek.Advies -> { ga(Scherm.Thuis); ga(Scherm.Advies()) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
-            Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
+            Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.LerenTegels) }
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
             Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
             Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
@@ -187,6 +194,7 @@ fun DashboardApp(
         Scherm.Instellingen -> Plek.Instellingen
         is Scherm.Later -> scherm.plek
         is Scherm.GroepTegels -> scherm.groep.plekken.first()
+        Scherm.LerenTegels, is Scherm.Simulator -> Plek.Leren
     }.let(Groep::van)
 
     // Grote tekst (instelling): alle letters 20% groter.
@@ -246,6 +254,28 @@ fun DashboardApp(
                 is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
                 Scherm.Instellingen -> InstellingenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
+                Scherm.LerenTegels -> LerenTegelsScherm(
+                    onTerug = ::terug,
+                    onKies = { t ->
+                        when (t) {
+                            LerenTegel.Simulator -> ga(Scherm.Simulator())
+                            LerenTegel.Formules -> ga(Scherm.Simulator(SimDeel.Formules))
+                            LerenTegel.Kaarten -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Kaarten)))
+                            LerenTegel.Quiz -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Quiz)))
+                            LerenTegel.Maken -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Maken)))
+                            LerenTegel.Overzicht -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Overzicht)))
+                            LerenTegel.Toetsen -> toon("Toetsen komt nog. Eerst samen bespreken.")
+                            LerenTegel.Tutor -> toon("De tutor kan pas met een eigen server voor de sleutel.")
+                        }
+                    },
+                    modifier = inhoud,
+                )
+                is Scherm.Simulator -> SimulatorScherm(
+                    begin = scherm.deel,
+                    onTerug = ::terug,
+                    onVoorlezen = { tekst -> if (!acties.voorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?") },
+                    modifier = inhoud,
+                )
                 is Scherm.GroepTegels -> GroepScherm(
                     groep = scherm.groep,
                     verborgen = staat.instellingen.verborgenMenu,
