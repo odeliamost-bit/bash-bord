@@ -67,7 +67,7 @@ fun LerenTegelsScherm(onTerug: () -> Unit, onKies: (LerenTegel) -> Unit, modifie
                 { Tegel(Pastels.Blauw, icoonVraag, "Quiz", "test jezelf", it) { onKies(LerenTegel.Quiz) } },
             )
             Rij(
-                { Tegel(Pastels.Abrikoos, icoonAgenda, "Toetsen", "komt nog", it) { onKies(LerenTegel.Toetsen) } },
+                { Tegel(Pastels.Abrikoos, icoonAgenda, "Toetsen", "planning", it) { onKies(LerenTegel.Toetsen) } },
                 { Tegel(Pastels.Roze, icoonPraat, "Tutor", "komt nog", it) { onKies(LerenTegel.Tutor) } },
             )
             Rij(

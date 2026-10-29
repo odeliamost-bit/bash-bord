@@ -50,6 +50,7 @@ import nl.odelia.dashboard.ui.leren.LerenTegel
 import nl.odelia.dashboard.ui.leren.LerenTegelsScherm
 import nl.odelia.dashboard.ui.leren.SimDeel
 import nl.odelia.dashboard.ui.leren.SimulatorScherm
+import nl.odelia.dashboard.ui.leren.ToetsenScherm
 import nl.odelia.dashboard.ui.menu.GroepScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
@@ -91,6 +92,7 @@ sealed interface Scherm {
     data class Later(val plek: Plek) : Scherm
     data class GroepTegels(val groep: Groep) : Scherm
     data object LerenTegels : Scherm
+    data object Toetsen : Scherm
     data class Simulator(val deel: SimDeel = SimDeel.Tekenen) : Scherm
 }
 
@@ -194,7 +196,7 @@ fun DashboardApp(
         Scherm.Instellingen -> Plek.Instellingen
         is Scherm.Later -> scherm.plek
         is Scherm.GroepTegels -> scherm.groep.plekken.first()
-        Scherm.LerenTegels, is Scherm.Simulator -> Plek.Leren
+        Scherm.LerenTegels, Scherm.Toetsen, is Scherm.Simulator -> Plek.Leren
     }.let(Groep::van)
 
     // Grote tekst (instelling): alle letters 20% groter.
@@ -264,10 +266,17 @@ fun DashboardApp(
                             LerenTegel.Quiz -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Quiz)))
                             LerenTegel.Maken -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Maken)))
                             LerenTegel.Overzicht -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Overzicht)))
-                            LerenTegel.Toetsen -> toon("Toetsen komt nog. Eerst samen bespreken.")
+                            LerenTegel.Toetsen -> ga(Scherm.Toetsen)
                             LerenTegel.Tutor -> toon("De tutor kan pas met een eigen server voor de sleutel.")
                         }
                     },
+                    modifier = inhoud,
+                )
+                Scherm.Toetsen -> ToetsenScherm(
+                    leren = staat.leren,
+                    vandaag = staat.nu.toLocalDate(),
+                    onWijzig = acties::wijzigLeren,
+                    onTerug = ::terug,
                     modifier = inhoud,
                 )
                 is Scherm.Simulator -> SimulatorScherm(

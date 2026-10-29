@@ -74,7 +74,15 @@ data class LerenData(
     val vak: String = LerenInhoud.vakken.first().id,
     /** Welke doelen (zie [Doelen]) per dag afgevinkt zijn. */
     val doelenKlaar: Map<LocalDate, Set<String>> = emptyMap(),
+    /** Toetsen die eraan komen (okt 2026). */
+    val toetsen: List<Toets> = emptyList(),
 )
+
+/** Een toets of examen: wanneer, welk vak en welke stof. */
+data class Toets(val id: String, val vak: String, val naam: String, val datum: LocalDate, val stof: String = "")
+
+/** Hoeveel dagen tot de toets (negatief = voorbij). */
+fun Toets.dagenTot(vandaag: LocalDate): Long = java.time.temporal.ChronoUnit.DAYS.between(vandaag, datum)
 
 object Leren {
     /** Na hoeveel dagen een kaart terugkomt, per bakje (1 t/m 5). */
