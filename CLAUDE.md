@@ -157,4 +157,4 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Kompas stap 1: back-up maken/terugzetten + Kompas-bestand inlezen, op tak `claude/kompas-samen`. **Nog niet getest op de telefoon.**
 - Instellingen-scherm (tabjes, grote tekst, tijden, weekdoel, meldingen, tegels, menu). **Nog niet getest op de telefoon.**
 - Kompas stap 2–4 (nog te doen): Nu doen-kaart, Papieren.
-- Nog te doen: sync voor Onthoud, Leren, Wensen, Recepten, Mensen, foto's; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), instellingen in de app (tijden, weekdoel), telefoon op stil bij inklokken (fase 2-wens).
+- Nog te doen: sync voor Onthoud, Leren, Wensen, Recepten, Mensen, foto's; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).
