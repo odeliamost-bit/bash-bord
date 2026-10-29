@@ -251,6 +251,20 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
       elems: function (c, T) { return c.pressed ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } },
     coil: { naam: 'Relaisspoel', letter: 'K', term: two(), tn: ['A1', 'A2'], box: [-1.1, -1.2, 1.1, 1.2], props: { Uc: 24 },
       elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: c.props.Uc * c.props.Uc / 1.5, key: 'main' }]; } },
+    estop: { naam: 'Noodstop', letter: 'S', term: two(), box: [-2, -1.3, 1.1, 1.3], props: { vast: false },
+      elems: function (c, T) { return c.props.vast ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } },
+    rot: { naam: 'Draaischakelaar 0-1', letter: 'S', term: two(), box: [-2, -1.3, 1.1, 1.3], props: { on: false },
+      elems: function (c, T) { return c.props.on ? [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }] : []; } },
+    key: { naam: 'Sleutelschakelaar', letter: 'S', term: two(), box: [-2, -1.3, 1.1, 1.3], props: { on: false },
+      elems: function (c, T) { return c.props.on ? [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }] : []; } },
+    tcoil: { naam: 'Tijdrelais', letter: 'K', term: two(), box: [-1.1, -1.3, 1.1, 1.3], props: { Uc: 24, t: 3, soort: 'aanvertraagd' },
+      elems: function (c, T, add, ctx) { return TYPES.coil.elems(c, T, add, ctx); } },
+    mcb: { naam: 'Installatieautomaat', letter: 'F', term: two(), box: [-0.9, -1.3, 0.9, 1.3], props: { In: 16, kar: 'B' },
+      elems: function (c, T) { return c.st.trip ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } },
+    mbs: { naam: 'Motorbeveiligingsschakelaar', letter: 'Q', term: [[-2, -2], [0, -2], [2, -2], [-2, 2], [0, 2], [2, 2]], tn: ['1', '3', '5', '2', '4', '6'], box: [-2.8, -2.2, 2.8, 2.2], props: { Ir: 2.5, on: true },
+      elems: function (c, T) { return (c.props.on === false || c.st.trip) ? [] : [{ k: 'R', a: T[0], b: T[3], r: R_ON, key: 'p1' }, { k: 'R', a: T[1], b: T[4], r: R_ON, key: 'p2' }, { k: 'R', a: T[2], b: T[5], r: R_ON, key: 'p3' }]; } },
+    th: { naam: 'Thermisch relais', letter: 'F', term: [[-2, -2], [0, -2], [2, -2], [-2, 2], [0, 2], [2, 2]], tn: ['1', '3', '5', '2', '4', '6'], box: [-2.8, -2.2, 2.8, 2.2], props: { Ir: 2.5 },
+      elems: function (c, T) { return [{ k: 'R', a: T[0], b: T[3], r: R_ON, key: 'p1' }, { k: 'R', a: T[1], b: T[4], r: R_ON, key: 'p2' }, { k: 'R', a: T[2], b: T[5], r: R_ON, key: 'p3' }]; } },
     kmain: { naam: 'Hoofdcontacten (3-polig)', letter: 'K', term: [[-2, -2], [0, -2], [2, -2], [-2, 2], [0, 2], [2, 2]], tn: ['1', '3', '5', '2', '4', '6'], box: [-2.8, -2.2, 2.8, 2.2], props: { of: 'K1' },
       elems: function (c, T, add, ctx) { return ctx.relayOn(c.props.of) ? [{ k: 'R', a: T[0], b: T[3], r: R_ON, key: 'p1' }, { k: 'R', a: T[1], b: T[4], r: R_ON, key: 'p2' }, { k: 'R', a: T[2], b: T[5], r: R_ON, key: 'p3' }] : []; } },
     kno: { naam: 'Hulpcontact NO', letter: 'K', term: two(), box: [-1.1, -1.2, 1.1, 1.2], props: { of: 'K1' },
@@ -282,9 +296,11 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
   }
 
   function numberContacts(circ) {
-    var cnt = {};
+    var cnt = {}, soort = {};
+    circ.comps.forEach(function (c) { soort[c.label] = c.type; });
     circ.comps.forEach(function (c) {
       if (c.type !== 'kno' && c.type !== 'knc') return;
+      if (soort[c.props.of] === 'th') { c.num = c.type === 'knc' ? ['95', '96'] : ['97', '98']; return; }
       var n = cnt[c.props.of] = (cnt[c.props.of] || 0) + 1;
       c.num = c.type === 'kno' ? [n + '3', n + '4'] : [n + '1', n + '2'];
     });
@@ -294,7 +310,7 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
     var nodeOf = new Map(), n = 1;
     function node(p) { var k = pk(p); if (!nodeOf.has(k)) nodeOf.set(k, n++); return nodeOf.get(k); }
     var coils = {};
-    circ.comps.forEach(function (c) { if (c.type === 'coil') coils[c.label] = c; });
+    circ.comps.forEach(function (c) { if (['coil', 'tcoil', 'mbs', 'th'].indexOf(c.type) >= 0) coils[c.label] = c; });
     var ctx = { relayOn: function (lbl) { var k = coils[lbl]; return !!(k && k.st.on); } };
     var elems = [];
     circ.comps.forEach(function (c) {
@@ -398,6 +414,9 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
       } else if (c.type === 'rcd') {
         c.I = r.L || 0;
         c.leak = Math.abs((r.L || 0) + (r.N || 0));
+      } else if (c.type === 'mbs' || c.type === 'th' || c.type === 'kmain') {
+        c.I = r.p1 || 0;
+        c.Ip = Math.max(Math.abs(r.p1 || 0), Math.abs(r.p2 || 0), Math.abs(r.p3 || 0));
       } else c.I = r.main || 0;
       c.P = Math.abs(c.U * c.I);
     });
@@ -435,7 +454,11 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
     res: function (c) { return c.label + ' is verbrand: te veel vermogen.'; },
     coil: function (c) { return 'Spoel ' + c.label + ' is verbrand: spanning te hoog.'; },
     buzz: function (c) { return c.label + ' is kapot: spanning te hoog.'; },
-    motor: function (c) { return c.label + ' is kapot: spanning te hoog.'; }
+    motor: function (c) { return c.label + ' is kapot: spanning te hoog.'; },
+    tcoil: function (c) { return 'Tijdrelais ' + c.label + ' is verbrand: spanning te hoog.'; },
+    mcb: function (c, kort) { return c.label + ' schakelt af: ' + (kort ? 'kortsluiting (magnetisch, meteen).' : 'te lang te veel stroom (thermisch).'); },
+    mbs: function (c) { return c.label + ' schakelt af: de motor trekt te veel stroom.'; },
+    th: function (c) { return c.label + ' is afgeslagen: overbelasting. Contact 95-96 gaat open. Druk op reset.'; }
   };
 
   /* Eén tijdstap. S = {dirty, res}. Geeft lijst gebeurtenissen. */
@@ -447,10 +470,24 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
       var st = c.st, I = Math.abs(c.I);
       if (c.type === 'fuse' && !st.blown && heat(st, I / c.props.In, 1, dt)) { st.blown = true; tripped = true; ev.push({ t: 'pop', c: c, msg: MSG.fuse(c) }); }
       if (c.type === 'am' && !st.blown && heat(st, I / 10, 1, dt)) { st.blown = true; tripped = true; ev.push({ t: 'pop', c: c, msg: MSG.am(c) }); }
+      if (c.type === 'mcb' && !st.trip) {
+        var mag = (c.props.kar === 'C' ? 10 : 5) * c.props.In;
+        if (I >= mag || heat(st, I / c.props.In, 1, dt)) { st.trip = true; st.heat = 0; tripped = true; ev.push({ t: 'trip', c: c, msg: MSG.mcb(c, I >= mag) }); }
+      }
+      if (c.type === 'mbs' && c.props.on !== false && !st.trip) {
+        if (c.Ip >= 12 * c.props.Ir || heat(st, c.Ip / c.props.Ir, 0.3, dt)) { st.trip = true; st.heat = 0; tripped = true; ev.push({ t: 'trip', c: c, msg: MSG.mbs(c) }); }
+      }
+      if (c.type === 'th' && !st.trip && heat(st, (c.Ip || 0) / c.props.Ir, 0.3, dt)) { st.trip = true; st.heat = 0; tripped = true; ev.push({ t: 'trip', c: c, msg: MSG.th(c) }); }
       if (c.type === 'rcd' && !st.trip) {
         if (c.leak >= c.props.mA / 1000) { st.lt = (st.lt || 0) + dt; if (st.lt >= 0.02) { st.trip = true; st.lt = 0; tripped = true; ev.push({ t: 'trip', c: c, msg: MSG.rcd(c) }); } }
         else st.lt = 0;
       }
+    });
+    comps.forEach(function (c) {
+      var was = !!c.st.on;
+      if (c.type === 'mbs') c.st.on = c.props.on !== false && !c.st.trip;
+      if (c.type === 'th') c.st.on = !!c.st.trip;
+      if ((c.type === 'mbs' || c.type === 'th') && was !== !!c.st.on) S.dirty = true;
     });
     if (tripped) { S.dirty = true; return ev; }
     var broke = false;
@@ -461,7 +498,7 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
         case 'lamp': over = Math.abs(c.U) / (1.25 * p.Vn); k = 2; break;
         case 'led': over = Math.abs(c.I) / 0.03; k = 3; break;
         case 'res': over = c.P / (1.5 * p.Pmax); k = 0.5; break;
-        case 'coil': over = Math.abs(c.U) / (1.3 * p.Uc); k = 2; break;
+        case 'coil': case 'tcoil': over = Math.abs(c.U) / (1.3 * p.Uc); k = 2; break;
         case 'buzz': case 'motor': over = Math.abs(c.U) / (1.3 * p.Vn); k = 2; break;
         default: return;
       }
@@ -484,6 +521,13 @@ textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border
           c.st.t = (c.st.t || 0) + dt;
           if (c.st.t >= (want ? 0.06 : 0.04)) { c.st.on = want; c.st.t = 0; S.dirty = true; ev.push({ t: 'relay', c: c, on: want }); }
         } else c.st.t = 0;
+      }
+      if (c.type === 'tcoil') {
+        var Ut = Math.abs(c.U), sp = !c.st.broken && Ut >= (c.st.sp ? 0.4 : 0.75) * c.props.Uc, oud = !!c.st.on, nu;
+        if (sp !== !!c.st.sp) { c.st.sp = sp; c.st.tt = 0; } else c.st.tt = (c.st.tt || 0) + dt;
+        if (c.props.soort === 'afvalvertraagd') nu = sp || (oud && c.st.tt < c.props.t);
+        else nu = sp && c.st.tt >= c.props.t;
+        if (nu !== oud) { c.st.on = nu; S.dirty = true; ev.push({ t: 'relay', c: c, on: nu }); }
       }
       if (c.type === 'buzz') c.active = !c.st.broken && Math.abs(c.U) >= 0.5 * c.props.Vn;
       if (c.type === 'motor') c.speed = c.st.broken ? 0 : Math.min(1.5, Math.abs(c.U) / c.props.Vn) * (c.U < 0 ? -1 : 1);
@@ -604,6 +648,13 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return 
 /* ---------- uitleg ---------- */
 var INFO = {
   dc: 'Regelbare spanningsbron. Kies DC (gelijkspanning, + boven) of AC (wisselspanning). Bij AC rekent de simulator met de effectieve waarde (RMS), net als je multimeter.',
+  estop: 'Noodstop (S, verbreekcontact). Indrukken: hij blijft vast staan en alles stopt. Draai hem om te ontgrendelen. Zet hem altijd in serie, vóór de rest van de stuurstroom.',
+  rot: 'Draaischakelaar 0-1 (S). Blijft staan waar je hem zet. Handig als hoofd- of keuzeschakelaar.',
+  key: 'Sleutelschakelaar (S). Alleen met de sleutel om te zetten. Zo kan niet iedereen de machine aanzetten.',
+  tcoil: 'Tijdrelais (K, A1-A2). Aanvertraagd: de contacten schakelen pas na de ingestelde tijd. Afvalvertraagd: ze blijven nog even aan nadat de spanning weg is. Koppel contacten via "Hoort bij spoel".',
+  mcb: 'Installatieautomaat (F). Schakelt af bij te lang te veel stroom (thermisch) of meteen bij kortsluiting (magnetisch: B = 5× In, C = 10× In). Daarna zet je hem weer omhoog.',
+  mbs: 'Motorbeveiligingsschakelaar (Q, 1-2/3-4/5-6). Stel hem in op de stroom van de motor (typeplaatje). Bij overbelasting of kortsluiting schakelt hij af. Hulpcontacten (13-14) koppel je via "Hoort bij spoel".',
+  th: 'Thermisch relais (F, 95-96 en 97-98). De hoofdstroom loopt erdoorheen. Bij overbelasting opent 95-96 (zet die in de stuurstroom) en sluit 97-98 (storingslamp). Daarna resetten.',
   kmain: 'Hoofdcontacten van een magneetschakelaar (1-2, 3-4, 5-6). Ze sluiten als de spoel met dezelfde naam (bijv. K1) spanning krijgt. Hiermee schakel je de hoofdstroom, bijvoorbeeld een motor.',
   pot: 'Regelbare weerstand (potmeter). Kies de waarde en kijk hoe de stroom verandert. Te veel vermogen: hij verbrandt.',
   ac: 'Het net: 230 V wisselspanning. L = fase (bruin), N = nul (blauw), PE = aarde (geel-groen). Gevaarlijk!',
@@ -626,9 +677,13 @@ var INFO = {
 };
 var OPTS = {
   dc: [['soort', 'Soort', ['DC', 'AC']], ['V', 'Spanning', [1.5, 3, 4.5, 5, 6, 9, 12, 24, 48, 110, 230, 400], 'V']],
+  tcoil: [['Uc', 'Spoelspanning', [12, 24, 230], 'V'], ['t', 'Tijd', [0.5, 1, 2, 3, 5, 10, 30], 's'], ['soort', 'Soort', ['aanvertraagd', 'afvalvertraagd']]],
+  mcb: [['kar', 'Karakteristiek', ['B', 'C']], ['In', 'Nominale stroom', [6, 10, 16, 20, 25, 32], 'A']],
+  mbs: [['Ir', 'Instelstroom', [0.4, 0.63, 1, 1.6, 2.5, 4, 6.3, 10, 16], 'A']],
+  th: [['Ir', 'Instelstroom', [0.4, 0.63, 1, 1.6, 2.5, 4, 6.3, 10, 16], 'A']],
   pot: [['R', 'Weerstand', [1, 10, 22, 47, 100, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 100000], 'Ω'], ['Pmax', 'Max vermogen', [0.25, 1, 5, 50], 'W']],
   res: [['R', 'Weerstand', [1, 10, 22, 47, 100, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 100000], 'Ω'], ['Pmax', 'Max vermogen', [0.25, 1, 5, 50], 'W']],
-  lamp: [['Vn', 'Spanning', [6, 12, 24, 230], 'V'], ['P', 'Vermogen', [2, 5, 10, 25, 60, 100], 'W'], ['kleur', 'Kleur', ['geel', 'wit', 'groen', 'rood', 'blauw']]],
+  lamp: [['Vn', 'Spanning', [6, 12, 24, 230], 'V'], ['P', 'Vermogen', [2, 5, 10, 25, 60, 100], 'W'], ['kleur', 'Kleur', ['geel', 'wit', 'groen', 'rood', 'oranje', 'blauw']]],
   led: [['kleur', 'Kleur', ['rood', 'groen', 'geel', 'blauw', 'wit']]],
   fuse: [['In', 'Smeltstroom', [0.5, 1, 2, 4, 6, 10, 16], 'A']],
   rcd: [['mA', 'Gevoeligheid', [10, 30, 300], 'mA']],
@@ -639,17 +694,17 @@ var OPTS = {
   nc: [['kleur', 'Knopkleur', ['rood', 'groen', 'zwart']], ['tekst', 'Tekst', ['STOP', 'START', 'UIT', 'AAN', '']]]
 };
 var PAL = [
-  ['Bediening', ['no', 'nc', 'sw', 'sw2']],
-  ['Relais / magneetschakelaar', ['coil', 'kmain', 'kno', 'knc']],
+  ['Bedieningskast', ['no', 'nc', 'estop', 'rot', 'key', 'sw', 'sw2']],
+  ['Relais / magneetschakelaar', ['coil', 'tcoil', 'kmain', 'kno', 'knc']],
   ['Voeding', ['dc', 'ac']],
-  ['Beveiliging', ['fuse', 'rcd']],
+  ['Beveiliging', ['fuse', 'mcb', 'rcd', 'mbs', 'th']],
   ['Verbruikers', ['lamp', 'led', 'res', 'pot', 'buzz', 'motor']],
   ['Meten', ['vm', 'am']]
 ];
-var SHORT = { no: 'Drukknop NO', nc: 'Drukknop NC', sw: 'Schakelaar', sw2: 'Wissel', coil: 'Spoel', kmain: 'Hoofd&shy;contacten', kno: 'Hulp NO', knc: 'Hulp NC',
+var SHORT = { no: 'Drukknop NO', nc: 'Drukknop NC', sw: 'Schakelaar', sw2: 'Wissel', coil: 'Spoel', kmain: 'Hoofd&shy;contacten', estop: 'Noodstop', rot: 'Draai 0-1', key: 'Sleutel', tcoil: 'Tijdrelais', mcb: 'Automaat', mbs: 'Motor&shy;beveiliging', th: 'Thermisch', kno: 'Hulp NO', knc: 'Hulp NC',
   dc: 'Bron', pot: 'Regelbaar', ac: '230 V-net', fuse: 'Zekering', rcd: 'Aardlek', lamp: 'Lamp', led: 'LED', res: 'Weerstand', buzz: 'Zoemer',
   motor: 'Motor', vm: 'Voltmeter', am: 'Ampère&shy;meter' };
-var KLEUR = { geel: '#FFC93C', wit: '#FFF1CF', groen: '#3DDC84', rood: '#FF4A3D', blauw: '#4DA3FF', zwart: '#2B2F33' };
+var KLEUR = { oranje: '#FF9F1C', geel: '#FFC93C', wit: '#FFF1CF', groen: '#3DDC84', rood: '#FF4A3D', blauw: '#4DA3FF', zwart: '#2B2F33' };
 var CAP = { groen: '#24935A', rood: '#CC2E25', zwart: '#2B2F33' };
 
 /* ---------- getallen in NL-notatie ---------- */
@@ -741,7 +796,7 @@ function setCirc(c, fit) {
 }
 function loadExample(ex) { undo = []; $('b-undo').disabled = true; setCirc(C.deserialize(C.serialize(ex.make())), true); hint(ex.uitleg); }
 function syncContacts() { circ.comps.forEach(function (c) { if (c.type === 'kno' || c.type === 'knc' || c.type === 'kmain') c.label = c.props.of; }); }
-function coilLabels() { return circ.comps.filter(function (c) { return c.type === 'coil'; }).map(function (c) { return c.label; }); }
+function coilLabels() { return circ.comps.filter(function (c) { return ['coil', 'tcoil', 'mbs', 'th'].indexOf(c.type) >= 0; }).map(function (c) { return c.label; }); }
 function nextLabel(letter) {
   var max = 0, re = new RegExp('^' + letter + '(\\d+)$');
   circ.comps.forEach(function (c) { var m = re.exec(c.label); if (m) max = Math.max(max, +m[1]); });
@@ -854,6 +909,11 @@ function tapOperate(c) {
   if (c.type === 'sw') { c.props.on = !c.props.on; snd('click'); changed(); }
   else if (c.type === 'sw2') { c.props.pos = c.props.pos ? 0 : 1; snd('click'); changed(); }
   else if (c.type === 'rcd') { c.st.trip = !c.st.trip; c.st.lt = 0; snd('trip'); changed(); }
+  else if (c.type === 'estop') { c.props.vast = !c.props.vast; snd('click'); changed(); }
+  else if (c.type === 'rot' || c.type === 'key') { c.props.on = !c.props.on; snd('click'); changed(); }
+  else if (c.type === 'mcb') { c.st.trip = !c.st.trip; c.st.heat = 0; snd('click'); changed(); }
+  else if (c.type === 'mbs') { if (c.st.trip) { c.st.trip = false; c.props.on = true; } else c.props.on = !c.props.on; c.st.heat = 0; snd('click'); changed(); }
+  else if (c.type === 'th') { c.st.trip = false; c.st.heat = 0; snd('click'); changed(); }
 }
 
 /* ---------- tekenen ---------- */
@@ -975,6 +1035,39 @@ function drawComp(c, o) {
       if (!o.icon) { txt('A1', 0.35, -1.25, 0.42, col.muted, 'left', 600, 'mono'); txt('A2', 0.35, 1.25, 0.42, col.muted, 'left', 600, 'mono'); }
       if (broken) { ctx.strokeStyle = col.bad; L(-0.85, -0.6, 0.85, 0.6); }
       break;
+    case 'estop':
+      contactNC(p.vast);
+      ctx.save(); ctx.setLineDash([0.18, 0.14]); L(p.vast ? 0.06 : -0.31, 0, -1.1, 0); ctx.restore();
+      ctx.save(); ctx.fillStyle = '#E53935'; ctx.beginPath(); ctx.arc(-1.15, 0, 0.6, Math.PI / 2, Math.PI * 1.5); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+      break;
+    case 'rot': case 'key':
+      contactNO(p.on);
+      ctx.save(); ctx.setLineDash([0.18, 0.14]); L(p.on ? 0.06 : -0.31, 0, -1.1, 0); ctx.restore();
+      if (t === 'rot') { circle(-1.5, 0, 0.38, body); L(-1.5, 0, p.on ? -1.2 : -1.5, p.on ? -0.25 : -0.38); if (!o.icon) txt(p.on ? '1' : '0', -1.5, 0.8, 0.42, col.muted, 'center', 700); }
+      else { circle(-1.65, 0, 0.25, body); L(-1.4, 0, -1.1, 0); L(-1.25, 0, -1.25, 0.2); }
+      break;
+    case 'tcoil':
+      leads(0.6); rect(-0.85, -0.6, 1.7, 1.2, broken ? col.muted : st.on ? col.accent : body);
+      circle(0, 0, 0.36, body); L(0, 0, 0, -0.24); L(0, 0, 0.18, 0.08);
+      if (!o.icon) { txt('A1', 0.35, -1.25, 0.42, col.muted, 'left', 600, 'mono'); txt('A2', 0.35, 1.25, 0.42, col.muted, 'left', 600, 'mono');
+        txt(String(p.t).replace('.', ',') + ' s ' + (p.soort === 'afvalvertraagd' ? 'af' : 'aan'), -1.0, 0, 0.42, ink, 'right', 700, 'mono'); }
+      break;
+    case 'mcb':
+      leads(0.9); rect(-0.5, -0.9, 1, 1.8, body);
+      ctx.save(); ctx.lineWidth = 0.06; rect(-0.3, st.trip ? 0.05 : -0.65, 0.6, 0.6, st.trip ? col.bad : col.ok); ctx.restore();
+      if (!o.icon) txt(p.kar + String(p.In), 0.7, 0, 0.5, ink, 'left', 700, 'mono');
+      break;
+    case 'mbs':
+      var aanM = p.on !== false && !st.trip;
+      [-2, 0, 2].forEach(function (dx) { ctx.save(); ctx.translate(dx, 0); contactNO(aanM); ctx.restore(); });
+      ctx.save(); ctx.setLineDash([0.25, 0.2]); ctx.lineWidth = 0.07; L(-2.4, 0, 2.4, 0); ctx.restore();
+      rect(2.35, -0.35, 0.7, 0.7, st.trip ? col.bad : body); txt('I>', 2.7, 0, 0.36, ink, 'center', 700);
+      if (!o.icon) txt(String(p.Ir).replace('.', ',') + ' A', 2.35, 1.1, 0.42, col.muted, 'left', 700, 'mono');
+      break;
+    case 'th':
+      [-2, 0, 2].forEach(function (dx) { L(dx, -2, dx, -0.6); L(dx, 0.6, dx, 2); rect(dx - 0.3, -0.6, 0.6, 1.2, st.trip ? col.bad : body); L(dx - 0.15, 0.3, dx - 0.15, -0.05); L(dx - 0.15, -0.05, dx + 0.15, -0.05); L(dx + 0.15, -0.05, dx + 0.15, -0.35); });
+      if (!o.icon) txt(String(p.Ir).replace('.', ',') + ' A' + (st.trip ? ' ⚠' : ''), 2.35, 1.1, 0.42, st.trip ? col.bad : ink, 'left', 700, 'mono');
+      break;
     case 'kmain':
       var relM = coilOn(p.of);
       [-2, 0, 2].forEach(function (dx) { ctx.save(); ctx.translate(dx, 0); contactNO(relM); ctx.restore(); });
@@ -1013,7 +1106,7 @@ function drawComp(c, o) {
   }
   ctx.restore(); curRot = 0;
 }
-function coilOn(lbl) { for (var i = 0; i < circ.comps.length; i++) { var k = circ.comps[i]; if (k.type === 'coil' && k.label === lbl) return !!k.st.on; } return false; }
+function coilOn(lbl) { for (var i = 0; i < circ.comps.length; i++) { var k = circ.comps[i]; if (['coil', 'tcoil', 'mbs', 'th'].indexOf(k.type) >= 0 && k.label === lbl) return !!k.st.on; } return false; }
 
 function valueLine(c) {
   var p = c.props;
@@ -1024,7 +1117,8 @@ function valueLine(c) {
     case 'coil': return num(p.Uc, 0) + ' V';
     case 'led': return p.kleur + ' ' + num(C.LED_KLEUR[p.kleur], 1) + ' V';
     case 'buzz': return num(p.Vn, 0) + ' V';
-    case 'motor': return num(p.Vn, 0) + ' V ' + num(p.P, 0) + ' W';
+    case 'motor': return num(p.Vn, 0) + ' V ' + (p.P >= 1000 ? num(p.P / 1000, 1) + ' kW' : num(p.P, 0) + ' W');
+    case 'tcoil': return num(p.Uc, 0) + ' V';
     default: return '';
   }
 }
@@ -1325,7 +1419,7 @@ function fillCard() {
     var inp = el('input'); inp.id = 'p-label'; inp.value = c.label; inp.maxLength = 6;
     inp.addEventListener('change', function () {
       var v = inp.value.trim().slice(0, 6) || c.label; pushUndo();
-      if (c.type === 'coil') circ.comps.forEach(function (k) { if ((k.type === 'kno' || k.type === 'knc' || k.type === 'kmain') && k.props.of === c.label) k.props.of = v; });
+      if (['coil', 'tcoil', 'mbs', 'th'].indexOf(c.type) >= 0) circ.comps.forEach(function (k) { if ((k.type === 'kno' || k.type === 'knc' || k.type === 'kmain') && k.props.of === c.label) k.props.of = v; });
       c.label = v; syncContacts(); changed();
     });
     lb.appendChild(inp); pr.appendChild(lb);
@@ -1357,6 +1451,9 @@ function fillCard() {
     acts.appendChild(hb);
   }
   if (c.type === 'sw') acts.appendChild(btn(c.props.on ? 'Zet uit' : 'Zet aan', 'pri', function () { tapOperate(c); fillCard(); }));
+  var bk = { estop: c.props.vast ? 'Ontgrendel (draai)' : 'Druk noodstop', rot: c.props.on ? 'Draai naar 0' : 'Draai naar 1', key: c.props.on ? 'Sleutel uit' : 'Sleutel om',
+    mcb: c.st.trip ? 'Zet omhoog (in)' : 'Zet omlaag (uit)', mbs: (c.props.on !== false && !c.st.trip) ? 'Uitschakelen' : 'Inschakelen', th: c.st.trip ? 'Reset' : '' }[c.type];
+  if (bk) acts.appendChild(btn(bk, 'pri', function () { tapOperate(c); fillCard(); }));
   if (c.type === 'sw2') acts.appendChild(btn('Omzetten', 'pri', function () { tapOperate(c); }));
   if (c.type === 'rcd') {
     acts.appendChild(btn(c.st.trip ? 'Inschakelen' : 'Uitschakelen', 'pri', function () { tapOperate(c); fillCard(); }));
