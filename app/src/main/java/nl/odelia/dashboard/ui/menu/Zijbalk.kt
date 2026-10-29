@@ -56,6 +56,8 @@ fun Zijbalk(
     onWissel: () -> Unit,
     onKies: (Plek) -> Unit,
     modifier: Modifier = Modifier,
+    /** Namen van plekken die Odelia verborgen heeft. */
+    verborgen: Set<String> = emptySet(),
 ) {
     val breedte by animateDpAsState(if (open) 250.dp else 76.dp, label = "zijbalk")
     val vorm = RoundedCornerShape(30.dp)
@@ -89,7 +91,7 @@ fun Zijbalk(
             if (open) Tekst("Menu", 18.sp, kleur = Color.White, eenRegel = true)
         }
 
-        Plek.entries.forEach { plek ->
+        Plek.entries.filter { it.name !in verborgen || it in Plek.altijd }.forEach { plek ->
             MenuRegel(plek, aan = plek == gekozen, open = open, onClick = { onKies(plek) })
         }
     }
@@ -154,7 +156,7 @@ private fun menuPad(plek: Plek): String = when (plek) {
     Plek.Wensen -> "M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"
     Plek.Zeilweer -> "M12 3v14M12 4l7 11h-7zM10 6l-6 9h6zM3 18h18l-2.5 3h-13z"
     Plek.Recepten -> "M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 0-3 2.5-3 6s1 4 3 4v8"
-    Plek.Instellingen -> "M12 3v12M7 10l5 5 5-5M4 17v3h16v-3"
+    Plek.Instellingen -> "M4 6h16M4 12h16M4 18h16M9 4v4M15 10v4M7 16v4"
 }
 
 private fun menuVormen(plek: Plek): List<Vorm> {

@@ -14,5 +14,11 @@ enum class Plek(val label: String) {
     Wensen("Wensen"),
     Zeilweer("Zeilweer"),
     Recepten("Recepten"),
-    Instellingen("Back-up"),
+    Instellingen("Instellingen"),
+    ;
+
+    companion object {
+        /** Deze kun je niet verbergen in het menu. */
+        val altijd = setOf(Thuis, Instellingen)
+    }
 }

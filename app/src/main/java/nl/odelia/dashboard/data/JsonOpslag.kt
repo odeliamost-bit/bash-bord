@@ -15,6 +15,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import nl.odelia.dashboard.logica.CyclusData
 import nl.odelia.dashboard.logica.CyclusJson
+import nl.odelia.dashboard.logica.InstellingenData
+import nl.odelia.dashboard.logica.InstellingenJson
 import nl.odelia.dashboard.logica.WensenData
 import nl.odelia.dashboard.logica.WensenJson
 
@@ -83,6 +85,7 @@ class JsonOpslag<T>(
 object Bestanden {
     @Volatile private var cyclus: JsonOpslag<CyclusData>? = null
     @Volatile private var wensen: JsonOpslag<WensenData>? = null
+    @Volatile private var instellingen: JsonOpslag<InstellingenData>? = null
 
     /**
      * Cyclus is gevoelig: in `noBackupFilesDir`, zodat Android het niet in de
@@ -96,5 +99,11 @@ object Bestanden {
     fun wensen(context: Context): JsonOpslag<WensenData> = wensen ?: synchronized(this) {
         wensen ?: JsonOpslag(File(context.applicationContext.filesDir, "wensen.json"), WensenData(), WensenJson::lees, WensenJson::schrijf)
             .also { wensen = it }
+    }
+
+    /** Wat Odelia zelf instelt (tijden, tegels, grote tekst …). Op het apparaat, niet online. */
+    fun instellingen(context: Context): JsonOpslag<InstellingenData> = instellingen ?: synchronized(this) {
+        instellingen ?: JsonOpslag(File(context.applicationContext.filesDir, "instellingen.json"), InstellingenData(), InstellingenJson::lees, InstellingenJson::schrijf)
+            .also { instellingen = it }
     }
 }

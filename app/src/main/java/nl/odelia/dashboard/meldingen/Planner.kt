@@ -32,18 +32,24 @@ object Planner {
     suspend fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
         val opslag = Opslag.van(context)
         val klok = opslag.klokNu(nu)
+        val ins = Bestanden.instellingen(context).nu()
 
-        zet(context, HERINNER_IN, 1, volgendeWerkdagOm(Instellingen.HERINNER_INKLOKKEN, nu))
-        zet(context, HERINNER_UIT, 2, volgendeWerkdagOm(Instellingen.HERINNER_UITKLOKKEN, nu))
+        if (ins.klokHerinnering) {
+            zet(context, HERINNER_IN, 1, volgendeWerkdagOm(ins.inklokken, nu))
+            zet(context, HERINNER_UIT, 2, volgendeWerkdagOm(ins.uitklokken, nu))
+        } else {
+            stop(context, HERINNER_IN, 1)
+            stop(context, HERINNER_UIT, 2)
+        }
 
         // Ochtendmelding: 20 minuten na inklokken (alleen de eerste keer vandaag).
         val ochtend = klok.vandaag.begin?.let { nu.toLocalDate().atTime(it).plusMinutes(Instellingen.OCHTEND_NA_MINUTEN) }
-        if (klok.isIn && ochtend != null && ochtend.isAfter(nu)) zet(context, OCHTEND, 3, ochtend) else stop(context, OCHTEND, 3)
+        if (ins.ochtendMelding && klok.isIn && ochtend != null && ochtend.isAfter(nu)) zet(context, OCHTEND, 3, ochtend) else stop(context, OCHTEND, 3)
 
         // Urenmail: vrijdag, 30 minuten na uitklokken.
         val uit = klok.vandaag.eind
         val mail = uit?.let { nu.toLocalDate().atTime(it).plusMinutes(Instellingen.URENMAIL_NA_MINUTEN) }
-        if (nu.dayOfWeek == DayOfWeek.FRIDAY && !klok.isIn && mail != null && mail.isAfter(nu)) {
+        if (ins.urenmailSeintje && nu.dayOfWeek == DayOfWeek.FRIDAY && !klok.isIn && mail != null && mail.isAfter(nu)) {
             zet(context, URENMAIL, 4, mail)
         } else {
             stop(context, URENMAIL, 4)
@@ -53,9 +59,9 @@ object Planner {
         opslag.onthoudNu()
             .filter { it.seintje && !it.klaar && it.wanneer != null }
             .forEach { o ->
-                val moment = o.wanneer!!.minusDays(1).atTime(Instellingen.SEINTJE_OM)
+                val moment = o.wanneer!!.minusDays(1).atTime(ins.seintjeOm)
                 val code = Meldingen.seintjeId(o.id)
-                if (moment.isAfter(nu)) zet(context, SEINTJE, code, moment, o.id) else stop(context, SEINTJE, code, o.id)
+                if (ins.deadlineSeintje && moment.isAfter(nu)) zet(context, SEINTJE, code, moment, o.id) else stop(context, SEINTJE, code, o.id)
             }
 
         // Cyclus: seintje 2 dagen voor de verwachte dag ("Neem verband mee").

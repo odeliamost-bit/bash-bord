@@ -1,5 +1,8 @@
 package nl.odelia.dashboard.ui
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -176,6 +179,10 @@ fun DashboardApp(
         is Scherm.Later -> scherm.plek
     }
 
+    // Grote tekst (instelling): alle letters 20% groter.
+    val dichtheid = LocalDensity.current
+    val tekstSchaal = if (staat.instellingen.groteTekst) GROTE_TEKST else 1f
+    CompositionLocalProvider(LocalDensity provides Density(dichtheid.density, dichtheid.fontScale * tekstSchaal)) {
     Box(Modifier.fillMaxSize().background(Kleur.Achtergrond)) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
             val inhoud = Modifier.padding(start = ZijbalkRuimte)
@@ -227,7 +234,7 @@ fun DashboardApp(
                 is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Advies -> AdviesScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
-                Scherm.Instellingen -> InstellingenScherm(acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
+                Scherm.Instellingen -> InstellingenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
             }
 
@@ -248,6 +255,7 @@ fun DashboardApp(
             Zijbalk(
                 open = menuOpen,
                 gekozen = gekozen,
+                verborgen = staat.instellingen.verborgenMenu,
                 onWissel = { menuOpen = !menuOpen },
                 onKies = { plek ->
                     // Tik op een icoontje = meteen daarheen. Uitschuiven alleen met de bovenste knop.
@@ -266,7 +274,10 @@ fun DashboardApp(
             }
         }
     }
+    }
 }
+
+private const val GROTE_TEKST = 1.2f
 
 /** Kort berichtje onderin. Elk berichtje is nieuw, ook als de tekst hetzelfde is. */
 private class Melding(val tekst: String)

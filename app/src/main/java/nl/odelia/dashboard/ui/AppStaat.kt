@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.ui
 
+import nl.odelia.dashboard.logica.InstellingenData
 import androidx.compose.ui.graphics.ImageBitmap
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,6 +30,7 @@ data class AppStaat(
     val cyclus: CyclusData = CyclusData(),
     val wensen: WensenData = WensenData(),
     val geld: GeldData = GeldData(),
+    val instellingen: InstellingenData = InstellingenData(),
     /** Foto bij een Onthoud-item: id → pad van het bestand op de telefoon. */
     val fotos: Map<String, String> = emptyMap(),
     val advies: AdviesData = AdviesData(),
@@ -122,6 +124,9 @@ interface AppActies {
     fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
     /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
     fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
+
+    /** Instellingen aanpassen. Wordt meteen bewaard (alleen op het apparaat) en zet de meldingen opnieuw. */
+    fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) {}
 
     // Back-up en Kompas. Odelia kiest zelf waar het bestand komt; de app gaat niet online.
     /** Back-up maken (.zip). [klaar] krijgt een kort berichtje. Geeft `false` als het niet kan. */

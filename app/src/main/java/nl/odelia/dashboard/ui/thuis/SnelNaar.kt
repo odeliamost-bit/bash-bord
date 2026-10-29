@@ -1,5 +1,7 @@
 package nl.odelia.dashboard.ui.thuis
 
+import nl.odelia.dashboard.logica.TegelSoort
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,7 +55,12 @@ private val icoonBoek = listOf(
 
 /** Tegels onderaan het hoofdscherm (ontwerp/Main.dc.html): snel naar andere schermen. */
 @Composable
-fun SnelNaar(onGaNaar: (Scherm) -> Unit, onPlek: (Plek) -> Unit, onLink: (String) -> Unit = {}) {
+fun SnelNaar(
+    tegels: List<TegelSoort>,
+    onGaNaar: (Scherm) -> Unit,
+    onPlek: (Plek) -> Unit,
+    onLink: (String) -> Unit = {},
+) {
     val vorm = RoundedCornerShape(26.dp)
     val vraag = rememberVraag()
     fun openPagina(naam: String, link: String) = vraag.stel(
@@ -64,21 +71,36 @@ fun SnelNaar(onGaNaar: (Scherm) -> Unit, onPlek: (Plek) -> Unit, onLink: (String
             doe = { onLink(link) },
         ),
     )
+    @Composable
+    fun Klein(t: TegelSoort, modifier: Modifier) = when (t) {
+        TegelSoort.Mail -> Tegel(Pastels.Lila, Icoontjes.praatwolk, t.naam, modifier) { onPlek(Plek.Mail) }
+        TegelSoort.Mensen -> Tegel(Pastels.Salie, Icoontjes.mensen, t.naam, modifier) { onPlek(Plek.Mensen) }
+        TegelSoort.Week -> Tegel(Pastels.Blauw, Icoontjes.week, t.naam, modifier) { onGaNaar(Scherm.Lijst()) }
+        TegelSoort.Wensen -> Tegel(Pastels.Roze, Icoontjes.hart, t.naam, modifier) { onPlek(Plek.Wensen) }
+        TegelSoort.Boeken -> Tegel(Zon, icoonBoeken, t.naam, modifier) { openPagina("Boeken", BoekenLink) }
+        TegelSoort.Simulator -> Tegel(Turkoois, icoonBliksem, t.naam, modifier) { openPagina("Simulator", SimulatorLink) }
+        TegelSoort.Advies, TegelSoort.Leren -> Unit
+    }
+
+    // Brede tegels krijgen een eigen rij; kleine tegels staan met twee naast elkaar.
+    val rijen = mutableListOf<List<TegelSoort>>()
+    tegels.forEach { t ->
+        val laatste = rijen.lastOrNull()
+        if (!t.breed && laatste != null && laatste.size == 1 && !laatste[0].breed) rijen[rijen.lastIndex] = laatste + t
+        else rijen += listOf(t)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        BreedTegel(Pastels.Abrikoos, Icoontjes.sleutel, "Advies", "maken · repareren · vragen") { onPlek(Plek.Advies) }
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Tegel(Pastels.Lila, Icoontjes.praatwolk, "Mail-hulp", Modifier.weight(1f)) { onPlek(Plek.Mail) }
-            Tegel(Pastels.Salie, Icoontjes.mensen, "Mensen", Modifier.weight(1f)) { onPlek(Plek.Mensen) }
+        rijen.forEach { rij ->
+            val t = rij[0]
+            when (t) {
+                TegelSoort.Advies -> BreedTegel(Pastels.Abrikoos, Icoontjes.sleutel, t.naam, "maken · repareren · vragen") { onPlek(Plek.Advies) }
+                TegelSoort.Leren -> BreedTegel(Leerkleur, icoonBoek, t.naam, "kaartjes · quiz · school") { onPlek(Plek.Leren) }
+                else -> Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    rij.forEach { Klein(it, Modifier.weight(1f)) }
+                    if (rij.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
         }
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Tegel(Pastels.Blauw, Icoontjes.week, "Week", Modifier.weight(1f)) { onGaNaar(Scherm.Lijst()) }
-            Tegel(Pastels.Roze, Icoontjes.hart, "Wensen", Modifier.weight(1f)) { onPlek(Plek.Wensen) }
-        }
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Tegel(Zon, icoonBoeken, "Boeken", Modifier.weight(1f)) { openPagina("Boeken", BoekenLink) }
-            Tegel(Turkoois, icoonBliksem, "Simulator", Modifier.weight(1f)) { openPagina("Simulator", SimulatorLink) }
-        }
-        BreedTegel(Leerkleur, icoonBoek, "Leren", "kaartjes · quiz · school") { onPlek(Plek.Leren) }
     }
     vraag.Toon()
 }

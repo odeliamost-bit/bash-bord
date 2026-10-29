@@ -17,6 +17,7 @@ import nl.odelia.dashboard.logica.Periode
 /** Eén plek om alles te bewaren en op te halen. Gebruikt door app, widgets en meldingen. */
 class Opslag private constructor(context: Context) {
     private val db = AppDatabase.van(context)
+    private val app = context.applicationContext
 
     // ---- Klokken ----
 
@@ -28,6 +29,7 @@ class Opslag private constructor(context: Context) {
         perioden = db.werktijd().lijstVanaf(vanaf()).map { it.alsPeriode() },
         soorten = db.dagSoort().lijst().alsKaart(),
         nu = nu,
+        weekdoel = Bestanden.instellingen(app).nu().weekdoel,
     )
 
     /** In of uit, net wat er nu niet is. Geeft `true` als je nu ingeklokt bent. */

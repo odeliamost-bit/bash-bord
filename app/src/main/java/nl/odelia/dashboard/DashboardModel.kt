@@ -32,6 +32,7 @@ import nl.odelia.dashboard.logica.AdviesData
 import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.GeldData
+import nl.odelia.dashboard.logica.InstellingenData
 import nl.odelia.dashboard.logica.KlokStaat
 import nl.odelia.dashboard.logica.KompasImport
 import nl.odelia.dashboard.logica.LerenData
@@ -58,6 +59,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val fotos = FotoOpslag.van(app)
     private val advies = AdviesOpslag.van(app)
     private val recepten = ReceptenOpslag.van(app)
+    private val instellingen = Bestanden.instellingen(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -79,6 +81,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
             combine(basis, leren.data, cyclus.data, wensen.data, geld.data) { s, l, c, w, g -> s.copy(leren = l, cyclus = c, wensen = w, geld = g) },
             fotos.data, advies.data, recepten.data, Sync.staat,
         ) { s, f, a, r, y -> s.copy(fotos = f, advies = a, recepten = r, sync = y) }
+            .combine(instellingen.data) { s, i -> s.copy(klok = s.klok.copy(weekdoel = i.weekdoel), instellingen = i) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -133,6 +136,9 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         cyclus.wijzig(wat) { Planner.plan(getApplication<Application>()) }
 
     override fun wijzigWensen(wat: (WensenData) -> WensenData) = wensen.wijzig(wat)
+    override fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) =
+        instellingen.wijzig(wat) { Acties.naWijziging(getApplication<Application>()) }
+
     override fun wijzigGeld(wat: (GeldData) -> GeldData) = geld.wijzig(wat)
 
     override fun vraagSyncCode(email: String) = Sync.vraagCode(email)
