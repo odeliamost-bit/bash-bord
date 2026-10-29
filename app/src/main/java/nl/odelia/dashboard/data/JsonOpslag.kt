@@ -51,6 +51,25 @@ class JsonOpslag<T>(
         return _data.value
     }
 
+    /** Voor de sync: na elke eigen wijziging. */
+    @Volatile var naWijziging: (() -> Unit)? = null
+
+    /** Alles als tekst, voor de sync. */
+    suspend fun alsTekst(): String {
+        geladen.await()
+        return slot.withLock { schrijf(_data.value) }
+    }
+
+    /** Gegevens van een ander apparaat erin zetten (zonder [naWijziging]). */
+    suspend fun vervang(wat: (T) -> T) {
+        geladen.await()
+        slot.withLock {
+            val nieuw = wat(_data.value)
+            _data.value = nieuw
+            bewaar(nieuw)
+        }
+    }
+
     /** Pas iets aan en bewaar het meteen. Eén wijziging tegelijk. Daarna [na] (bijv. wekkers opnieuw zetten). */
     fun wijzig(wat: (T) -> T, na: suspend () -> Unit = {}) {
         werk.launch {
@@ -62,7 +81,10 @@ class JsonOpslag<T>(
                 bewaar(nieuw)
                 true
             }
-            if (veranderd) na()
+            if (veranderd) {
+                na()
+                naWijziging?.invoke()
+            }
         }
     }
 

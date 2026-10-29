@@ -98,6 +98,16 @@ interface OnthoudDao {
     @Query("SELECT * FROM onthoud WHERE id = :id")
     suspend fun met(id: String): OnthoudRij?
 
+    /** Alles, ook wat verwijderd is. Voor de sync. */
+    @Query("SELECT * FROM onthoud ORDER BY gemaakt")
+    suspend fun alleRijen(): List<OnthoudRij>
+
+    @Query("DELETE FROM onthoud")
+    suspend fun leeg()
+
+    @Upsert
+    suspend fun bewaarAlle(rijen: List<OnthoudRij>)
+
     @Upsert
     suspend fun bewaar(rij: OnthoudRij)
 }

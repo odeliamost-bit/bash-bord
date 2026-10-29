@@ -11,10 +11,11 @@ import java.time.Instant
 object SyncRegels {
     /**
      * Alleen deze onderdelen mogen online (gekozen door Odelia, okt 2026).
+     * Instellingen: zonder grote tekst en tegels (die blijven per apparaat).
      * Uren, cyclus, mail-hulp, advies, weer en thuis gaan NOOIT online.
      * Supabase controleert dezelfde lijst (zie `supabase/kompas.sql`).
      */
-    val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos")
+    val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos", "instellingen")
 
     /** Wat dit apparaat weet over één onderdeel. */
     data class Stand(

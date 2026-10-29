@@ -135,7 +135,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
 - **Potjes (gekozen door Odelia, okt 2026):** vast eerst: Vaste lasten € 41,30, Zorg € 180, Snoep € 50. Rest: Vrije geld 20%, Investeren 30% (Giro), Goede doelen 10%, Noodpot 20%, Spaarpot 20% (ING-spaar). Saldo blijft staan. In `logica/GeldData.kt`.
 - **Wat mag online (gekozen door Odelia, okt 2026):**
-  - ☁️ Sync (eigen Supabase, alleen na inloggen): Geld, Onthoud (afspraken), Leren, Wensen, Recepten, Mensen, foto's.
+  - ☁️ Sync (eigen Supabase, alleen na inloggen): Geld, Onthoud (afspraken), Leren, Wensen, Recepten, Mensen, foto's, Instellingen (okt 2026; zonder grote tekst en tegels, die blijven per apparaat — Odelia wil op de tablet andere tegels, nog samen bespreken).
   - 🔒 Nooit online, alleen op het apparaat: **Uren, Cyclus, Mail-hulp, Advies, Weer, Thuis.** Niet synchroniseren tussen telefoon en tablet.
   - Lijst staat in `logica/SyncRegels.kt` (`ONLINE`), in `supabase/kompas.sql` (check) én in de CI-controle. Altijd alle drie samen aanpassen, en alleen als Odelia het vraagt.
 - **Sync (okt 2026):** eigen Supabase-project. Inloggen met code per e-mail (geen wachtwoord). Eén rij per onderdeel (JSON), nieuwste wijziging wint (tijd van de server). Realtime via websocket zolang de app open is; bij openen alles bijwerken. Netwerkcode alleen in `online/Online.kt` (weer) en `online/Supabase.kt` (sync). Sleutels via GitHub-geheimen `SUPABASE_URL` en `SUPABASE_ANON_KEY` (zie README). Inlog en sync-stand in `noBackupFilesDir`. Eerste inlog op een apparaat: online wint, oude data in `reserve-<onderdeel>.json`.
@@ -157,4 +157,5 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Kompas stap 1: back-up maken/terugzetten + Kompas-bestand inlezen, op tak `claude/kompas-samen`. **Nog niet getest op de telefoon.**
 - Instellingen-scherm (tabjes, grote tekst, tijden, weekdoel, meldingen, tegels, menu). **Nog niet getest op de telefoon.**
 - Kompas stap 2–4 (nog te doen): Nu doen-kaart, Papieren.
-- Nog te doen: sync voor Onthoud, Leren, Wensen, Recepten, Mensen, foto's; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).
+- Sync stap 3: Onthoud (+Mensen), Wensen, Leren, Recepten, Instellingen via Supabase. ☁️-kaart ook bij Instellingen. Supabase-SQL moet één keer opnieuw (`instellingen` in de check). **Nog niet getest met echte Supabase en niet op de telefoon.**
+- Nog te doen: sync voor foto's; tegels op de tablet bespreken; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).

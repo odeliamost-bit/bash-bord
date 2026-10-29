@@ -11,9 +11,14 @@ create table if not exists public.kompas_data (
   primary key (user_id, onderdeel),
   -- Alleen deze onderdelen mogen online (gekozen door Odelia).
   -- Uren, cyclus, mail-hulp, advies, weer en thuis: NOOIT. Zelfde lijst als SyncRegels.kt.
-  constraint alleen_toegestaan check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos')),
+  constraint alleen_toegestaan check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos', 'instellingen')),
   constraint niet_te_groot check (octet_length(inhoud) < 5000000)
 );
+
+-- Bestond de tabel al? Dan de lijst hierboven ook daar bijwerken (okt 2026: instellingen erbij).
+alter table public.kompas_data drop constraint if exists alleen_toegestaan;
+alter table public.kompas_data add constraint alleen_toegestaan
+  check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos', 'instellingen'));
 
 -- De server zet de tijd (niet de telefoon), zodat "nieuwste wint" eerlijk is.
 create or replace function public.kompas_tijd() returns trigger

@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.data
 
+import androidx.room.withTransaction
 import android.content.Context
 import java.time.Instant
 import java.time.LocalDate
@@ -86,6 +87,9 @@ class Opslag private constructor(context: Context) {
 
     suspend fun onthoudMet(id: String): Onthoud? = db.onthoud().met(id)?.alsOnthoud()
 
+    /** Voor de sync: na elke eigen wijziging in Onthoud. */
+    @Volatile var naOnthoud: (() -> Unit)? = null
+
     suspend fun bewaar(o: Onthoud) {
         db.onthoud().bewaar(
             OnthoudRij(
@@ -94,11 +98,25 @@ class Opslag private constructor(context: Context) {
                 gemaakt = o.gemaakt.alsMillis(), updatedAt = LocalDateTime.now().alsMillis(),
             ),
         )
+        naOnthoud?.invoke()
     }
 
     suspend fun verwijder(id: String) {
         val rij = db.onthoud().met(id) ?: return
         db.onthoud().bewaar(rij.copy(verwijderd = true, updatedAt = LocalDateTime.now().alsMillis()))
+        naOnthoud?.invoke()
+    }
+
+    /** Alle Onthoud-rijen als tekst, voor de sync. Foto's gaan niet mee. */
+    suspend fun onthoudAlsTekst(): String = OnthoudJson.schrijf(db.onthoud().alleRijen())
+
+    /** Onthoud van een ander apparaat: vervangt alles (zonder [naOnthoud]). */
+    suspend fun vervangOnthoud(tekst: String) {
+        val rijen = OnthoudJson.lees(tekst)
+        db.withTransaction {
+            db.onthoud().leeg()
+            db.onthoud().bewaarAlle(rijen)
+        }
     }
 
     // ---- Omzetten ----

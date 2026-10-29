@@ -37,7 +37,10 @@ Daarom zet je één keer een vaste handtekening klaar. Dit doet je broer op de l
 
 ## ☁️ Sync tussen apparaten (één keer instellen)
 
-Dan staat Geld (en later meer) op je telefoon, tablet en laptop tegelijk.
+Dan staan Geld, Onthoud (en Mensen), Wensen, Leren, Recepten en Instellingen op je telefoon, tablet en laptop tegelijk.
+Grote tekst en tegels blijven per apparaat. Foto's gaan nog niet mee.
+
+> **Had je Supabase al ingesteld vóór november 2026?** Plak `supabase/kompas.sql` dan nog één keer en tik **Run** (stap 1). Anders gaan de Instellingen niet mee.
 Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het apparaat.
 
 **1. Tabel maken in Supabase**
@@ -56,7 +59,7 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 - Nooit de **service_role/secret key** gebruiken.
 
 **4. Inloggen in de app**
-- Eerst op de **telefoon**: Geld ➜ ☁️-kaart ➜ e-mail ➜ code uit de mail.
+- Eerst op de **telefoon**: Instellingen (of Geld) ➜ ☁️-kaart ➜ e-mail ➜ code uit de mail.
 - Daarna op de tablet. Let op: de eerste keer wint wat online staat. (Wat er op de tablet stond, blijft als reserve bewaard.)
 
 **5. Alleen jij**

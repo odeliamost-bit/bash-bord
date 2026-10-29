@@ -19,7 +19,7 @@ import nl.odelia.dashboard.logica.LerenJson
 /**
  * Bewaart Leren (bakjes, quizscores, eigen kaarten) in één bestandje op de telefoon.
  * Een los bestand, zodat de database van uren en afspraken niet hoeft te veranderen.
- * Gaat nooit online.
+ * Gaat mee met de sync tussen apparaten (zie online/Sync.kt), alleen als Odelia is ingelogd.
  */
 class LerenOpslag private constructor(context: Context) {
     private val bestand = AtomicFile(File(context.filesDir, "leren.json"))
@@ -41,12 +41,33 @@ class LerenOpslag private constructor(context: Context) {
     fun wijzig(wat: (LerenData) -> LerenData) {
         werk.launch {
             geladen.await()
-            slot.withLock {
+            val veranderd = slot.withLock {
                 val nieuw = wat(_data.value)
-                if (nieuw == _data.value) return@withLock
+                if (nieuw == _data.value) return@withLock false
                 _data.value = nieuw
                 schrijf(nieuw)
+                true
             }
+            if (veranderd) naWijziging?.invoke()
+        }
+    }
+
+    /** Voor de sync: na elke eigen wijziging. */
+    @Volatile var naWijziging: (() -> Unit)? = null
+
+    /** Alles als tekst, voor de sync. */
+    suspend fun alsTekst(): String {
+        geladen.await()
+        return slot.withLock { LerenJson.schrijf(_data.value) }
+    }
+
+    /** Gegevens van een ander apparaat: vervangt alles (zonder [naWijziging]). */
+    suspend fun vervang(tekst: String) {
+        geladen.await()
+        slot.withLock {
+            val nieuw = LerenJson.lees(tekst)
+            _data.value = nieuw
+            schrijf(nieuw)
         }
     }
 

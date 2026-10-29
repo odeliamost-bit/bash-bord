@@ -78,6 +78,22 @@ object InstellingenJson {
         .put("verborgenMenu", JSONArray(d.verborgenMenu.sorted()))
         .toString()
 
+    /**
+     * Voor de sync: alles behalve grote tekst en tegels.
+     * Die twee blijven per apparaat (gekozen door Odelia: tablet andere tegels dan telefoon).
+     */
+    fun schrijfGedeeld(d: InstellingenData): String =
+        JSONObject(schrijf(d)).apply {
+            remove("groteTekst")
+            remove("tegels")
+        }.toString()
+
+    /** Instellingen van een ander apparaat overnemen, maar grote tekst en tegels van dit apparaat houden. */
+    fun neemGedeeld(hier: InstellingenData, tekst: String): InstellingenData {
+        JSONObject(tekst) // kapot? dan een fout, en verandert er niks
+        return lees(tekst).copy(groteTekst = hier.groteTekst, tegels = hier.tegels)
+    }
+
     fun lees(tekst: String): InstellingenData {
         val x = try {
             JSONObject(tekst)

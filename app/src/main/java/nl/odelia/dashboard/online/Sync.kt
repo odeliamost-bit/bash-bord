@@ -18,7 +18,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import nl.odelia.dashboard.BuildConfig
+import nl.odelia.dashboard.Acties
+import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.GeldOpslag
+import nl.odelia.dashboard.data.LerenOpslag
+import nl.odelia.dashboard.data.Opslag
+import nl.odelia.dashboard.data.ReceptenOpslag
+import nl.odelia.dashboard.logica.InstellingenJson
+import nl.odelia.dashboard.logica.WensenJson
 import nl.odelia.dashboard.logica.SyncRegels
 import nl.odelia.dashboard.logica.SyncRegels.Stand
 import nl.odelia.dashboard.logica.SyncRegels.Stap
@@ -29,12 +36,14 @@ import org.json.JSONObject
  * Sync tussen telefoon, tablet en laptop via Odelia's eigen Supabase.
  *
  * - Alles blijft ook op het apparaat; de app werkt dus zonder internet.
- * - Alleen na inloggen, en alleen de onderdelen uit [SyncRegels.ONLINE] (nu: Geld).
+ * - Alleen na inloggen, en alleen de onderdelen uit [SyncRegels.ONLINE]
+ *   (nu: Geld, Onthoud/Mensen, Wensen, Leren, Recepten, Instellingen; foto's nog niet).
  * - Eigen wijziging: meteen versturen. Wijziging van een ander apparaat: meteen ophalen (realtime).
  * - De inlog en de sync-stand staan in `noBackupFilesDir`, niet in de Google-back-up.
  */
 object Sync {
-    private class Deel(val tekst: suspend () -> String, val vervang: suspend (String) -> Unit)
+    /** Eén onderdeel. [na] = na het overnemen van een ander apparaat (bijv. meldingen opnieuw zetten). */
+    private class Deel(val tekst: suspend () -> String, val vervang: suspend (String) -> Unit, val na: suspend () -> Unit = {})
 
     private val werk = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val slot = Mutex()
@@ -67,9 +76,36 @@ object Sync {
         sessie = leesSessie()
         standen.putAll(leesStanden())
 
+        // Volgorde = volgorde van bijwerken. Instellingen als laatste (nieuw in Supabase, zie README).
         val geld = GeldOpslag.van(app)
         delen["geld"] = Deel(geld::alsTekst, geld::vervang)
         geld.naWijziging = { lokaalVeranderd("geld") }
+
+        // Onthoud. Mensen komt hier ook uit (geen eigen bestand). Foto's gaan (nog) niet mee.
+        val opslag = Opslag.van(app)
+        delen["onthoud"] = Deel(opslag::onthoudAlsTekst, opslag::vervangOnthoud, na = { Acties.naWijziging(app) })
+        opslag.naOnthoud = { lokaalVeranderd("onthoud") }
+
+        val wensen = Bestanden.wensen(app)
+        delen["wensen"] = Deel(wensen::alsTekst, { t -> JSONObject(t); wensen.vervang { WensenJson.lees(t) } })
+        wensen.naWijziging = { lokaalVeranderd("wensen") }
+
+        val leren = LerenOpslag.van(app)
+        delen["leren"] = Deel(leren::alsTekst, leren::vervang)
+        leren.naWijziging = { lokaalVeranderd("leren") }
+
+        val recepten = ReceptenOpslag.van(app)
+        delen["recepten"] = Deel(recepten::alsTekst, recepten::vervang)
+        recepten.naWijziging = { lokaalVeranderd("recepten") }
+
+        // Instellingen: grote tekst en tegels blijven per apparaat.
+        val instellingen = Bestanden.instellingen(app)
+        delen["instellingen"] = Deel(
+            tekst = { InstellingenJson.schrijfGedeeld(instellingen.nu()) },
+            vervang = { t -> instellingen.vervang { hier -> InstellingenJson.neemGedeeld(hier, t) } },
+            na = { Acties.naWijziging(app) },
+        )
+        instellingen.naWijziging = { lokaalVeranderd("instellingen") }
 
         _staat.value = SyncStaat(kan = supabase != null, email = sessie?.email)
     }
@@ -196,6 +232,10 @@ object Sync {
                 }
                 deel.vervang(online.inhoud)
                 standen[naam] = Stand(versie = online.versie)
+                try {
+                    deel.na()
+                } catch (_: Exception) {
+                }
             }
             Stap.Verstuur -> {
                 val rij = sb.zet(s, naam, deel.tekst())

@@ -40,3 +40,16 @@ class InstellingenDataTest {
         assertEquals(36f, InstellingenData.weekdoelStap(35f, 1))
     }
 }
+
+class InstellingenGedeeldTest {
+    @Test
+    fun groteTekstEnTegelsBlijvenPerApparaat() {
+        val telefoon = InstellingenData(groteTekst = true, tegels = listOf(TegelSoort.Week), weekdoel = 30f, verborgenMenu = setOf("Cyclus"))
+        val tablet = InstellingenData(groteTekst = false, tegels = listOf(TegelSoort.Leren, TegelSoort.Boeken))
+        val opTablet = InstellingenJson.neemGedeeld(tablet, InstellingenJson.schrijfGedeeld(telefoon))
+        org.junit.Assert.assertEquals(30f, opTablet.weekdoel)
+        org.junit.Assert.assertEquals(setOf("Cyclus"), opTablet.verborgenMenu)
+        org.junit.Assert.assertEquals(false, opTablet.groteTekst)
+        org.junit.Assert.assertEquals(tablet.tegels, opTablet.tegels)
+    }
+}

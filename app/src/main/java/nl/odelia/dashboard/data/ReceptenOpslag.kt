@@ -37,12 +37,33 @@ class ReceptenOpslag private constructor(context: Context) {
     fun wijzig(wat: (ReceptenData) -> ReceptenData) {
         werk.launch {
             geladen.await()
-            slot.withLock {
+            val veranderd = slot.withLock {
                 val nieuw = wat(_data.value)
-                if (nieuw == _data.value) return@withLock
+                if (nieuw == _data.value) return@withLock false
                 _data.value = nieuw
                 schrijf(nieuw)
+                true
             }
+            if (veranderd) naWijziging?.invoke()
+        }
+    }
+
+    /** Voor de sync: na elke eigen wijziging. */
+    @Volatile var naWijziging: (() -> Unit)? = null
+
+    /** Alles als tekst, voor de sync. */
+    suspend fun alsTekst(): String {
+        geladen.await()
+        return slot.withLock { ReceptenJson.schrijf(_data.value) }
+    }
+
+    /** Gegevens van een ander apparaat: vervangt alles (zonder [naWijziging]). */
+    suspend fun vervang(tekst: String) {
+        geladen.await()
+        slot.withLock {
+            val nieuw = ReceptenJson.lees(tekst)
+            _data.value = nieuw
+            schrijf(nieuw)
         }
     }
 

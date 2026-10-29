@@ -42,6 +42,7 @@ import nl.odelia.dashboard.logica.TegelSoort
 import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.AppStaat
 import nl.odelia.dashboard.ui.Plek
+import nl.odelia.dashboard.ui.geld.SyncKaart
 import nl.odelia.dashboard.ui.menu.MenuIcoon
 import nl.odelia.dashboard.ui.onderdelen.GroteKnop
 import nl.odelia.dashboard.ui.onderdelen.Schakelaar
@@ -76,7 +77,10 @@ fun InstellingenScherm(
             TerugBalk(Plek.Instellingen.label, onTerug)
             Tabjes(tab) { tab = it }
             when (tab) {
-                InstTab.Instellingen -> InstellingenTab(staat.instellingen, acties::wijzigInstellingen)
+                InstTab.Instellingen -> {
+                    SyncKaart(staat.sync, acties)
+                    InstellingenTab(staat.instellingen, acties::wijzigInstellingen)
+                }
                 InstTab.Backup -> BackupTab(acties, onMelding)
             }
         }
@@ -122,7 +126,7 @@ private fun InstellingenTab(ins: InstellingenData, wijzig: ((InstellingenData) -
     var kiesTijd by remember { mutableStateOf<TijdVraag?>(null) }
 
     Kaart("🔠 Tekst") {
-        AanUit("Grote tekst", "Alle letters in de app groter", ins.groteTekst) { wijzig { it.copy(groteTekst = !it.groteTekst) } }
+        AanUit("Grote tekst", "Alle letters groter (alleen op dit apparaat)", ins.groteTekst) { wijzig { it.copy(groteTekst = !it.groteTekst) } }
     }
 
     Kaart("⏰ Herinneringen") {
@@ -150,7 +154,7 @@ private fun InstellingenTab(ins: InstellingenData, wijzig: ((InstellingenData) -
     }
 
     Kaart("🧩 Tegels op Thuis") {
-        Tekst("Aan/uit, en ⬆️⬇️ voor de volgorde.", 16.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
+        Tekst("Aan/uit, en ⬆️⬇️ voor de volgorde. Alleen op dit apparaat.", 16.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
         val zichtbaar = ins.tegels
         val verborgen = TegelSoort.entries.filterNot { it in zichtbaar }
         (zichtbaar + verborgen).forEach { t ->

@@ -57,7 +57,7 @@ fun SyncKaart(sync: SyncStaat, acties: AppActies) {
                 ZachteKnop(if (sync.bezig) "…" else "🔄 Nu", acties::syncNu)
             }
             sync.codeVoor == null -> {
-                Tekst("☁️ Zelfde geld op al je apparaten", 17.sp, kleur = Kleur.Inkt)
+                Tekst("☁️ Zelfde gegevens op al je apparaten", 17.sp, kleur = Kleur.Inkt)
                 Tekst("Log in met je e-mail. Je krijgt een code, geen wachtwoord.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 Invoer(email, { email = it }, "jouw@gmail.com", toetsen = KeyboardType.Email)
                 GroteKnop(if (sync.bezig) "Even wachten…" else "📬 Stuur code", { if (!sync.bezig && "@" in email) acties.vraagSyncCode(email) })
