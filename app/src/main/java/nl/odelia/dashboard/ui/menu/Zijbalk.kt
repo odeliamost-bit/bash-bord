@@ -52,9 +52,9 @@ val ZijbalkRuimte = 88.dp
 @Composable
 fun Zijbalk(
     open: Boolean,
-    gekozen: Plek,
+    gekozen: Groep,
     onWissel: () -> Unit,
-    onKies: (Plek) -> Unit,
+    onKies: (Groep) -> Unit,
     modifier: Modifier = Modifier,
     /** Namen van plekken die Odelia verborgen heeft. */
     verborgen: Set<String> = emptySet(),
@@ -65,7 +65,7 @@ fun Zijbalk(
         modifier
             .fillMaxHeight()
             .width(breedte)
-            .klei(Color(0xFFDDE9D7), vorm, schaduw = Color(0xFF5A8264), hoogte = 14.dp)
+            .klei(Color(0xFFFBE0E4), vorm, schaduw = Color(0xFFE07890), hoogte = 14.dp)
             .clip(vorm)
             .verticalScroll(rememberScrollState())
             .padding(10.dp),
@@ -83,22 +83,22 @@ fun Zijbalk(
                 .glans(knopVorm, licht = 0.45f, donker = 0.1f)
                 .clickable(onClick = onWissel)
                 .semantics { contentDescription = if (open) "Menu sluiten" else "Menu openen" }
-                .padding(start = 12.dp),
+                .padding(start = if (open) 12.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = if (open) Arrangement.spacedBy(12.dp) else Arrangement.Center,
         ) {
             Icoon(if (open) Icoontjes.pijlLinks else Icoontjes.pijlRechts, 28.dp)
             if (open) Tekst("Menu", 18.sp, kleur = Color.White, eenRegel = true)
         }
 
-        Plek.entries.filter { it.name !in verborgen || it in Plek.altijd }.forEach { plek ->
-            MenuRegel(plek, aan = plek == gekozen, open = open, onClick = { onKies(plek) })
+        Groep.entries.filter { it.zichtbaar(verborgen).isNotEmpty() }.forEach { groep ->
+            MenuRegel(groep, aan = groep == gekozen, open = open, onClick = { onKies(groep) })
         }
     }
 }
 
 @Composable
-private fun MenuRegel(plek: Plek, aan: Boolean, open: Boolean, onClick: () -> Unit) {
+private fun MenuRegel(groep: Groep, aan: Boolean, open: Boolean, onClick: () -> Unit) {
     val vorm = RoundedCornerShape(20.dp)
     Row(
         Modifier
@@ -107,15 +107,16 @@ private fun MenuRegel(plek: Plek, aan: Boolean, open: Boolean, onClick: () -> Un
             .clip(vorm)
             .background(if (aan) Kleur.Kaart else Color.Transparent)
             .selectable(selected = aan, onClick = onClick, role = Role.Tab)
-            .semantics { if (!open) contentDescription = plek.label }
-            .padding(start = 6.dp),
+            .semantics { if (!open) contentDescription = groep.label }
+            .padding(start = if (open) 6.dp else 0.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        // Dicht: icoontje in het midden. Open: icoontje links met de naam ernaast.
+        horizontalArrangement = if (open) Arrangement.spacedBy(12.dp) else Arrangement.Center,
     ) {
         Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
-            MenuIcoon(plek, 34.dp)
+            MenuIcoon(groep.icoon, 34.dp)
         }
-        if (open) Tekst(plek.label, 18.sp, kleur = Kleur.Inkt, eenRegel = true)
+        if (open) Tekst(groep.label, 18.sp, kleur = Kleur.Inkt, eenRegel = true)
     }
 }
 

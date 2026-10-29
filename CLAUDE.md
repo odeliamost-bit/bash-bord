@@ -119,7 +119,9 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 
 - **Menu: zijbalk** links (gekozen door Odelia). De onderbalk uit `Main` valt weg; 🎤 en ➕ staan bij Onthoud.
 - **Testen:** de app komt via een link op de telefoon (GitHub bouwt hem, zie README). Android Studio met kabel kan ook.
-- **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`). Achtergrond van de welkomkaart: eigen zacht verloop.
+- **Plantje:** zelf getekend in code (`ui/thuis/Plantje.kt`), okt 2026 nagetekend naar het plantje dat Odelia koos: brede olijfgroene blaadjes in een rond zandkleurig potje. Geen plaatje van internet in de (openbare) code. Achtergrond van de welkomkaart: eigen zacht verloop.
+- **Menu in 7 groepen (gekozen door Odelia, okt 2026):** Thuis, Werk (uren, mail-hulp), Onthoud (+ mensen), Leren, Geld (+ wensen), Voor mij (cyclus, recepten, zeilweer, advies), Instellingen (`ui/menu/Groep.kt`). Zijbalk roze, icoontjes in het midden. Tik op icoon = meteen erheen (bij meer plekken een tegelscherm, `GroepScherm.kt`); de pijl-knop schuift de zijbalk uit met namen. Menu-knoppen verbergen in Instellingen werkt nog per plek.
+- **Leren-tegels + Simulator (gewenst, okt 2026):** Leren wordt één tegelscherm (Simulator nieuw, Kaarten, Quiz, Toetsen, Tutor, Maken, Formules, Overzicht). Simulator: schema's, groepenkast, sommen, aderkleuren, uit de Kompas Elektrotechniek-pagina. Nog niet gebouwd.
 - **Versies** (AGP 8.7.3, Kotlin 2.0.21, Compose BOM 2024.12.01, Room 2.6.1, Glance 1.1.0) zijn bewust wat ouder: in de cloud is `dl.google.com` (ook Google Maven) geblokkeerd, dus Claude kon nieuwere versies niet controleren. GitHub Actions bouwt wel echt. Upgraden mag.
 - **Checken in de cloud:** `hulpmiddelen/voorproef/` (compileren, testjes, schermen als plaatje) en GitHub Actions (echte Android-build). Dat vervangt testen op de telefoon niet.
 - **Uren:** de 45 min pauze gaat er vanaf het begin af ("al 4¾ uur gewerkt" is zonder pauze). Weekdoel 35 uur (nog navragen: klopt dat?).

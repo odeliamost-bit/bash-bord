@@ -44,6 +44,8 @@ import nl.odelia.dashboard.ui.mail.MailBegin
 import nl.odelia.dashboard.ui.mail.MailScherm
 import nl.odelia.dashboard.ui.mensen.MensenBegin
 import nl.odelia.dashboard.ui.mensen.MensenScherm
+import nl.odelia.dashboard.ui.menu.Groep
+import nl.odelia.dashboard.ui.menu.GroepScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -82,6 +84,7 @@ sealed interface Scherm {
     data class Recepten(val gekozen: String? = null) : Scherm
     data object Instellingen : Scherm
     data class Later(val plek: Plek) : Scherm
+    data class GroepTegels(val groep: Groep) : Scherm
 }
 
 /** De hele app: zijbalk links, het gekozen scherm rechts. */
@@ -137,6 +140,12 @@ fun DashboardApp(
         }
     }
 
+    /** Knop in de zijbalk: één plek = meteen erheen, meer plekken = tegelscherm. */
+    fun naarGroep(groep: Groep) {
+        val plekken = groep.zichtbaar(staat.instellingen.verborgenMenu)
+        if (plekken.size == 1) naarPlek(plekken[0]) else { ga(Scherm.Thuis); ga(Scherm.GroepTegels(groep)) }
+    }
+
     // Van buitenaf: melding, widget of een andere app die iets deelt.
     LaunchedEffect(opdracht) {
         val o = opdracht ?: return@LaunchedEffect
@@ -177,7 +186,8 @@ fun DashboardApp(
         is Scherm.Recepten -> Plek.Recepten
         Scherm.Instellingen -> Plek.Instellingen
         is Scherm.Later -> scherm.plek
-    }
+        is Scherm.GroepTegels -> scherm.groep.plekken.first()
+    }.let(Groep::van)
 
     // Grote tekst (instelling): alle letters 20% groter.
     val dichtheid = LocalDensity.current
@@ -236,6 +246,13 @@ fun DashboardApp(
                 is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
                 Scherm.Instellingen -> InstellingenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
+                is Scherm.GroepTegels -> GroepScherm(
+                    groep = scherm.groep,
+                    verborgen = staat.instellingen.verborgenMenu,
+                    onTerug = ::terug,
+                    onPlek = ::naarPlek,
+                    modifier = inhoud,
+                )
             }
 
             // Waas achter het open menu: tik = menu dicht
@@ -257,9 +274,9 @@ fun DashboardApp(
                 gekozen = gekozen,
                 verborgen = staat.instellingen.verborgenMenu,
                 onWissel = { menuOpen = !menuOpen },
-                onKies = { plek ->
+                onKies = { groep ->
                     // Tik op een icoontje = meteen daarheen. Uitschuiven alleen met de bovenste knop.
-                    naarPlek(plek)
+                    naarGroep(groep)
                     menuOpen = false
                 },
                 modifier = Modifier.padding(12.dp),
