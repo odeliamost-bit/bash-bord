@@ -22,7 +22,7 @@ sourceSets.main {
     kotlin.srcDir(app.resolve("java"))
     // Alleen de rekenregels en de Compose-schermen; de rest bestaat alleen op Android.
     kotlin.exclude(
-        "**/MainActivity.kt", "**/Voorlezer.kt", "**/Voorbeelden.kt", "**/DashboardModel.kt", "**/Acties.kt",
+        "**/MainActivity.kt", "**/Voorlezer.kt", "**/Tekenvlak.kt", "**/Voorbeelden.kt", "**/DashboardModel.kt", "**/Acties.kt",
         "**/data/**", "**/meldingen/**", "**/widget/**", "**/online/**",
     )
 }

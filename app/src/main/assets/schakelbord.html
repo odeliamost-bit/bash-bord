@@ -1,0 +1,1596 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Schakelbord Simulator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+
+
+
+<style>
+/* Layout: schakelkast-werkblad. Kopbalk met modi, palet links (tablet) of onder (telefoon), tekenvel vult de rest, uitlegkaart schuift erover. */
+:root {
+  --bg: #E9EEF2; --panel: #FBFCFD; --panel2: #F1F4F7; --ink: #17212B; --muted: #566473; --line: #C6D0D9;
+  --grid: #AEBBC7; --wire: #44515F; --hot: #E2531B; --neg: #2C6FD6; --accent: #0E7480; --accent-ink: #FFFFFF;
+  --ok: #24935A; --bad: #CC2E25; --warn: #C98A06; --body: #FFFFFF; --sel: #0E7480;
+  --f-disp: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", Roboto, system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F151B; --panel: #172029; --panel2: #1D2832; --ink: #E4EAF0; --muted: #94A3B2; --line: #2B3844;
+  --grid: #34434F; --wire: #8D9BA9; --hot: #FF7040; --neg: #5C9BFF; --accent: #3DBAC4; --accent-ink: #071417;
+  --ok: #3FC37A; --bad: #FF5A4F; --warn: #F0B532; --body: #1B252F; --sel: #3DBAC4; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F151B; --panel: #172029; --panel2: #1D2832; --ink: #E4EAF0; --muted: #94A3B2; --line: #2B3844;
+  --grid: #34434F; --wire: #8D9BA9; --hot: #FF7040; --neg: #5C9BFF; --accent: #3DBAC4; --accent-ink: #071417;
+  --ok: #3FC37A; --bad: #FF5A4F; --warn: #F0B532; --body: #1B252F; --sel: #3DBAC4; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; overflow: hidden;
+  -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.app { height: 100%; display: flex; flex-direction: column; }
+
+/* Kopbalk */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: var(--panel);
+  border-bottom: 1px solid var(--line); padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: baseline; gap: 6px; margin-right: auto; }
+.brand b { font-family: var(--f-disp); font-weight: 700; font-size: 24px; letter-spacing: .02em; text-transform: uppercase; }
+.brand span { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.modes { display: flex; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 3px; gap: 2px; }
+.modes button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; min-width: 62px; height: 50px;
+  border: 0; background: transparent; border-radius: 9px; font-family: var(--f-disp); font-weight: 600; font-size: 15px;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.modes button svg { width: 22px; height: 22px; }
+.modes button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.acts { display: flex; gap: 6px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; min-width: 48px; padding: 0 12px;
+  border: 1px solid var(--line); background: var(--panel); border-radius: var(--r); font-family: var(--f-disp); font-weight: 600;
+  font-size: 16px; letter-spacing: .03em; text-transform: uppercase; }
+.btn svg { width: 22px; height: 22px; flex: none; }
+.btn.pri { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.bad { color: var(--bad); border-color: var(--bad); }
+.btn:active { transform: translateY(1px); }
+.btn[disabled] { opacity: .4; }
+
+.main { flex: 1; min-height: 0; display: flex; position: relative; }
+/* Palet */
+.palette { width: 128px; flex: none; overflow-y: auto; background: var(--panel); border-right: 1px solid var(--line);
+  padding: 8px; display: flex; flex-direction: column; gap: 6px; touch-action: pan-y;
+  padding-left: max(8px, env(safe-area-inset-left, 0px)); }
+.palette h3 { margin: 6px 2px 0; font-family: var(--f-disp); font-weight: 600; font-size: 13px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); }
+.tile { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1px solid var(--line); background: var(--panel2);
+  border-radius: var(--r); padding: 4px 2px 6px; user-select: none; -webkit-user-select: none; touch-action: inherit; }
+.tile canvas { width: 56px; height: 56px; pointer-events: none; }
+.tile span { font-size: 13px; line-height: 1.15; text-align: center; pointer-events: none; }
+.stage { flex: 1; min-width: 0; position: relative; overflow: hidden; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+
+.hint { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: center; pointer-events: none; }
+.hint div { pointer-events: auto; display: flex; gap: 10px; align-items: center; max-width: 560px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 12px; padding: 8px 8px 8px 14px; font-size: 15px; line-height: 1.35;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+.hint button { border: 0; background: var(--panel2); border-radius: 8px; width: 40px; height: 40px; flex: none; font-size: 20px; }
+.zoom { position: absolute; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+.zoom .btn { width: 52px; height: 52px; padding: 0; font-size: 26px; }
+.legend { position: absolute; left: 10px; bottom: 10px; display: flex; align-items: center; gap: 8px; font-family: var(--f-mono);
+  font-size: 12px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.legend i { display: block; width: 70px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--wire), var(--hot)); }
+.toasts { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 6px;
+  align-items: center; width: min(92%, 480px); pointer-events: none; }
+.toast { pointer-events: auto; background: var(--ink); color: var(--bg); border-radius: 12px; padding: 10px 14px; font-size: 15px;
+  line-height: 1.35; display: flex; gap: 10px; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+.toast.bad { background: var(--bad); color: #fff; }
+.toast button { border: 1px solid currentColor; background: transparent; color: inherit; border-radius: 8px; min-height: 36px; padding: 0 10px;
+  font-family: var(--f-disp); font-weight: 600; text-transform: uppercase; }
+/* Meetpaneel */
+.meter { position: absolute; top: 64px; left: 10px; width: 220px; background: #262B22; color: #DCE8C8; border-radius: 14px;
+  padding: 10px 12px; box-shadow: 0 6px 18px rgba(0,0,0,.25); border: 3px solid #E0B11C; }
+.meter .lcd { font-family: var(--f-mono); font-weight: 700; font-size: 30px; text-align: right; background: #B9C7A5; color: #1D2416;
+  border-radius: 6px; padding: 4px 8px; font-variant-numeric: tabular-nums; }
+.meter p { margin: 6px 0 8px; font-size: 13px; line-height: 1.3; }
+.meter .row { display: flex; gap: 6px; }
+.meter .row button { flex: 1; min-height: 40px; border-radius: 8px; border: 0; background: #3A4133; color: #DCE8C8;
+  font-family: var(--f-disp); font-weight: 600; text-transform: uppercase; }
+/* Uitlegkaart */
+.card { position: absolute; right: 10px; top: 10px; bottom: 10px; width: 310px; overflow-y: auto; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 26px rgba(0,0,0,.14); padding: 14px;
+  display: flex; flex-direction: column; gap: 12px; }
+.card header { display: flex; align-items: flex-start; gap: 8px; }
+.card h2 { margin: 0; font-family: var(--f-disp); font-weight: 700; font-size: 24px; line-height: 1.05; text-wrap: balance; flex: 1; }
+.card h2 small { display: block; font-family: var(--f-mono); font-weight: 500; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.card .x { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); font-size: 22px; flex: none; }
+.card p { margin: 0; font-size: 16px; line-height: 1.45; }
+.chip { display: inline-block; font-family: var(--f-disp); font-weight: 700; font-size: 14px; letter-spacing: .08em; text-transform: uppercase;
+  border-radius: 6px; padding: 2px 8px; border: 1px solid currentColor; }
+.chip.ok { color: var(--ok); } .chip.bad { color: var(--bad); } .chip.off { color: var(--muted); }
+.vals { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; background: var(--panel2); border-radius: 10px; padding: 10px 12px;
+  font-family: var(--f-mono); font-size: 15px; font-variant-numeric: tabular-nums; }
+.vals dt { color: var(--muted); } .vals dd { margin: 0; text-align: right; font-weight: 700; }
+.props { display: flex; flex-direction: column; gap: 8px; }
+.props label { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; }
+.props select, .props input { min-height: 44px; min-width: 120px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); padding: 0 8px; }
+.cacts { display: flex; flex-wrap: wrap; gap: 8px; }
+.cacts .btn { flex: 1 1 auto; }
+.hold { touch-action: none; user-select: none; -webkit-user-select: none; }
+/* Vellen */
+.sheet { position: absolute; inset: 0; background: rgba(10,16,22,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 5; }
+.sheet > div { background: var(--panel); border-radius: 16px; width: min(560px, 100%); max-height: 100%; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--line); }
+.sheet h2 { margin: 0; font-family: var(--f-disp); font-weight: 700; font-size: 26px; text-transform: uppercase; letter-spacing: .02em; flex: 1; }
+.sheet h3 { margin: 6px 0 0; font-family: var(--f-disp); font-weight: 600; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.sheet .top { display: flex; align-items: center; gap: 8px; }
+.ex { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--panel2);
+  border-radius: 12px; padding: 10px 14px; min-height: 56px; }
+.ex b { font-family: var(--f-disp); font-size: 20px; font-weight: 600; }
+.ex span { font-size: 14px; color: var(--muted); line-height: 1.35; }
+.saved { display: flex; flex-direction: column; gap: 6px; }
+.saved .it { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 6px 6px 12px; }
+.saved .it div { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved .it small { display: block; color: var(--muted); font-size: 12px; }
+.row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+.row2 input { flex: 1; min-width: 0; min-height: 48px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); padding: 0 12px; }
+textarea { width: 100%; min-height: 110px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); padding: 8px;
+  font-family: var(--f-mono); font-size: 12px; }
+.muted { color: var(--muted); font-size: 14px; }
+
+@media (max-width: 760px) {
+  .main { flex-direction: column-reverse; }
+  .palette { width: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden; border-right: 0; border-top: 1px solid var(--line);
+    touch-action: pan-x; padding-block: 6px; padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+  .palette h3 { display: none; }
+  .tile { width: 76px; flex: none; }
+  .tile canvas { width: 44px; height: 44px; }
+  .tile span { font-size: 12px; }
+  .card { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; max-height: 58%; }
+  .modes button { min-width: 54px; }
+  .btn .tx { display: none; }
+  .legend { display: none; }
+  .meter { top: auto; bottom: 70px; }
+}
+@media (prefers-reduced-motion: reduce) { .btn:active { transform: none; } }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="brand"><b>Schakelbord</b><span>simulator</span></div>
+    <nav class="modes" aria-label="Werkwijze">
+      <button id="m-bedien" data-mode="bedien" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5a2 2 0 0 1 4 0v5"/><path d="M13 10V4a2 2 0 0 1 4 0v7"/><path d="M17 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-1a7 7 0 0 1-6-3l-3-5a2 2 0 0 1 3.4-2L9 14V11"/></svg>Bedien</button>
+      <button id="m-draad" data-mode="draad" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="5" r="2.2"/><path d="M6.6 17.4H12V7h5.4"/></svg>Draad</button>
+      <button id="m-meten" data-mode="meten" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2"/><rect x="8.5" y="4.5" width="7" height="4" rx="1"/><circle cx="12" cy="15" r="3"/></svg>Meten</button>
+      <button id="m-gum" data-mode="gum" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M14 4l6 6-8 8H7l-3-3z"/><path d="M10 8l6 6"/></svg>Gum</button>
+    </nav>
+    <div class="acts">
+      <button class="btn" id="b-undo" title="Ongedaan maken" aria-label="Ongedaan maken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
+      <button class="btn" id="b-ex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v14H4zM14 5h6v6h-6zM14 15h6v4h-6z"/></svg><span class="tx">Voorbeelden</span></button>
+      <button class="btn" id="b-idee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg><span class="tx">Idee</span></button>
+      <button class="btn" id="b-save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span class="tx">Bewaar</span></button>
+      <button class="btn" id="b-snd" aria-pressed="true" title="Geluid aan of uit"><svg id="snd-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="m" d="M17 9l5 6M22 9l-5 6" hidden/></svg></button>
+    </div>
+  </header>
+  <div class="main">
+    <aside class="palette" id="palette" aria-label="Onderdelen"></aside>
+    <div class="stage" id="stage">
+      <canvas id="cv" aria-label="Tekenvel met schakeling"></canvas>
+      <div class="hint" id="hint"><div><span id="hint-t"></span><button id="hint-x" aria-label="Sluit uitleg">×</button></div></div>
+      <div class="legend" aria-hidden="true">0 V <i></i> hoog</div>
+      <div class="zoom">
+        <button class="btn" id="z-in" aria-label="Inzoomen">+</button>
+        <button class="btn" id="z-out" aria-label="Uitzoomen">−</button>
+        <button class="btn" id="z-fit" aria-label="Alles in beeld"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+      </div>
+      <div class="meter" id="meter" hidden>
+        <div class="lcd" id="lcd">-,--- V</div>
+        <p id="meter-t">Tik een punt voor de rode pen (+).</p>
+        <div class="row"><button id="meter-clr">Pennen los</button></div>
+      </div>
+      <div class="toasts" id="toasts" aria-live="polite"></div>
+      <section class="card" id="card" hidden aria-live="polite"></section>
+      <div class="sheet" id="sheet" hidden><div id="sheet-in"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Schakelbord rekenkern: pure functies (MNA + Gauss), werkt in browser en node */
+(function (root) {
+  'use strict';
+  var R_WIRE = 0.005, R_ON = 0.01, GMIN = 1e-9;
+  var LED_KLEUR = { rood: 1.8, groen: 2.1, geel: 2.0, blauw: 3.0, wit: 3.0 };
+  var LED_RS = 10;
+
+  function rotp(p, r) {
+    var x = p[0], y = p[1];
+    for (var i = 0; i < (r & 3); i++) { var t = x; x = -y; y = t; }
+    return [x, y];
+  }
+
+  function two() { return [[0, -2], [0, 2]]; }
+
+  var TYPES = {
+    dc: { naam: 'Spanningsbron', letter: 'G', term: two(), tn: ['+', '−'], box: [-1.3, -1.4, 1.3, 1.4], props: { V: 24, soort: 'DC' },
+      elems: function (c, T, add) {
+        var k = add();
+        return [{ k: 'V', a: k, b: T[1], v: +c.props.V, key: 'src' }, { k: 'R', a: k, b: T[0], r: 0.05, key: 'ri' }, { k: 'R', a: T[1], b: 0, r: 1e6 }];
+      } },
+    ac: { naam: '230V-net', letter: 'X', term: [[-2, 2], [0, 2], [2, 2]], tn: ['L', 'N', 'PE'], box: [-3, -1.6, 3, 1.4], props: {},
+      elems: function (c, T, add) {
+        var k = add();
+        return [{ k: 'V', a: k, b: T[1], v: 230, key: 'src' }, { k: 'R', a: k, b: T[0], r: 0.3, key: 'ri' },
+          { k: 'R', a: T[1], b: T[2], r: 0.05, key: 'bond' }, { k: 'R', a: T[1], b: 0, r: 1e6 }];
+      } },
+    pot: { naam: 'Regelbare weerstand', letter: 'R', term: two(), box: [-1.1, -1.3, 1.1, 1.3], props: { R: 1000, Pmax: 1 },
+      elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: +c.props.R, key: 'main' }]; } },
+    res: { naam: 'Weerstand', letter: 'R', term: two(), box: [-0.8, -1.3, 0.8, 1.3], props: { R: 220, Pmax: 0.25 },
+      elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: +c.props.R, key: 'main' }]; } },
+    lamp: { naam: 'Lamp', letter: 'H', term: two(), box: [-1.1, -1.1, 1.1, 1.1], props: { Vn: 24, P: 5, kleur: 'geel' },
+      elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: c.props.Vn * c.props.Vn / c.props.P, key: 'main' }]; } },
+    led: { naam: 'LED', letter: 'P', term: two(), tn: ['+', '−'], box: [-1, -1.1, 1, 1.1], props: { kleur: 'rood' },
+      elems: function (c, T) {
+        if (c.st.broken) return [];
+        var vf = LED_KLEUR[c.props.kleur] || 2;
+        if (c._on) return [{ k: 'R', a: T[0], b: T[1], r: LED_RS, key: 'rs' }, { k: 'I', a: T[1], b: T[0], i: vf / LED_RS }];
+        return [{ k: 'R', a: T[0], b: T[1], r: 1e8, key: 'off' }];
+      } },
+    fuse: { naam: 'Zekering', letter: 'F', term: two(), box: [-0.8, -1.3, 0.8, 1.3], props: { In: 2 },
+      elems: function (c, T) { return c.st.blown ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } },
+    rcd: { naam: 'Aardlekschakelaar', letter: 'Q', term: [[-1, -3], [1, -3], [-1, 3], [1, 3]], tn: ['L', 'N', 'L', 'N'], box: [-1.8, -2.2, 1.8, 2.2], props: { mA: 30 },
+      elems: function (c, T) {
+        return c.st.trip ? [] : [{ k: 'R', a: T[0], b: T[2], r: R_ON, key: 'L' }, { k: 'R', a: T[1], b: T[3], r: R_ON, key: 'N' }];
+      } },
+    sw: { naam: 'Schakelaar', letter: 'S', term: two(), box: [-1.1, -1.2, 1.1, 1.2], props: { on: false },
+      elems: function (c, T) { return c.props.on ? [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }] : []; } },
+    sw2: { naam: 'Wisselschakelaar', letter: 'S', term: [[0, 2], [-1, -2], [1, -2]], box: [-1.5, -1.3, 1.5, 1.3], props: { pos: 0 },
+      elems: function (c, T) { return [{ k: 'R', a: T[0], b: T[c.props.pos ? 2 : 1], r: R_ON, key: 'main' }]; } },
+    no: { naam: 'Drukknop NO', letter: 'S', term: two(), box: [-1.8, -1.3, 1.1, 1.3], props: { kleur: 'groen', tekst: 'START' },
+      elems: function (c, T) { return c.pressed ? [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }] : []; } },
+    nc: { naam: 'Drukknop NC', letter: 'S', term: two(), box: [-1.8, -1.3, 1.1, 1.3], props: { kleur: 'rood', tekst: 'STOP' },
+      elems: function (c, T) { return c.pressed ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } },
+    coil: { naam: 'Relaisspoel', letter: 'K', term: two(), tn: ['A1', 'A2'], box: [-1.1, -1.2, 1.1, 1.2], props: { Uc: 24 },
+      elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: c.props.Uc * c.props.Uc / 1.5, key: 'main' }]; } },
+    kmain: { naam: 'Hoofdcontacten (3-polig)', letter: 'K', term: [[-2, -2], [0, -2], [2, -2], [-2, 2], [0, 2], [2, 2]], tn: ['1', '3', '5', '2', '4', '6'], box: [-2.8, -2.2, 2.8, 2.2], props: { of: 'K1' },
+      elems: function (c, T, add, ctx) { return ctx.relayOn(c.props.of) ? [{ k: 'R', a: T[0], b: T[3], r: R_ON, key: 'p1' }, { k: 'R', a: T[1], b: T[4], r: R_ON, key: 'p2' }, { k: 'R', a: T[2], b: T[5], r: R_ON, key: 'p3' }] : []; } },
+    kno: { naam: 'Hulpcontact NO', letter: 'K', term: two(), box: [-1.1, -1.2, 1.1, 1.2], props: { of: 'K1' },
+      elems: function (c, T, add, ctx) { return ctx.relayOn(c.props.of) ? [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }] : []; } },
+    knc: { naam: 'Hulpcontact NC', letter: 'K', term: two(), box: [-1.1, -1.2, 1.1, 1.2], props: { of: 'K1' },
+      elems: function (c, T, add, ctx) { return ctx.relayOn(c.props.of) ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } },
+    buzz: { naam: 'Zoemer', letter: 'H', term: two(), box: [-1.1, -1.1, 1.1, 1.1], props: { Vn: 24 },
+      elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: c.props.Vn * c.props.Vn / 0.6, key: 'main' }]; } },
+    motor: { naam: 'Motor', letter: 'M', term: two(), box: [-1.2, -1.2, 1.2, 1.2], props: { Vn: 24, P: 24 },
+      elems: function (c, T) { return c.st.broken ? [] : [{ k: 'R', a: T[0], b: T[1], r: c.props.Vn * c.props.Vn / c.props.P, key: 'main' }]; } },
+    vm: { naam: 'Voltmeter', letter: 'P', term: two(), tn: ['+', 'COM'], box: [-1.1, -1.1, 1.1, 1.1], props: {},
+      elems: function (c, T) { return [{ k: 'R', a: T[0], b: T[1], r: 10e6, key: 'main' }]; } },
+    am: { naam: 'Ampèremeter', letter: 'P', term: two(), tn: ['A', 'COM'], box: [-1.1, -1.1, 1.1, 1.1], props: {},
+      elems: function (c, T) { return c.st.blown ? [] : [{ k: 'R', a: T[0], b: T[1], r: R_ON, key: 'main' }]; } }
+  };
+
+  function terminals(c) {
+    var def = TYPES[c.type];
+    return def.term.map(function (p) { var q = rotp(p, c.rot || 0); return [c.x + q[0], c.y + q[1]]; });
+  }
+  function pk(p) { return p[0] + ',' + p[1]; }
+
+  /* Wire path: L-vorm. bend 'h' = eerst horizontaal. Geeft lijst punten. */
+  function wirePath(w) {
+    var a = w.a, b = w.b;
+    if (a[0] === b[0] || a[1] === b[1]) return [a, b];
+    var m = w.bend === 'v' ? [a[0], b[1]] : [b[0], a[1]];
+    return [a, m, b];
+  }
+
+  function numberContacts(circ) {
+    var cnt = {};
+    circ.comps.forEach(function (c) {
+      if (c.type !== 'kno' && c.type !== 'knc') return;
+      var n = cnt[c.props.of] = (cnt[c.props.of] || 0) + 1;
+      c.num = c.type === 'kno' ? [n + '3', n + '4'] : [n + '1', n + '2'];
+    });
+  }
+
+  function build(circ) {
+    var nodeOf = new Map(), n = 1;
+    function node(p) { var k = pk(p); if (!nodeOf.has(k)) nodeOf.set(k, n++); return nodeOf.get(k); }
+    var coils = {};
+    circ.comps.forEach(function (c) { if (c.type === 'coil') coils[c.label] = c; });
+    var ctx = { relayOn: function (lbl) { var k = coils[lbl]; return !!(k && k.st.on); } };
+    var elems = [];
+    circ.comps.forEach(function (c) {
+      var T = terminals(c).map(node);
+      c._T = T;
+      var es = TYPES[c.type].elems(c, T, function () { return n++; }, ctx) || [];
+      es.forEach(function (e) { e.c = c; elems.push(e); });
+    });
+    circ.wires.forEach(function (w) {
+      w._a = node(w.a); w._b = node(w.b);
+      if (!w.burnt) elems.push({ k: 'R', a: w._a, b: w._b, r: R_WIRE, w: w });
+    });
+    return { n: n, elems: elems, nodeOf: nodeOf };
+  }
+
+  function gauss(A, b, N) {
+    for (var col = 0; col < N; col++) {
+      var piv = col, max = Math.abs(A[col][col]);
+      for (var r = col + 1; r < N; r++) { var v = Math.abs(A[r][col]); if (v > max) { max = v; piv = r; } }
+      if (max < 1e-30) continue;
+      if (piv !== col) { var t = A[col]; A[col] = A[piv]; A[piv] = t; var tb = b[col]; b[col] = b[piv]; b[piv] = tb; }
+      var rc = A[col], d = rc[col];
+      for (r = col + 1; r < N; r++) {
+        var row = A[r], f = row[col] / d;
+        if (f === 0) continue;
+        for (var k = col; k < N; k++) row[k] -= f * rc[k];
+        b[r] -= f * b[col];
+      }
+    }
+    var x = new Float64Array(N);
+    for (var i = N - 1; i >= 0; i--) {
+      var s = b[i];
+      for (var j = i + 1; j < N; j++) s -= A[i][j] * x[j];
+      x[i] = Math.abs(A[i][i]) < 1e-30 ? 0 : s / A[i][i];
+    }
+    return x;
+  }
+
+  /* Modified Nodal Analysis. Knoop 0 = referentie (aarde). */
+  function solveMNA(n, elems) {
+    var vs = elems.filter(function (e) { return e.k === 'V'; });
+    var nn = n - 1, N = nn + vs.length;
+    var A = [], b = new Float64Array(N);
+    for (var i = 0; i < N; i++) A.push(new Float64Array(N));
+    for (i = 0; i < nn; i++) A[i][i] += GMIN;
+    function g(a, bb, gv) {
+      if (a) A[a - 1][a - 1] += gv;
+      if (bb) A[bb - 1][bb - 1] += gv;
+      if (a && bb) { A[a - 1][bb - 1] -= gv; A[bb - 1][a - 1] -= gv; }
+    }
+    elems.forEach(function (e) {
+      if (e.k === 'R') g(e.a, e.b, 1 / e.r);
+      else if (e.k === 'I') { if (e.b) b[e.b - 1] += e.i; if (e.a) b[e.a - 1] -= e.i; }
+    });
+    vs.forEach(function (e, vi) {
+      var j = nn + vi;
+      if (e.a) { A[e.a - 1][j] += 1; A[j][e.a - 1] += 1; }
+      if (e.b) { A[e.b - 1][j] -= 1; A[j][e.b - 1] -= 1; }
+      b[j] = e.v;
+    });
+    var x = gauss(A, b, N);
+    var V = new Float64Array(n);
+    for (i = 1; i < n; i++) V[i] = x[i - 1];
+    return V;
+  }
+
+  /* Volledige berekening inclusief LED-iteratie (stuksgewijs lineair). */
+  function solveCircuit(circ) {
+    numberContacts(circ);
+    var leds = circ.comps.filter(function (c) { return c.type === 'led'; });
+    var net, V, it = 0;
+    for (; it < 30; it++) {
+      net = build(circ);
+      V = solveMNA(net.n, net.elems);
+      var changed = false;
+      leds.forEach(function (c) {
+        if (c.st.broken) { c._on = false; return; }
+        var vf = LED_KLEUR[c.props.kleur] || 2, vd = V[c._T[0]] - V[c._T[1]];
+        if (c._on) { if ((vd - vf) / LED_RS < 0) { c._on = false; changed = true; } }
+        else if (vd > vf + 1e-6) { c._on = true; changed = true; }
+      });
+      if (!changed) break;
+    }
+    // resultaten
+    circ.comps.forEach(function (c) { c.I = 0; c.U = c._T.length >= 2 ? V[c._T[0]] - V[c._T[1]] : 0; c.res = {}; });
+    net.elems.forEach(function (e) {
+      if (e.k !== 'R') return;
+      var i = (V[e.a] - V[e.b]) / e.r;
+      if (e.w) { e.w.I = i; return; }
+      if (e.key) e.c.res[e.key] = i;
+    });
+    circ.wires.forEach(function (w) { if (w.burnt) w.I = 0; w.Va = V[w._a]; w.Vb = V[w._b]; });
+    circ.comps.forEach(function (c) {
+      var r = c.res;
+      if (c.type === 'led') {
+        var vf = LED_KLEUR[c.props.kleur] || 2;
+        c.I = c._on ? (c.U - vf) / LED_RS : (r.off || 0);
+      } else if (c.type === 'dc' || c.type === 'ac') {
+        c.I = r.ri || 0;
+        if (c.type === 'ac') c.U = V[c._T[0]] - V[c._T[1]];
+      } else if (c.type === 'rcd') {
+        c.I = r.L || 0;
+        c.leak = Math.abs((r.L || 0) + (r.N || 0));
+      } else c.I = r.main || 0;
+      c.P = Math.abs(c.U * c.I);
+    });
+    // AC-gebied (voor heen-en-weer bewegende stroompuntjes)
+    var acNodes = new Set(), adj = {};
+    net.elems.forEach(function (e) {
+      if (e.k === 'I' || (e.k === 'R' && e.r > 1e5)) return;
+      (adj[e.a] = adj[e.a] || []).push(e.b); (adj[e.b] = adj[e.b] || []).push(e.a);
+    });
+    var stack = [];
+    circ.comps.forEach(function (c) { if (c.type === 'ac') c._T.forEach(function (t) { stack.push(t); }); });
+    while (stack.length) {
+      var q = stack.pop();
+      if (q === 0 || acNodes.has(q)) continue;
+      acNodes.add(q);
+      (adj[q] || []).forEach(function (z) { stack.push(z); });
+    }
+    circ.wires.forEach(function (w) { w.ac = acNodes.has(w._a); });
+    circ.comps.forEach(function (c) { c.ac = c._T.some(function (t) { return acNodes.has(t); }); });
+    return { V: V, net: net, iter: it };
+  }
+
+  function heat(o, over, k, dt) {
+    if (over > 1) o.heat = (o.heat || 0) + (over * over - 1) * k * dt;
+    else o.heat = Math.max(0, (o.heat || 0) - dt * 0.5);
+    return o.heat >= 1;
+  }
+
+  var MSG = {
+    fuse: function (c) { return c.label + ' is doorgebrand. Te veel stroom.'; },
+    am: function (c) { return 'Meterzekering van ' + c.label + ' is kapot (meer dan 10 A).'; },
+    rcd: function (c) { return c.label + ' schakelt af: lekstroom ' + Math.round(c.leak * 1000) + ' mA naar aarde.'; },
+    lamp: function (c) { return c.label + ' is kapot: spanning te hoog.'; },
+    led: function (c) { return c.label + ' is kapot: te veel stroom. Gebruik een voorschakelweerstand.'; },
+    res: function (c) { return c.label + ' is verbrand: te veel vermogen.'; },
+    coil: function (c) { return 'Spoel ' + c.label + ' is verbrand: spanning te hoog.'; },
+    buzz: function (c) { return c.label + ' is kapot: spanning te hoog.'; },
+    motor: function (c) { return c.label + ' is kapot: spanning te hoog.'; }
+  };
+
+  /* Eén tijdstap. S = {dirty, res}. Geeft lijst gebeurtenissen. */
+  function step(circ, dt, S) {
+    var ev = [];
+    if (S.dirty || !S.res) { S.res = solveCircuit(circ); S.dirty = false; }
+    var comps = circ.comps, tripped = false;
+    comps.forEach(function (c) {
+      var st = c.st, I = Math.abs(c.I);
+      if (c.type === 'fuse' && !st.blown && heat(st, I / c.props.In, 1, dt)) { st.blown = true; tripped = true; ev.push({ t: 'pop', c: c, msg: MSG.fuse(c) }); }
+      if (c.type === 'am' && !st.blown && heat(st, I / 10, 1, dt)) { st.blown = true; tripped = true; ev.push({ t: 'pop', c: c, msg: MSG.am(c) }); }
+      if (c.type === 'rcd' && !st.trip) {
+        if (c.leak >= c.props.mA / 1000) { st.lt = (st.lt || 0) + dt; if (st.lt >= 0.02) { st.trip = true; st.lt = 0; tripped = true; ev.push({ t: 'trip', c: c, msg: MSG.rcd(c) }); } }
+        else st.lt = 0;
+      }
+    });
+    if (tripped) { S.dirty = true; return ev; }
+    var broke = false;
+    comps.forEach(function (c) {
+      var st = c.st, p = c.props, over = 0, k = 1;
+      if (st.broken) return;
+      switch (c.type) {
+        case 'lamp': over = Math.abs(c.U) / (1.25 * p.Vn); k = 2; break;
+        case 'led': over = Math.abs(c.I) / 0.03; k = 3; break;
+        case 'res': over = c.P / (1.5 * p.Pmax); k = 0.5; break;
+        case 'coil': over = Math.abs(c.U) / (1.3 * p.Uc); k = 2; break;
+        case 'buzz': case 'motor': over = Math.abs(c.U) / (1.3 * p.Vn); k = 2; break;
+        default: return;
+      }
+      if (heat(st, over, k, dt)) { st.broken = true; broke = true; ev.push({ t: 'pop', c: c, msg: MSG[c.type](c) }); }
+    });
+    var maxI = 0, maxW = null;
+    circ.wires.forEach(function (w) {
+      if (w.burnt) return;
+      var I = Math.abs(w.I || 0);
+      if (I > maxI) { maxI = I; maxW = w; }
+      if (heat(w, I / 16, 0.3, dt)) { w.burnt = true; broke = true; ev.push({ t: 'pop', w: w, msg: 'Kortsluiting! Een draad is doorgebrand. Gebruik een zekering.' }); }
+    });
+    if (maxI > 100) ev.push({ t: 'short', w: maxW, I: maxI });
+    if (broke) S.dirty = true;
+    // relais met kleine vertraging
+    comps.forEach(function (c) {
+      if (c.type === 'coil') {
+        var U = Math.abs(c.U), want = !c.st.broken && (c.st.on ? U >= 0.4 * c.props.Uc : U >= 0.75 * c.props.Uc);
+        if (want !== !!c.st.on) {
+          c.st.t = (c.st.t || 0) + dt;
+          if (c.st.t >= (want ? 0.06 : 0.04)) { c.st.on = want; c.st.t = 0; S.dirty = true; ev.push({ t: 'relay', c: c, on: want }); }
+        } else c.st.t = 0;
+      }
+      if (c.type === 'buzz') c.active = !c.st.broken && Math.abs(c.U) >= 0.5 * c.props.Vn;
+      if (c.type === 'motor') c.speed = c.st.broken ? 0 : Math.min(1.5, Math.abs(c.U) / c.props.Vn) * (c.U < 0 ? -1 : 1);
+      if (c.type === 'lamp') c.bright = c.st.broken ? 0 : Math.min(1.4, c.P / c.props.P);
+      if (c.type === 'led') c.bright = c.st.broken ? 0 : Math.min(1.3, Math.max(0, c.I) / 0.02);
+    });
+    return ev;
+  }
+
+  /* ---------- schakelingen opbouwen / opslaan ---------- */
+  function mk(type, x, y, rot, label, props, st) {
+    var p = {}, d = TYPES[type].props, k;
+    for (k in d) p[k] = d[k];
+    if (props) for (k in props) p[k] = props[k];
+    return { type: type, x: x, y: y, rot: rot || 0, label: label, props: p, st: st || {} };
+  }
+  function W(ax, ay, bx, by, bend) { return { a: [ax, ay], b: [bx, by], bend: bend || 'h' }; }
+
+  var KEEP_ST = ['blown', 'broken', 'trip'];
+  function serialize(circ) {
+    return {
+      v: 1, naam: circ.naam || '',
+      comps: circ.comps.map(function (c) {
+        var st = {};
+        KEEP_ST.forEach(function (k) { if (c.st[k]) st[k] = true; });
+        return { type: c.type, x: c.x, y: c.y, rot: c.rot, label: c.label, props: JSON.parse(JSON.stringify(c.props)), st: st };
+      }),
+      wires: circ.wires.map(function (w) { var o = { a: w.a.slice(), b: w.b.slice(), bend: w.bend }; if (w.burnt) o.burnt = true; return o; })
+    };
+  }
+  function deserialize(o) {
+    if (!o || !Array.isArray(o.comps) || !Array.isArray(o.wires)) throw new Error('Geen geldige schakeling');
+    var comps = o.comps.filter(function (c) { return TYPES[c.type]; }).map(function (c) {
+      return mk(c.type, Math.round(+c.x), Math.round(+c.y), (c.rot | 0) & 3, String(c.label || TYPES[c.type].letter + '?'), c.props, c.st || {});
+    });
+    var wires = o.wires.map(function (w) {
+      var r = W(Math.round(+w.a[0]), Math.round(+w.a[1]), Math.round(+w.b[0]), Math.round(+w.b[1]), w.bend === 'v' ? 'v' : 'h');
+      if (w.burnt) r.burnt = true;
+      return r;
+    }).filter(function (w) { return !(w.a[0] === w.b[0] && w.a[1] === w.b[1]); });
+    return { naam: o.naam || '', comps: comps, wires: wires };
+  }
+
+  var EXAMPLES = [
+    { id: 'zelfhoud', naam: 'Zelfhoudschakeling', uitleg: 'Druk START (S2): K1 trekt aan en houdt zichzelf vast via 13-14. Druk STOP (S1) om te stoppen.',
+      make: function () {
+        return { naam: 'Zelfhoudschakeling', comps: [
+          mk('dc', 2, 13, 0, 'G1', { V: 24 }), mk('fuse', 2, 6, 0, 'F1', { In: 2 }),
+          mk('nc', 8, 6, 0, 'S1', { kleur: 'rood', tekst: 'STOP' }), mk('no', 8, 10, 0, 'S2', { kleur: 'groen', tekst: 'START' }),
+          mk('coil', 8, 16, 0, 'K1', { Uc: 24 }), mk('kno', 12, 10, 0, 'K1', { of: 'K1' }),
+          mk('kno', 16, 6, 0, 'K1', { of: 'K1' }), mk('lamp', 16, 14, 0, 'H1', { Vn: 24, P: 5, kleur: 'groen' }),
+          mk('knc', 22, 6, 0, 'K1', { of: 'K1' }), mk('lamp', 22, 14, 0, 'H2', { Vn: 24, P: 5, kleur: 'wit' })
+        ], wires: [
+          W(2, 8, 2, 11), W(2, 4, 8, 4), W(8, 4, 16, 4), W(16, 4, 22, 4), W(8, 8, 12, 8), W(8, 12, 12, 12), W(8, 12, 8, 14),
+          W(16, 8, 16, 12), W(22, 8, 22, 12), W(2, 15, 2, 22), W(2, 22, 8, 22), W(8, 18, 8, 22), W(8, 22, 16, 22),
+          W(16, 16, 16, 22), W(16, 22, 22, 22), W(22, 16, 22, 22)
+        ] };
+      } },
+    { id: 'relais230', naam: 'Relais schakelt 230 V-lamp', uitleg: 'S1 zet 24 V op spoel K1. Het contact van K1 schakelt de 230 V-lamp H1.',
+      make: function () {
+        return { naam: 'Relais schakelt 230 V-lamp', comps: [
+          mk('dc', 2, 10, 0, 'G1', { V: 24 }), mk('sw', 8, 6, 0, 'S1'), mk('coil', 8, 12, 0, 'K1', { Uc: 24 }),
+          mk('ac', 18, 4, 0, 'X1'), mk('fuse', 16, 9, 0, 'F1', { In: 10 }), mk('kno', 16, 14, 0, 'K1', { of: 'K1' }),
+          mk('lamp', 16, 20, 0, 'H1', { Vn: 230, P: 60, kleur: 'geel' })
+        ], wires: [
+          W(2, 8, 2, 4), W(2, 4, 8, 4), W(8, 8, 8, 10), W(8, 14, 8, 16), W(2, 12, 2, 16), W(2, 16, 8, 16),
+          W(16, 6, 16, 7), W(16, 11, 16, 12), W(16, 16, 16, 18), W(16, 22, 18, 24, 'v'), W(18, 6, 18, 24)
+        ] };
+      } },
+    { id: 'led', naam: 'LED met voorschakelweerstand', uitleg: 'R1 beperkt de stroom tot ongeveer 20 mA. Maak R1 kleiner en kijk wat er gebeurt.',
+      make: function () {
+        return { naam: 'LED met voorschakelweerstand', comps: [
+          mk('dc', 2, 8, 0, 'G1', { V: 12 }), mk('res', 6, 2, 1, 'R1', { R: 470, Pmax: 0.25 }), mk('am', 11, 2, 3, 'P2'),
+          mk('led', 16, 6, 0, 'P1', { kleur: 'rood' }), mk('vm', 20, 6, 0, 'P3')
+        ], wires: [
+          W(2, 6, 2, 2), W(2, 2, 4, 2), W(8, 2, 9, 2), W(13, 2, 16, 4), W(16, 4, 20, 4), W(16, 8, 20, 8), W(16, 8, 2, 10, 'v')
+        ] };
+      } },
+    { id: 'kort', naam: 'Kortsluiting met zekering', uitleg: 'Zet S1 aan. Dan maak je kortsluiting. Zekering F1 brandt door. Tik F1 en kies Vervang.',
+      make: function () {
+        return { naam: 'Kortsluiting met zekering', comps: [
+          mk('dc', 2, 8, 0, 'G1', { V: 24 }), mk('fuse', 6, 4, 1, 'F1', { In: 1 }), mk('lamp', 12, 8, 0, 'H1', { Vn: 24, P: 5 }),
+          mk('sw', 17, 8, 0, 'S1')
+        ], wires: [
+          W(2, 6, 4, 4, 'v'), W(8, 4, 12, 6), W(12, 6, 17, 6), W(12, 10, 17, 10), W(12, 10, 2, 10)
+        ] };
+      } },
+    { id: 'aardlek', naam: 'Aardlek-test', uitleg: 'Zet S1 aan. Er lekt stroom via R1 naar aarde (PE). Q1 schakelt af. Zet S1 uit en tik Q1 om weer in te schakelen.',
+      make: function () {
+        return { naam: 'Aardlek-test', comps: [
+          mk('ac', 6, 2, 0, 'X1'), mk('rcd', 5, 10, 0, 'Q1'), mk('lamp', 4, 17, 0, 'H1', { Vn: 230, P: 60 }),
+          mk('sw', 0, 16, 0, 'S1'), mk('res', 0, 20, 0, 'R1', { R: 2200, Pmax: 50 })
+        ], wires: [
+          W(4, 4, 4, 7), W(6, 4, 6, 7), W(4, 13, 4, 14), W(4, 14, 4, 15), W(4, 14, 0, 14), W(4, 19, 6, 21, 'v'), W(6, 21, 6, 13),
+          W(8, 4, 8, 24), W(0, 22, 8, 24, 'v')
+        ] };
+      } }
+  ];
+
+  var Core = { TYPES: TYPES, LED_KLEUR: LED_KLEUR, rotp: rotp, terminals: terminals, wirePath: wirePath, pk: pk, build: build,
+    gauss: gauss, solveMNA: solveMNA, solveCircuit: solveCircuit, step: step, mk: mk, W: W, serialize: serialize,
+    deserialize: deserialize, EXAMPLES: EXAMPLES, numberContacts: numberContacts };
+  if (typeof module !== 'undefined' && module.exports) module.exports = Core; else root.Core = Core;
+})(this);
+
+</script>
+<script>
+(function () {
+'use strict';
+var C = window.Core, TYPES = C.TYPES;
+var $ = function (id) { return document.getElementById(id); };
+var cv = $('cv'), ctx = cv.getContext('2d'), stage = $('stage');
+
+/* ---------- opslag (veilig) ---------- */
+function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+
+/* ---------- uitleg ---------- */
+var INFO = {
+  dc: 'Regelbare spanningsbron. Kies DC (gelijkspanning, + boven) of AC (wisselspanning). Bij AC rekent de simulator met de effectieve waarde (RMS), net als je multimeter.',
+  kmain: 'Hoofdcontacten van een magneetschakelaar (1-2, 3-4, 5-6). Ze sluiten als de spoel met dezelfde naam (bijv. K1) spanning krijgt. Hiermee schakel je de hoofdstroom, bijvoorbeeld een motor.',
+  pot: 'Regelbare weerstand (potmeter). Kies de waarde en kijk hoe de stroom verandert. Te veel vermogen: hij verbrandt.',
+  ac: 'Het net: 230 V wisselspanning. L = fase (bruin), N = nul (blauw), PE = aarde (geel-groen). Gevaarlijk!',
+  res: 'Weerstand. Beperkt de stroom. U = I × R. Te veel vermogen: hij verbrandt.',
+  lamp: 'Gloeilamp. Brandt fel op de juiste spanning. Te hoge spanning: kapot.',
+  led: 'LED. Stroom gaat alleen van + naar −. Brandt pas boven de drempelspanning. Altijd een voorschakelweerstand! Meer dan 30 mA: kapot.',
+  fuse: 'Zekering. Brandt door bij te veel stroom. Zo beschermt hij de draden bij kortsluiting.',
+  rcd: 'Aardlekschakelaar. Vergelijkt de stroom in L en N. Lekt er 30 mA of meer weg naar aarde (PE)? Dan schakelt hij af. Tik om weer in te schakelen.',
+  sw: 'Schakelaar. Tik om aan of uit te zetten. Blijft staan.',
+  sw2: 'Wisselschakelaar. Verbindt het midden met links of rechts. Tik om te wisselen.',
+  no: 'Drukknop maakcontact (NO). Alleen contact zolang je drukt. Vaak de START-knop.',
+  nc: 'Drukknop verbreekcontact (NC). Contact is weg zolang je drukt. Vaak de STOP-knop.',
+  coil: 'Relaisspoel (A1–A2). Spanning op de spoel? Dan schakelen alle contacten met dezelfde naam om.',
+  kno: 'Hulpcontact maak (NO), nummer 13–14. Sluit als de spoel aan is. Hiermee maak je zelfhouding.',
+  knc: 'Hulpcontact verbreek (NC), nummer 11–12. Gaat open als de spoel aan is.',
+  buzz: 'Zoemer. Zoemt bij spanning.',
+  motor: 'Motor. Meer spanning: sneller. Spanning omdraaien: andere kant op.',
+  vm: 'Voltmeter. Zet hem parallel (ernaast) over een onderdeel. Meet spanning.',
+  am: 'Ampèremeter. Zet hem in serie (in de kring). Meet stroom. Parallel over een bron = kortsluiting!'
+};
+var OPTS = {
+  dc: [['soort', 'Soort', ['DC', 'AC']], ['V', 'Spanning', [1.5, 3, 4.5, 5, 6, 9, 12, 24, 48, 110, 230, 400], 'V']],
+  pot: [['R', 'Weerstand', [1, 10, 22, 47, 100, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 100000], 'Ω'], ['Pmax', 'Max vermogen', [0.25, 1, 5, 50], 'W']],
+  res: [['R', 'Weerstand', [1, 10, 22, 47, 100, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 100000], 'Ω'], ['Pmax', 'Max vermogen', [0.25, 1, 5, 50], 'W']],
+  lamp: [['Vn', 'Spanning', [6, 12, 24, 230], 'V'], ['P', 'Vermogen', [2, 5, 10, 25, 60, 100], 'W'], ['kleur', 'Kleur', ['geel', 'wit', 'groen', 'rood', 'blauw']]],
+  led: [['kleur', 'Kleur', ['rood', 'groen', 'geel', 'blauw', 'wit']]],
+  fuse: [['In', 'Smeltstroom', [0.5, 1, 2, 4, 6, 10, 16], 'A']],
+  rcd: [['mA', 'Gevoeligheid', [10, 30, 300], 'mA']],
+  coil: [['Uc', 'Spoelspanning', [5, 12, 24, 230], 'V']],
+  buzz: [['Vn', 'Spanning', [5, 12, 24, 230], 'V']],
+  motor: [['Vn', 'Spanning', [12, 24, 230, 400], 'V'], ['P', 'Vermogen', [10, 24, 100, 250, 500, 750, 1500, 2200, 4000], 'W']],
+  no: [['kleur', 'Knopkleur', ['groen', 'rood', 'zwart']], ['tekst', 'Tekst', ['START', 'STOP', 'AAN', 'UIT', '']]],
+  nc: [['kleur', 'Knopkleur', ['rood', 'groen', 'zwart']], ['tekst', 'Tekst', ['STOP', 'START', 'UIT', 'AAN', '']]]
+};
+var PAL = [
+  ['Bediening', ['no', 'nc', 'sw', 'sw2']],
+  ['Relais / magneetschakelaar', ['coil', 'kmain', 'kno', 'knc']],
+  ['Voeding', ['dc', 'ac']],
+  ['Beveiliging', ['fuse', 'rcd']],
+  ['Verbruikers', ['lamp', 'led', 'res', 'pot', 'buzz', 'motor']],
+  ['Meten', ['vm', 'am']]
+];
+var SHORT = { no: 'Drukknop NO', nc: 'Drukknop NC', sw: 'Schakelaar', sw2: 'Wissel', coil: 'Spoel', kmain: 'Hoofd&shy;contacten', kno: 'Hulp NO', knc: 'Hulp NC',
+  dc: 'Bron', pot: 'Regelbaar', ac: '230 V-net', fuse: 'Zekering', rcd: 'Aardlek', lamp: 'Lamp', led: 'LED', res: 'Weerstand', buzz: 'Zoemer',
+  motor: 'Motor', vm: 'Voltmeter', am: 'Ampère&shy;meter' };
+var KLEUR = { geel: '#FFC93C', wit: '#FFF1CF', groen: '#3DDC84', rood: '#FF4A3D', blauw: '#4DA3FF', zwart: '#2B2F33' };
+var CAP = { groen: '#24935A', rood: '#CC2E25', zwart: '#2B2F33' };
+
+/* ---------- getallen in NL-notatie ---------- */
+function num(v, d) { return (+v).toFixed(d).replace('.', ','); }
+function sig(v) { var a = Math.abs(v); return a >= 100 ? num(v, 0) : a >= 10 ? num(v, 1) : num(v, 2); }
+function fU(v) { var a = Math.abs(v); if (a < 1e-4) return '0 V'; if (a < 1) return sig(v * 1000) + ' mV'; return sig(v) + ' V'; }
+function fI(v) { var a = Math.abs(v); if (a < 1e-7) return '0 A'; if (a < 1e-3) return sig(v * 1e6) + ' µA'; if (a < 1) return sig(v * 1000) + ' mA'; return sig(v) + ' A'; }
+function fP(v) { var a = Math.abs(v); if (a < 1e-6) return '0 W'; if (a < 1) return sig(v * 1000) + ' mW'; if (a >= 1000) return sig(v / 1000) + ' kW'; return sig(v) + ' W'; }
+function fR(v) { return v >= 1000 ? num(v / 1000, v % 1000 ? 1 : 0).replace(',0', '') + ' kΩ' : String(v).replace('.', ',') + ' Ω'; }
+function propTxt(k, v, unit) { if (unit === 'Ω') return fR(v); if (unit === 'W' && v >= 1000) return String(v / 1000).replace('.', ',') + ' kW'; if (unit) return String(v).replace('.', ',') + ' ' + unit; return v === '' ? '(geen)' : v; }
+
+/* ---------- kleuren uit thema ---------- */
+var col = {};
+function hex(c) { c = c.trim(); if (c[0] !== '#') return [128, 128, 128]; if (c.length === 4) c = '#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return [parseInt(c.substr(1, 2), 16), parseInt(c.substr(3, 2), 16), parseInt(c.substr(5, 2), 16)]; }
+function readTheme() {
+  var cs = getComputedStyle(document.documentElement), o = {};
+  ['bg', 'panel', 'panel2', 'ink', 'muted', 'line', 'grid', 'wire', 'hot', 'neg', 'accent', 'ok', 'bad', 'warn', 'body', 'sel'].forEach(function (k) { o[k] = cs.getPropertyValue('--' + k).trim(); });
+  o.wireR = hex(o.wire); o.hotR = hex(o.hot); o.negR = hex(o.neg);
+  var key = JSON.stringify(o); if (key !== col._k) { col = o; col._k = key; drawPalette(); }
+}
+function mix(a, b, t) { return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * t) + ',' + Math.round(a[1] + (b[1] - a[1]) * t) + ',' + Math.round(a[2] + (b[2] - a[2]) * t) + ')'; }
+
+/* ---------- geluid ---------- */
+var AC = null, soundOn = lsGet('schakelbord.geluid', true), buzzG = null, humG = null, humO = null, noiseBuf = null;
+function ensureAudio() {
+  if (!soundOn) return;
+  try {
+    if (!AC) {
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      noiseBuf = AC.createBuffer(1, AC.sampleRate * 0.5, AC.sampleRate);
+      var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      var o = AC.createOscillator(); o.type = 'square'; o.frequency.value = 410;
+      var lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100;
+      buzzG = AC.createGain(); buzzG.gain.value = 0; o.connect(lp); lp.connect(buzzG); buzzG.connect(AC.destination); o.start();
+      humO = AC.createOscillator(); humO.type = 'sawtooth'; humO.frequency.value = 90;
+      var lp2 = AC.createBiquadFilter(); lp2.type = 'lowpass'; lp2.frequency.value = 400;
+      humG = AC.createGain(); humG.gain.value = 0; humO.connect(lp2); lp2.connect(humG); humG.connect(AC.destination); humO.start();
+    }
+    if (AC.state === 'suspended') AC.resume();
+  } catch (e) { AC = null; }
+}
+function burst(f, q, dur, g, type, t0) {
+  var t = AC.currentTime + (t0 || 0), s = AC.createBufferSource(); s.buffer = noiseBuf;
+  var bp = AC.createBiquadFilter(); bp.type = type || 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+  var gn = AC.createGain(); gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  s.connect(bp); bp.connect(gn); gn.connect(AC.destination); s.start(t); s.stop(t + dur + 0.02);
+}
+function tone(f, dur, g, t0) {
+  var t = AC.currentTime + (t0 || 0), o = AC.createOscillator(); o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.5, t + dur);
+  var gn = AC.createGain(); gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(gn); gn.connect(AC.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+function snd(k) {
+  if (!soundOn || !AC) return;
+  try {
+    if (k === 'click') { burst(3200, 2.5, 0.025, 0.35); }
+    else if (k === 'relay') { burst(1500, 1.5, 0.03, 0.4); tone(170, 0.04, 0.12); burst(2200, 2, 0.02, 0.15, 'bandpass', 0.012); }
+    else if (k === 'relayoff') { burst(1900, 1.5, 0.025, 0.25); }
+    else if (k === 'trip') { burst(900, 1.2, 0.06, 0.5); tone(120, 0.08, 0.15); }
+    else if (k === 'pop') { burst(700, 0.7, 0.35, 0.45, 'lowpass'); tone(90, 0.2, 0.25); }
+  } catch (e) { /* stil */ }
+}
+function updHum(buzz, motor) {
+  if (!AC || !buzzG) return;
+  var t = AC.currentTime;
+  buzzG.gain.setTargetAtTime(soundOn && buzz ? 0.035 : 0, t, 0.02);
+  humG.gain.setTargetAtTime(soundOn && motor > 0.05 ? 0.02 * Math.min(1, motor) : 0, t, 0.05);
+  humO.frequency.setTargetAtTime(50 + 70 * Math.min(1.5, motor), t, 0.1);
+}
+function setSound(on) {
+  soundOn = on; lsSet('schakelbord.geluid', on);
+  $('b-snd').setAttribute('aria-pressed', on ? 'true' : 'false');
+  $('snd-ic').querySelector('.w').hidden = !on; $('snd-ic').querySelector('.m').hidden = on;
+  if (on) ensureAudio(); else updHum(false, 0);
+}
+
+/* ---------- toestand ---------- */
+var circ = { comps: [], wires: [] }, S = { dirty: true }, sel = null, mode = 'bedien';
+var cam = { z: 30, ox: 0, oy: 0 }, dpr = 1, W = 0, H = 0, simT = 0;
+var undo = [], probes = { a: null, b: null }, wireStart = null, ghost = null, preview = null, lastShort = 0;
+function changed() { S.dirty = true; saveAuto(); }
+var autoT = 0;
+function saveAuto() { clearTimeout(autoT); autoT = setTimeout(function () { lsSet('schakelbord.auto', { naam: 'Laatste werk', t: Date.now(), data: C.serialize(circ) }); }, 600); }
+function pushUndo() { undo.push(JSON.stringify(C.serialize(circ))); if (undo.length > 60) undo.shift(); $('b-undo').disabled = false; }
+function doUndo() { if (!undo.length) return; setCirc(C.deserialize(JSON.parse(undo.pop())), false); $('b-undo').disabled = !undo.length; toast('Ongedaan gemaakt.'); }
+function setCirc(c, fit) {
+  circ = c; S = { dirty: true }; sel = null; closeCard(); probes = { a: null, b: null }; wireStart = null;
+  syncContacts(); C.solveCircuit(circ); if (fit) fitView(); saveAuto();
+}
+function loadExample(ex) { undo = []; $('b-undo').disabled = true; setCirc(C.deserialize(C.serialize(ex.make())), true); hint(ex.uitleg); }
+function syncContacts() { circ.comps.forEach(function (c) { if (c.type === 'kno' || c.type === 'knc' || c.type === 'kmain') c.label = c.props.of; }); }
+function coilLabels() { return circ.comps.filter(function (c) { return c.type === 'coil'; }).map(function (c) { return c.label; }); }
+function nextLabel(letter) {
+  var max = 0, re = new RegExp('^' + letter + '(\\d+)$');
+  circ.comps.forEach(function (c) { var m = re.exec(c.label); if (m) max = Math.max(max, +m[1]); });
+  return letter + (max + 1);
+}
+
+/* ---------- camera ---------- */
+function toW(x, y) { return [(x - cam.ox) / cam.z, (y - cam.oy) / cam.z]; }
+function snapP(p) { return [Math.round(p[0]), Math.round(p[1])]; }
+function resize() {
+  var r = stage.getBoundingClientRect(); dpr = window.devicePixelRatio || 1; W = r.width; H = r.height;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+}
+function bounds() {
+  var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  function add(x, y) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  circ.comps.forEach(function (c) { var b = rbox(c); add(b[0], b[1]); add(b[2] + 2.5, b[3]); });
+  circ.wires.forEach(function (w) { add(w.a[0], w.a[1]); add(w.b[0], w.b[1]); });
+  if (x0 > x1) return [-5, -5, 5, 5];
+  return [x0, y0, x1, y1];
+}
+function fitView() {
+  resize(); var b = bounds(), bw = b[2] - b[0] + 3, bh = b[3] - b[1] + 3;
+  var padTop = 64, padBot = 70, cardW = (!$('card').hidden && W > 760) ? 330 : 0;
+  var aw = W - cardW - 20, ah = H - padTop - padBot;
+  cam.z = Math.max(10, Math.min(60, Math.min(aw / bw, ah / bh)));
+  cam.ox = 10 + aw / 2 - (b[0] + b[2]) / 2 * cam.z; cam.oy = padTop + ah / 2 - (b[1] + b[3]) / 2 * cam.z;
+}
+function zoomAt(f, sx, sy) {
+  var nz = Math.max(8, Math.min(120, cam.z * f)); f = nz / cam.z;
+  cam.ox = sx - (sx - cam.ox) * f; cam.oy = sy - (sy - cam.oy) * f; cam.z = nz;
+}
+
+/* ---------- geometrie ---------- */
+function rbox(c) {
+  var b = TYPES[c.type].box, pts = [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]].map(function (p) { return C.rotp(p, c.rot); });
+  var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; });
+  return [c.x + Math.min.apply(0, xs), c.y + Math.min.apply(0, ys), c.x + Math.max.apply(0, xs), c.y + Math.max.apply(0, ys)];
+}
+function hitComp(p) {
+  for (var i = circ.comps.length - 1; i >= 0; i--) {
+    var c = circ.comps[i], b = rbox(c), m = 0.15;
+    if (p[0] >= b[0] - m && p[0] <= b[2] + m && p[1] >= b[1] - m && p[1] <= b[3] + m) return c;
+  }
+  return null;
+}
+function segDist(p, a, b) {
+  var dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy, t = l ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l : 0;
+  t = Math.max(0, Math.min(1, t)); var x = a[0] + t * dx - p[0], y = a[1] + t * dy - p[1]; return Math.sqrt(x * x + y * y);
+}
+function hitWire(p) {
+  var best = null, bd = Math.max(0.35, 14 / cam.z);
+  circ.wires.forEach(function (w) {
+    var pa = C.wirePath(w);
+    for (var i = 0; i < pa.length - 1; i++) { var d = segDist(p, pa[i], pa[i + 1]); if (d < bd) { bd = d; best = w; } }
+  });
+  return best;
+}
+function eq(a, b) { return a[0] === b[0] && a[1] === b[1]; }
+function onSegInterior(p, a, b) {
+  if (eq(p, a) || eq(p, b)) return false;
+  if (a[0] === b[0] && p[0] === a[0]) return p[1] > Math.min(a[1], b[1]) && p[1] < Math.max(a[1], b[1]);
+  if (a[1] === b[1] && p[1] === a[1]) return p[0] > Math.min(a[0], b[0]) && p[0] < Math.max(a[0], b[0]);
+  return false;
+}
+/* draad splitsen als een eindpunt midden op een andere draad valt */
+function splitAt(p) {
+  for (var i = 0; i < circ.wires.length; i++) {
+    var w = circ.wires[i], pa = C.wirePath(w);
+    if (eq(w.a, p) || eq(w.b, p)) continue;
+    for (var s = 0; s < pa.length - 1; s++) {
+      if (!onSegInterior(p, pa[s], pa[s + 1])) continue;
+      var w1 = C.W(w.a[0], w.a[1], p[0], p[1], w.bend), w2 = C.W(p[0], p[1], w.b[0], w.b[1], w.bend);
+      if (pa.length === 3 && s === 0) w1.bend = w.bend; if (pa.length === 3 && s === 1) w2.bend = w.bend;
+      if (w.burnt) { w1.burnt = w2.burnt = true; }
+      circ.wires.splice(i, 1, w1, w2); return true;
+    }
+  }
+  return false;
+}
+function cleanWires() { circ.wires = circ.wires.filter(function (w) { return !eq(w.a, w.b); }); }
+function attachedEnds(c) {
+  var T = C.terminals(c), out = [];
+  circ.wires.forEach(function (w) { T.forEach(function (t, i) { if (eq(w.a, t)) out.push({ w: w, e: 'a', i: i }); if (eq(w.b, t)) out.push({ w: w, e: 'b', i: i }); }); });
+  return out;
+}
+function rotate(c) {
+  pushUndo(); var ends = attachedEnds(c); c.rot = (c.rot + 1) & 3; var T = C.terminals(c);
+  ends.forEach(function (o) { o.w[o.e] = T[o.i].slice(); }); cleanWires(); T.forEach(splitAt); changed();
+}
+function removeComp(c) { pushUndo(); circ.comps.splice(circ.comps.indexOf(c), 1); if (sel && sel.o === c) { sel = null; closeCard(); } changed(); }
+function removeWire(w) { pushUndo(); circ.wires.splice(circ.wires.indexOf(w), 1); if (sel && sel.o === w) { sel = null; closeCard(); } changed(); }
+function addComp(type, x, y) {
+  pushUndo();
+  var d = TYPES[type], label = nextLabel(d.letter), props = {};
+  if (type === 'kno' || type === 'knc' || type === 'kmain') { var cl = coilLabels(); props.of = cl[0] || 'K1'; label = props.of; }
+  var c = C.mk(type, x, y, 0, label, props, {});
+  circ.comps.push(c); C.terminals(c).forEach(splitAt); syncContacts(); changed(); return c;
+}
+function addWire(a, b, bend) {
+  if (eq(a, b)) return;
+  pushUndo(); splitAt(a); splitAt(b); circ.wires.push(C.W(a[0], a[1], b[0], b[1], bend)); changed();
+}
+
+/* testhulpje (voor de controle in de cloud) */
+window.__sb = { addComp: addComp, addWire: addWire, changed: changed, circ: function () { return circ; } };
+/* ---------- bediening ---------- */
+function press(c, on) { if (!!c.pressed === on) return; c.pressed = on; S.dirty = true; snd('click'); }
+function tapOperate(c) {
+  if (c.type === 'sw') { c.props.on = !c.props.on; snd('click'); changed(); }
+  else if (c.type === 'sw2') { c.props.pos = c.props.pos ? 0 : 1; snd('click'); changed(); }
+  else if (c.type === 'rcd') { c.st.trip = !c.st.trip; c.st.lt = 0; snd('trip'); changed(); }
+}
+
+/* ---------- tekenen ---------- */
+var curRot = 0;
+function L(x1, y1, x2, y2) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); }
+function circle(x, y, r, fill, stroke) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke !== false) ctx.stroke(); }
+function rect(x, y, w, h, fill) { ctx.beginPath(); ctx.rect(x, y, w, h); if (fill) { ctx.fillStyle = fill; ctx.fill(); } ctx.stroke(); }
+function txt(s, x, y, size, color, align, weight, fam) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(-curRot); ctx.scale(0.05, 0.05);
+  ctx.font = (weight || 600) + ' ' + (size * 20) + 'px ' + (fam === 'mono' ? '"JetBrains Mono", ui-monospace, monospace' : fam === 'body' ? '"Atkinson Hyperlegible", system-ui, sans-serif' : '"Barlow Condensed", "Arial Narrow", sans-serif');
+  ctx.fillStyle = color; ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, 0, 0); ctx.restore();
+}
+function glow(x, y, r, color, a) {
+  var g = ctx.createRadialGradient(x, y, 0, x, y, r); var rgb = hex(color);
+  g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+}
+function leads(a) { L(0, -2, 0, -a); L(0, a, 0, 2); }
+function contactNO(closed) {
+  L(0, -2, 0, -0.8); L(0, 2, 0, 0.8); circle(0, 0.8, 0.09, col.ink, false);
+  if (closed) L(0, 0.8, 0.12, -0.8); else L(0, 0.8, -0.62, -0.72);
+}
+function contactNC(open) {
+  L(0, -2, 0, -0.8); L(0, -0.8, 0.42, -0.8); L(0, 2, 0, 0.8); circle(0, 0.8, 0.09, col.ink, false);
+  if (open) L(0, 0.8, -0.62, -0.72); else L(0, 0.8, 0.5, -0.86);
+}
+function actuator(c, pressed) {
+  var dx = pressed ? 0.22 : 0, mx = pressed ? 0.06 : -0.31;
+  ctx.save(); ctx.setLineDash([0.18, 0.14]); L(mx, 0, -1.1 + dx, 0); ctx.restore();
+  L(-1.1 + dx, -0.35, -1.1 + dx, 0.35);
+  ctx.save(); ctx.lineWidth = 0.06; circle(-1.45 + dx, 0, 0.32, CAP[c.props.kleur] || CAP.groen); ctx.restore();
+}
+function drawComp(c, o) {
+  o = o || {};
+  var t = c.type, ink = o.ink || col.ink, body = col.body, p = c.props, st = c.st || {};
+  ctx.save(); ctx.translate(c.x, c.y); curRot = (c.rot || 0) * Math.PI / 2; ctx.rotate(curRot);
+  ctx.strokeStyle = ink; ctx.lineWidth = 0.1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  var broken = st.broken;
+  switch (t) {
+    case 'dc':
+      if (p.soort === 'AC') {
+        leads(0.9); circle(0, 0, 0.9, body);
+        ctx.beginPath(); for (var si = 0; si <= 20; si++) { var sx = -0.55 + si * 0.055, sy = -0.3 * Math.sin(si / 20 * Math.PI * 2); if (si) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy); } ctx.stroke();
+        if (!o.icon) txt(String(p.V).replace('.', ',') + ' V ~', -1.15, 0, 0.62, ink, 'right', 700, 'mono');
+        break;
+      }
+      L(0, -2, 0, -0.22); L(0, 0.22, 0, 2);
+      ctx.lineWidth = 0.12; L(-0.75, -0.22, 0.75, -0.22); ctx.lineWidth = 0.26; L(-0.38, 0.22, 0.38, 0.22); ctx.lineWidth = 0.1;
+      txt('+', 0.55, -0.75, 0.8, ink, 'center', 700); txt('−', 0.55, 0.8, 0.8, ink, 'center', 700);
+      if (!o.icon) txt(String(p.V).replace('.', ',') + ' V', -0.95, 0, 0.62, ink, 'right', 700, 'mono');
+      break;
+    case 'ac':
+      ctx.save(); ctx.lineWidth = 0.16;
+      [[-2, '#8B5A2B'], [0, '#2F6FD0'], [2, '#5BA83A']].forEach(function (q) { ctx.strokeStyle = q[1]; L(q[0], 1.3, q[0], 2); });
+      ctx.restore(); rect(-2.8, -1.5, 5.6, 2.8, body);
+      txt('230 V ~', 0, -0.62, 0.85, ink, 'center', 700, 'mono');
+      txt('L', -2, 0.62, 0.7, ink, 'center', 700); txt('N', 0, 0.62, 0.7, ink, 'center', 700); txt('PE', 2, 0.62, 0.7, ink, 'center', 700);
+      break;
+    case 'pot':
+      leads(0.9); rect(-0.4, -0.9, 0.8, 1.8, broken ? col.muted : body);
+      ctx.save(); ctx.strokeStyle = col.accent; ctx.lineWidth = 0.12; L(-0.9, 0.9, 0.8, -0.8); L(0.8, -0.8, 0.35, -0.8); L(0.8, -0.8, 0.8, -0.35); ctx.restore();
+      if (!o.icon) txt(fR(+p.R), 1.05, 0, 0.55, ink, 'left', 700, 'mono');
+      break;
+    case 'res':
+      leads(0.9); rect(-0.4, -0.9, 0.8, 1.8, broken ? col.muted : body);
+      if (broken) { ctx.strokeStyle = col.bad; L(-0.4, -0.3, 0.4, 0.3); }
+      break;
+    case 'lamp':
+      if (c.bright > 0.02) glow(0, 0, 0.9 + 1.7 * Math.min(1, c.bright), KLEUR[p.kleur] || KLEUR.geel, Math.min(0.95, 0.25 + c.bright * 0.7));
+      leads(0.8); circle(0, 0, 0.8, c.bright > 0.02 ? (KLEUR[p.kleur] || KLEUR.geel) : body);
+      var k = 0.8 * Math.SQRT1_2; L(-k, -k, k, k); L(-k, k, k, -k);
+      if (broken) { ctx.strokeStyle = col.bad; ctx.lineWidth = 0.14; L(-1, -1, 1, 1); }
+      break;
+    case 'led':
+      var lc = KLEUR[p.kleur] || KLEUR.rood;
+      if (c.bright > 0.02) glow(0, 0, 0.7 + 1.4 * Math.min(1, c.bright), lc, Math.min(0.9, 0.3 + c.bright * 0.6));
+      leads(0.5); ctx.beginPath(); ctx.moveTo(-0.6, -0.5); ctx.lineTo(0.6, -0.5); ctx.lineTo(0, 0.5); ctx.closePath();
+      ctx.fillStyle = broken ? col.muted : c.bright > 0.02 ? lc : body; ctx.fill(); ctx.stroke();
+      L(-0.6, 0.5, 0.6, 0.5);
+      ctx.save(); ctx.strokeStyle = broken ? col.muted : lc; ctx.lineWidth = 0.08;
+      L(0.55, -0.1, 1.0, -0.5); L(0.75, 0.25, 1.2, -0.15); ctx.restore();
+      if (broken) { ctx.strokeStyle = col.bad; ctx.lineWidth = 0.14; L(-0.8, -0.8, 0.8, 0.8); }
+      break;
+    case 'fuse':
+      leads(0.9); rect(-0.35, -0.9, 0.7, 1.8, st.blown ? 'rgba(60,40,30,0.35)' : body);
+      if (st.blown) { ctx.strokeStyle = col.bad; L(0, -0.9, 0, -0.25); L(0, 0.25, 0, 0.9); L(-0.2, -0.1, 0.2, 0.1); }
+      else L(0, -0.9, 0, 0.9);
+      break;
+    case 'rcd':
+      L(-1, -3, -1, -2.2); L(1, -3, 1, -2.2); L(-1, 2.2, -1, 3); L(1, 2.2, 1, 3);
+      rect(-1.8, -2.2, 3.6, 4.4, body);
+      ctx.save(); ctx.lineWidth = 0.08;
+      var on = !st.trip;
+      L(-1, -2.2, -1, -1.3); L(1, -2.2, 1, -1.3); L(-1, 2.2, -1, 1.1); L(1, 2.2, 1, 1.1);
+      if (on) { L(-1, 1.1, -0.95, -1.3); L(1, 1.1, 1.05, -1.3); } else { L(-1, 1.1, -1.5, -1.1); L(1, 1.1, 0.5, -1.1); }
+      ctx.strokeStyle = col.muted; ctx.beginPath(); ctx.ellipse(0, 0.55, 1.45, 0.3, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      txt(p.mA + ' mA', 0, -0.25, 0.6, ink, 'center', 700, 'mono');
+      ctx.save(); ctx.lineWidth = 0.06; rect(-0.55, -1.95, 1.1, 0.5, on ? col.ok : col.bad); ctx.restore();
+      txt(on ? 'IN' : 'UIT', 0, -1.7, 0.42, '#fff', 'center', 700);
+      txt('T', 1.4, 1.75, 0.5, col.muted, 'center', 700);
+      break;
+    case 'sw':
+      contactNO(p.on); break;
+    case 'sw2':
+      L(0, 2, 0, 0.8); L(-1, -2, -1, -0.8); L(1, -2, 1, -0.8); circle(0, 0.8, 0.09, ink, false);
+      L(0, 0.8, p.pos ? 0.95 : -0.95, -0.75);
+      break;
+    case 'no':
+      contactNO(c.pressed); actuator(c, c.pressed);
+      if (p.tekst && !o.icon) txt(p.tekst, -1.45, 0.75, 0.42, col.muted, 'center', 700);
+      break;
+    case 'nc':
+      contactNC(c.pressed); actuator(c, c.pressed);
+      if (p.tekst && !o.icon) txt(p.tekst, -1.45, 0.75, 0.42, col.muted, 'center', 700);
+      break;
+    case 'coil':
+      leads(0.6); rect(-0.85, -0.6, 1.7, 1.2, broken ? col.muted : st.on ? col.accent : body);
+      if (!o.icon) { txt('A1', 0.35, -1.25, 0.42, col.muted, 'left', 600, 'mono'); txt('A2', 0.35, 1.25, 0.42, col.muted, 'left', 600, 'mono'); }
+      if (broken) { ctx.strokeStyle = col.bad; L(-0.85, -0.6, 0.85, 0.6); }
+      break;
+    case 'kmain':
+      var relM = coilOn(p.of);
+      [-2, 0, 2].forEach(function (dx) { ctx.save(); ctx.translate(dx, 0); contactNO(relM); ctx.restore(); });
+      ctx.save(); ctx.setLineDash([0.25, 0.2]); ctx.lineWidth = 0.07; L(-2.4, 0, 2.4, 0); ctx.restore();
+      if (!o.icon) { ['1', '3', '5'].forEach(function (n, i) { txt(n, -2 + i * 2 + 0.3, -1.45, 0.42, col.muted, 'left', 600, 'mono'); });
+        ['2', '4', '6'].forEach(function (n, i) { txt(n, -2 + i * 2 + 0.3, 1.45, 0.42, col.muted, 'left', 600, 'mono'); }); }
+      break;
+    case 'kno': case 'knc':
+      var rel = coilOn(p.of);
+      if (t === 'kno') contactNO(rel); else contactNC(rel);
+      if (!o.icon && c.num) { txt(c.num[0], 0.3, -1.45, 0.42, col.muted, 'left', 600, 'mono'); txt(c.num[1], 0.3, 1.45, 0.42, col.muted, 'left', 600, 'mono'); }
+      break;
+    case 'buzz':
+      L(0, -2, 0, -0.45); L(0, 0.45, 0, 2);
+      ctx.beginPath(); ctx.moveTo(-0.1, -0.85); ctx.arc(-0.1, 0, 0.85, -Math.PI / 2, Math.PI / 2); ctx.closePath();
+      ctx.fillStyle = broken ? col.muted : body; ctx.fill(); ctx.stroke();
+      L(-0.1, -0.45, 0, -0.45); L(-0.1, 0.45, 0, 0.45);
+      if (c.active) {
+        ctx.save(); ctx.strokeStyle = col.accent; ctx.lineWidth = 0.08; var ph = (simT * 6) % 1;
+        for (var i = 0; i < 2; i++) { ctx.globalAlpha = 1 - ((ph + i * 0.5) % 1); ctx.beginPath(); ctx.arc(-0.1, 0, 1.1 + ((ph + i * 0.5) % 1) * 0.6, -0.6, 0.6); ctx.stroke(); }
+        ctx.restore();
+      }
+      break;
+    case 'motor':
+      leads(0.9); circle(0, 0, 0.9, broken ? col.muted : body);
+      txt('M', 0, 0, 0.9, ink, 'center', 700);
+      if (!broken) { c.ang = (c.ang || 0); var a = c.ang; ctx.save(); ctx.strokeStyle = col.accent; ctx.lineWidth = 0.12;
+        ctx.beginPath(); ctx.arc(0, 0, 0.7, a, a + 1.2); ctx.stroke(); ctx.restore(); }
+      break;
+    case 'vm': case 'am':
+      leads(0.85); circle(0, 0, 0.85, st.blown ? col.muted : body);
+      txt(t === 'vm' ? 'V' : 'A', 0, 0.02, 0.95, ink, 'center', 700);
+      if (!o.icon) txt(t === 'vm' ? '+' : 'A', 0.45, -1.4, 0.45, col.muted, 'left', 700, 'mono');
+      if (!o.icon) txt('COM', 0.45, 1.4, 0.4, col.muted, 'left', 700, 'mono');
+      break;
+  }
+  ctx.restore(); curRot = 0;
+}
+function coilOn(lbl) { for (var i = 0; i < circ.comps.length; i++) { var k = circ.comps[i]; if (k.type === 'coil' && k.label === lbl) return !!k.st.on; } return false; }
+
+function valueLine(c) {
+  var p = c.props;
+  switch (c.type) {
+    case 'res': return fR(p.R);
+    case 'lamp': return num(p.Vn, 0) + ' V ' + num(p.P, 0) + ' W';
+    case 'fuse': return String(p.In).replace('.', ',') + ' A';
+    case 'coil': return num(p.Uc, 0) + ' V';
+    case 'led': return p.kleur + ' ' + num(C.LED_KLEUR[p.kleur], 1) + ' V';
+    case 'buzz': return num(p.Vn, 0) + ' V';
+    case 'motor': return num(p.Vn, 0) + ' V ' + num(p.P, 0) + ' W';
+    default: return '';
+  }
+}
+function drawLabels(c) {
+  var b = rbox(c), x = b[2] + 0.3, y = (b[1] + b[3]) / 2, broken = c.st.broken || c.st.blown;
+  if (c.type === 'ac' || c.type === 'rcd') { x = b[2] + 0.3; y = b[1] + 0.6; }
+  var meter = c.type === 'vm' || c.type === 'am';
+  var vl = valueLine(c);
+  txt(c.label, x, meter ? y - 0.85 : (vl || broken ? y - 0.4 : y), 0.68, col.ink, 'left', 700);
+  if (meter) {
+    var s = c.type === 'vm' ? fU(c.U || 0) : (c.st.blown ? 'ZEKERING' : fI(c.I || 0));
+    ctx.save(); ctx.fillStyle = '#B9C7A5'; ctx.strokeStyle = '#3A4133'; ctx.lineWidth = 0.06;
+    var w = 0.36 * s.length + 0.5; ctx.beginPath(); ctx.rect(x, y - 0.42, w, 0.95); ctx.fill(); ctx.stroke(); ctx.restore();
+    txt(s, x + 0.25, y + 0.06, 0.6, '#1D2416', 'left', 700, 'mono');
+  } else if (broken) txt(c.type === 'fuse' ? 'DOORGEBRAND' : 'KAPOT', x, y + 0.42, 0.55, col.bad, 'left', 700);
+  else if (vl) txt(vl, x, y + 0.42, 0.52, col.muted, 'left', 600, 'mono');
+}
+function wireColor(w, vmax) {
+  if (w.burnt) return col.muted;
+  var v = ((w.Va || 0) + (w.Vb || 0)) / 2, t = vmax > 0.5 ? Math.log(1 + Math.abs(v)) / Math.log(1 + vmax) : 0;
+  t = Math.max(0, Math.min(1, t));
+  return mix(col.wireR, v >= 0 ? col.hotR : col.negR, t);
+}
+function pathLen(pa) { var l = 0; for (var i = 0; i < pa.length - 1; i++) l += Math.abs(pa[i + 1][0] - pa[i][0]) + Math.abs(pa[i + 1][1] - pa[i][1]); return l; }
+function pointAt(pa, d) {
+  for (var i = 0; i < pa.length - 1; i++) {
+    var sl = Math.abs(pa[i + 1][0] - pa[i][0]) + Math.abs(pa[i + 1][1] - pa[i][1]);
+    if (d <= sl || i === pa.length - 2) { var t = sl ? d / sl : 0; return [pa[i][0] + (pa[i + 1][0] - pa[i][0]) * t, pa[i][1] + (pa[i + 1][1] - pa[i][1]) * t]; }
+    d -= sl;
+  }
+  return pa[0];
+}
+function render(dt) {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = col.bg; ctx.fillRect(0, 0, W, H);
+  // raster
+  var step = cam.z < 14 ? 5 : 1, x0 = Math.floor(-cam.ox / cam.z / step) * step, y0 = Math.floor(-cam.oy / cam.z / step) * step;
+  ctx.fillStyle = col.grid; var r = cam.z < 14 ? 1.2 : Math.min(1.8, cam.z / 22);
+  for (var gx = x0; gx * cam.z + cam.ox < W; gx += step) for (var gy = y0; gy * cam.z + cam.oy < H; gy += step) {
+    var big = gx % 5 === 0 && gy % 5 === 0; ctx.fillRect(gx * cam.z + cam.ox - r * (big ? 1.4 : 1) / 2, gy * cam.z + cam.oy - r * (big ? 1.4 : 1) / 2, r * (big ? 1.4 : 1), r * (big ? 1.4 : 1));
+  }
+  ctx.setTransform(dpr * cam.z, 0, 0, dpr * cam.z, dpr * cam.ox, dpr * cam.oy);
+  var res = S.res, vmax = 0;
+  if (res) for (var i = 1; i < res.V.length; i++) vmax = Math.max(vmax, Math.abs(res.V[i]));
+  // draden
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  circ.wires.forEach(function (w) {
+    var pa = C.wirePath(w), I = Math.abs(w.I || 0);
+    if (sel && sel.o === w) { ctx.strokeStyle = col.sel; ctx.globalAlpha = 0.35; ctx.lineWidth = 0.55; poly(pa); ctx.globalAlpha = 1; }
+    if (!w.burnt && (I > 16 || (w.flash && w.flash > simT))) { ctx.strokeStyle = col.bad; ctx.globalAlpha = 0.35 + 0.25 * Math.sin(simT * 20); ctx.lineWidth = 0.5; poly(pa); ctx.globalAlpha = 1; }
+    ctx.strokeStyle = wireColor(w, vmax); ctx.lineWidth = 0.14;
+    if (w.burnt) { ctx.save(); ctx.setLineDash([0.25, 0.2]); poly(pa); ctx.restore(); var m = pointAt(pa, pathLen(pa) / 2); ctx.strokeStyle = col.bad; ctx.lineWidth = 0.12; L(m[0] - 0.3, m[1] - 0.3, m[0] + 0.3, m[1] + 0.3); L(m[0] - 0.3, m[1] + 0.3, m[0] + 0.3, m[1] - 0.3); }
+    else poly(pa);
+  });
+  // stroompuntjes
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ctx.fillStyle = col.warn;
+  circ.wires.forEach(function (w) {
+    var I = w.I || 0, a = Math.abs(I); if (w.burnt || a < 2e-4) return;
+    var sp = Math.min(7, 1 + Math.log10(a * 1000 + 1) * 1.6) * (I > 0 ? 1 : -1), gap = 0.8;
+    if (w.ac) w.ph = Math.sin(simT * 2 * Math.PI * 0.7) * 0.6 * Math.abs(sp) / 3;
+    else if (!reduce) w.ph = ((w.ph || 0) + sp * dt) % gap;
+    var pa = C.wirePath(w), len = pathLen(pa), off = ((w.ph || 0) % gap + gap) % gap;
+    for (var d = off; d <= len; d += gap) { var q = pointAt(pa, d); ctx.beginPath(); ctx.arc(q[0], q[1], 0.11, 0, 6.3); ctx.fill(); }
+  });
+  // knooppunten
+  var cnt = {};
+  function inc(p) { var k = C.pk(p); cnt[k] = (cnt[k] || 0) + 1; }
+  circ.wires.forEach(function (w) { inc(w.a); inc(w.b); });
+  var terms = [];
+  circ.comps.forEach(function (c) { C.terminals(c).forEach(function (t) { inc(t); terms.push(t); }); });
+  // onderdelen
+  circ.comps.forEach(function (c) {
+    if (sel && sel.o === c) { var b = rbox(c); ctx.save(); ctx.strokeStyle = col.sel; ctx.lineWidth = 0.08; ctx.setLineDash([0.3, 0.2]); ctx.strokeRect(b[0] - 0.25, b[1] - 0.25, b[2] - b[0] + 0.5, b[3] - b[1] + 0.5); ctx.restore(); }
+    drawComp(c);
+  });
+  ctx.fillStyle = col.ink; ctx.strokeStyle = col.ink; ctx.lineWidth = 0.06;
+  terms.forEach(function (t) { var n = cnt[C.pk(t)]; ctx.beginPath(); ctx.arc(t[0], t[1], n > 1 ? 0.13 : 0.16, 0, 6.3); if (n > 1) ctx.fill(); else { ctx.fillStyle = col.bg; ctx.fill(); ctx.stroke(); ctx.fillStyle = col.ink; } });
+  Object.keys(cnt).forEach(function (k) { if (cnt[k] >= 3) { var p = k.split(',').map(Number); ctx.beginPath(); ctx.arc(p[0], p[1], 0.2, 0, 6.3); ctx.fill(); } });
+  circ.comps.forEach(drawLabels);
+  // draad in de maak
+  if (preview) { ctx.save(); ctx.strokeStyle = col.accent; ctx.lineWidth = 0.14; ctx.setLineDash([0.3, 0.2]); poly(C.wirePath(preview)); ctx.restore(); circle2(preview.b, col.accent); }
+  if (wireStart) circle2(wireStart, col.accent);
+  if (ghost) { ctx.save(); ctx.globalAlpha = 0.55; drawComp(ghost); ctx.restore(); }
+  // meetpennen
+  if (mode === 'meten') { if (probes.a) pin(probes.a, '#D7261E'); if (probes.b) pin(probes.b, '#222'); }
+}
+function poly(pa) { ctx.beginPath(); ctx.moveTo(pa[0][0], pa[0][1]); for (var i = 1; i < pa.length; i++) ctx.lineTo(pa[i][0], pa[i][1]); ctx.stroke(); }
+function circle2(p, c) { ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = 0.1; ctx.beginPath(); ctx.arc(p[0], p[1], 0.38, 0, 6.3); ctx.stroke(); ctx.restore(); }
+function pin(p, c) {
+  ctx.save(); ctx.fillStyle = c; ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.06;
+  ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0] + 0.35, p[1] - 0.9); ctx.lineTo(p[0] + 0.75, p[1] - 0.75); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(p[0], p[1], 0.17, 0, 6.3); ctx.fill(); ctx.stroke(); ctx.restore();
+}
+
+/* ---------- palet ---------- */
+function buildPalette() {
+  var pal = $('palette');
+  PAL.forEach(function (g) {
+    var h = document.createElement('h3'); h.textContent = g[0]; pal.appendChild(h);
+    g[1].forEach(function (t) {
+      var b = document.createElement('div'); b.className = 'tile'; b.dataset.type = t; b.tabIndex = 0; b.setAttribute('role', 'button');
+      b.innerHTML = '<canvas width="112" height="112"></canvas><span>' + SHORT[t] + '</span>';
+      b.setAttribute('aria-label', TYPES[t].naam + ' toevoegen');
+      pal.appendChild(b); tileEvents(b, t);
+    });
+  });
+}
+function drawPalette() {
+  var save = ctx;
+  document.querySelectorAll('.tile').forEach(function (b) {
+    var c2 = b.querySelector('canvas'), t = b.dataset.type, k = c2.getContext('2d');
+    k.setTransform(1, 0, 0, 1, 0, 0); k.clearRect(0, 0, 112, 112);
+    var bx = TYPES[t].box, s = Math.min(100 / (bx[2] - bx[0] + 0.6), 100 / (bx[3] - bx[1] + 0.6)) * 0.95;
+    var cx = Math.max(Math.abs(bx[0]), Math.abs(bx[2]));
+    s = Math.min(s, 100 / (Math.max(4.2, (bx[3] - bx[1]) + 1.2)) * 0.9, 100 / (2 * cx + 0.8));
+    k.setTransform(s, 0, 0, s, 56 - (bx[0] + bx[2]) / 2 * s, 56);
+    ctx = k;
+    var dummy = C.mk(t, 0, 0, 0, '', {}, {});
+    if (t === 'lamp') dummy.bright = 0.7;
+    if (t === 'led') dummy.bright = 0.6;
+    try { drawComp(dummy, { icon: true }); } catch (e) {}
+    ctx = save;
+  });
+}
+function tileEvents(b, t) {
+  var st = null;
+  b.addEventListener('pointerdown', function (e) {
+    ensureAudio(); st = { x: e.clientX, y: e.clientY, id: e.pointerId, drag: false };
+    try { b.setPointerCapture(e.pointerId); } catch (er) {}
+  });
+  b.addEventListener('pointermove', function (e) {
+    if (!st || e.pointerId !== st.id) return;
+    var dx = e.clientX - st.x, dy = e.clientY - st.y;
+    if (!st.drag && Math.hypot(dx, dy) > 10) st.drag = true;
+    if (st.drag) {
+      var r = cv.getBoundingClientRect(), w = snapP(toW(e.clientX - r.left, e.clientY - r.top));
+      var inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      ghost = inside ? C.mk(t, w[0], w[1], 0, '', {}, {}) : null;
+    }
+  });
+  function end(e) {
+    if (!st || e.pointerId !== st.id) return;
+    if (st.drag && ghost && e.type === 'pointerup') { var c = addComp(t, ghost.x, ghost.y); select({ k: 'c', o: c }); }
+    else if (!st.drag && e.type === 'pointerup') {
+      var w = snapP(toW(W / 2 - (W > 760 && !$('card').hidden ? 160 : 0), H / 2));
+      var c2 = addComp(t, w[0], w[1]); select({ k: 'c', o: c2 }); toast(TYPES[t].naam + ' geplaatst. Sleep hem naar de goede plek.');
+    }
+    ghost = null; st = null;
+  }
+  b.addEventListener('pointerup', end); b.addEventListener('pointercancel', end);
+  b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); var w = snapP(toW(W / 2, H / 2)); select({ k: 'c', o: addComp(t, w[0], w[1]) }); } });
+}
+
+/* ---------- aanraken op het tekenvel ---------- */
+var ptrs = new Map(), g = null;
+function local(e) { var r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+cv.addEventListener('pointerdown', function (e) {
+  ensureAudio(); try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+  var p = local(e); ptrs.set(e.pointerId, p);
+  if (ptrs.size === 2) { cancelG(); var a = Array.from(ptrs.values()); g = { t: 'pinch', d: Math.hypot(a[0][0] - a[1][0], a[0][1] - a[1][1]), m: [(a[0][0] + a[1][0]) / 2, (a[0][1] + a[1][1]) / 2] }; return; }
+  if (ptrs.size > 2) return;
+  if (e.button === 1 || e.button === 2) { g = { t: 'pan', id: e.pointerId, last: p }; return; }
+  var w = toW(p[0], p[1]);
+  g = { t: 'pend', id: e.pointerId, s: p, last: p, w: w, moved: false };
+  if (mode === 'bedien') {
+    var c = hitComp(w);
+    if (c) { g.c = c; if (c.type === 'no' || c.type === 'nc') { press(c, true); g.pressing = true; } }
+    else g.wire = hitWire(w);
+  }
+});
+cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+function cancelG() {
+  if (g && g.pressing) press(g.c, false);
+  if (g && g.t === 'wire') preview = null;
+  g = null;
+}
+cv.addEventListener('pointermove', function (e) {
+  if (!ptrs.has(e.pointerId)) return;
+  var p = local(e); ptrs.set(e.pointerId, p);
+  if (!g) return;
+  if (g.t === 'pinch') {
+    if (ptrs.size < 2) return;
+    var a = Array.from(ptrs.values()), d = Math.hypot(a[0][0] - a[1][0], a[0][1] - a[1][1]), m = [(a[0][0] + a[1][0]) / 2, (a[0][1] + a[1][1]) / 2];
+    cam.ox += m[0] - g.m[0]; cam.oy += m[1] - g.m[1]; zoomAt(d / g.d, m[0], m[1]); g.d = d; g.m = m; return;
+  }
+  if (e.pointerId !== g.id) return;
+  if (g.t === 'pan') { cam.ox += p[0] - g.last[0]; cam.oy += p[1] - g.last[1]; g.last = p; return; }
+  if (g.t === 'pend') {
+    if (Math.hypot(p[0] - g.s[0], p[1] - g.s[1]) < 9) return;
+    g.moved = true;
+    if (mode === 'bedien' && g.c) {
+      if (g.pressing) { press(g.c, false); g.pressing = false; }
+      pushUndo(); g.t = 'move'; g.cx = g.c.x; g.cy = g.c.y; g.ends = attachedEnds(g.c).map(function (o) { o.p0 = o.w[o.e].slice(); return o; });
+    } else if (mode === 'draad') {
+      g.t = 'wire'; g.a = wireStart || snapP(g.w); wireStart = null;
+      g.bend = Math.abs(p[0] - g.s[0]) >= Math.abs(p[1] - g.s[1]) ? 'h' : 'v';
+    } else { g.t = 'pan'; }
+  }
+  if (g.t === 'move') {
+    var dx = Math.round((p[0] - g.s[0]) / cam.z), dy = Math.round((p[1] - g.s[1]) / cam.z);
+    if (g.c.x !== g.cx + dx || g.c.y !== g.cy + dy) {
+      g.c.x = g.cx + dx; g.c.y = g.cy + dy;
+      g.ends.forEach(function (o) { o.w[o.e] = [o.p0[0] + dx, o.p0[1] + dy]; }); S.dirty = true;
+    }
+  } else if (g.t === 'wire') {
+    preview = { a: g.a, b: snapP(toW(p[0], p[1])), bend: g.bend };
+  } else if (g.t === 'pan') { cam.ox += p[0] - g.last[0]; cam.oy += p[1] - g.last[1]; }
+  g.last = p;
+});
+function up(e) {
+  var had = ptrs.has(e.pointerId); ptrs.delete(e.pointerId);
+  if (!had || !g) return;
+  if (g.t === 'pinch') { if (ptrs.size === 0) g = null; return; }
+  if (e.pointerId !== g.id) return;
+  var cancelled = e.type === 'pointercancel';
+  if (g.pressing) press(g.c, false);
+  if (g.t === 'pend' && !cancelled) tap(g);
+  else if (g.t === 'move') { cleanWires(); C.terminals(g.c).forEach(splitAt); changed(); if (sel && sel.o === g.c) fillCard(); }
+  else if (g.t === 'wire' && preview && !cancelled) { addWire(preview.a, preview.b, preview.bend); }
+  preview = null; g = null;
+}
+cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+cv.addEventListener('wheel', function (e) { e.preventDefault(); var p = local(e); zoomAt(Math.exp(-e.deltaY * 0.0015), p[0], p[1]); }, { passive: false });
+
+function tap(gs) {
+  var w = gs.w;
+  if (mode === 'bedien') {
+    if (gs.c) { tapOperate(gs.c); select({ k: 'c', o: gs.c }); }
+    else if (gs.wire) select({ k: 'w', o: gs.wire });
+    else { select(null); }
+  } else if (mode === 'draad') {
+    var p = snapP(w);
+    if (!wireStart) { wireStart = p; }
+    else { if (!eq(wireStart, p)) addWire(wireStart, p, Math.abs(p[0] - wireStart[0]) >= Math.abs(p[1] - wireStart[1]) ? 'h' : 'v'); wireStart = null; }
+  } else if (mode === 'meten') {
+    var q = snapP(w);
+    if (!probes.a || probes.b) { probes.a = q; probes.b = null; } else probes.b = q;
+    snd('click');
+  } else if (mode === 'gum') {
+    var c = hitComp(w);
+    if (c) { removeComp(c); toastUndo(TYPES[c.type].naam + ' verwijderd.'); return; }
+    var wr = hitWire(w); if (wr) { removeWire(wr); toastUndo('Draad verwijderd.'); }
+  }
+}
+
+/* ---------- meten (multimeter) ---------- */
+function nodeAt(p) {
+  var res = S.res; if (!res) return null;
+  var k = C.pk(p); if (res.net.nodeOf.has(k)) return res.net.nodeOf.get(k);
+  for (var i = 0; i < circ.wires.length; i++) { var w = circ.wires[i], pa = C.wirePath(w); for (var s = 0; s < pa.length - 1; s++) if (segDist(p, pa[s], pa[s + 1]) < 1e-6) return w._a; }
+  return null;
+}
+function updMeter() {
+  var lcd = $('lcd'), t = $('meter-t');
+  if (!probes.a) { lcd.textContent = '-,--- V'; t.textContent = 'Tik een punt voor de rode pen (+).'; return; }
+  if (!probes.b) { lcd.textContent = '-,--- V'; t.textContent = 'Tik nu een punt voor de zwarte pen (COM).'; return; }
+  var a = nodeAt(probes.a), b = nodeAt(probes.b);
+  if (a == null || b == null) { lcd.textContent = 'OPEN'; t.textContent = 'Een pen staat niet op een draad of aansluiting.'; return; }
+  var u = S.res.V[a] - S.res.V[b], ac = circ.comps.some(function (c) { return c.ac && c._T.indexOf(a) >= 0; }) || circ.wires.some(function (w) { return w.ac && (w._a === a || w._a === b); });
+  lcd.textContent = (Math.abs(u) < 1e-3 ? '0,000' : Math.abs(u) >= 100 ? num(u, 1) : num(u, 3)) + (ac ? ' V~' : ' V');
+  t.textContent = 'Spanning tussen rood en zwart.' + (ac ? ' Wisselspanning (effectieve waarde).' : '');
+}
+
+/* ---------- uitlegkaart ---------- */
+function select(s) {
+  sel = s;
+  if (!s) { closeCard(); return; }
+  fillCard();
+}
+function closeCard() { $('card').hidden = true; }
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function btn(label, cls, fn) { var b = el('button', 'btn' + (cls ? ' ' + cls : ''), label); b.addEventListener('click', fn); return b; }
+function fillCard() {
+  var card = $('card'); card.innerHTML = ''; card.hidden = false;
+  var hd = el('header'), h = el('h2'), x = el('button', 'x', '×');
+  x.setAttribute('aria-label', 'Sluit kaart'); x.addEventListener('click', function () { select(null); });
+  hd.appendChild(h); hd.appendChild(x); card.appendChild(hd);
+  var vals = el('dl', 'vals'); vals.id = 'card-vals';
+  if (sel.k === 'w') {
+    var w = sel.o; h.innerHTML = 'Draad<small>verbinding</small>';
+    card.appendChild(el('p', null, 'Een draad verbindt twee punten. Spanning in de hele draad is (bijna) gelijk.'));
+    card.appendChild(vals);
+    var a = el('div', 'cacts');
+    a.appendChild(btn('Knik andersom', '', function () { pushUndo(); w.bend = w.bend === 'h' ? 'v' : 'h'; changed(); }));
+    if (w.burnt) a.appendChild(btn('Nieuwe draad', 'pri', function () { pushUndo(); w.burnt = false; w.heat = 0; changed(); fillCard(); }));
+    a.appendChild(btn('Verwijder', 'bad', function () { removeWire(w); }));
+    card.appendChild(a); updVals(); return;
+  }
+  var c = sel.o, d = TYPES[c.type];
+  h.innerHTML = ''; h.appendChild(document.createTextNode(d.naam)); var sm = el('small'); sm.textContent = c.label; h.appendChild(sm);
+  var chip = el('div'); chip.id = 'card-chip'; card.appendChild(chip);
+  card.appendChild(el('p', null, INFO[c.type]));
+  card.appendChild(vals);
+  // instellingen
+  var pr = el('div', 'props');
+  if (c.type !== 'kno' && c.type !== 'knc' && c.type !== 'kmain') {
+    var lb = el('label'); lb.appendChild(document.createTextNode('Naam'));
+    var inp = el('input'); inp.id = 'p-label'; inp.value = c.label; inp.maxLength = 6;
+    inp.addEventListener('change', function () {
+      var v = inp.value.trim().slice(0, 6) || c.label; pushUndo();
+      if (c.type === 'coil') circ.comps.forEach(function (k) { if ((k.type === 'kno' || k.type === 'knc' || k.type === 'kmain') && k.props.of === c.label) k.props.of = v; });
+      c.label = v; syncContacts(); changed();
+    });
+    lb.appendChild(inp); pr.appendChild(lb);
+  } else {
+    var lb2 = el('label'); lb2.appendChild(document.createTextNode('Hoort bij spoel'));
+    var s2 = el('select'); s2.id = 'p-of';
+    var opts = coilLabels(); if (opts.indexOf(c.props.of) < 0) opts.push(c.props.of);
+    opts.forEach(function (o) { var op = el('option'); op.value = o; op.textContent = o; if (o === c.props.of) op.selected = true; s2.appendChild(op); });
+    s2.addEventListener('change', function () { pushUndo(); c.props.of = s2.value; syncContacts(); changed(); fillCard(); });
+    lb2.appendChild(s2); pr.appendChild(lb2);
+  }
+  (OPTS[c.type] || []).forEach(function (o) {
+    var lb = el('label'); lb.appendChild(document.createTextNode(o[1]));
+    var s = el('select'); s.id = 'p-' + o[0];
+    var list = o[2].slice(); if (list.indexOf(c.props[o[0]]) < 0) list.push(c.props[o[0]]);
+    list.forEach(function (v) { var op = el('option'); op.value = String(v); op.textContent = propTxt(o[0], v, o[3]); if (v === c.props[o[0]]) op.selected = true; s.appendChild(op); });
+    s.addEventListener('change', function () { pushUndo(); var v = s.value; c.props[o[0]] = typeof o[2][0] === 'number' ? +v : v; changed(); });
+    lb.appendChild(s); pr.appendChild(lb);
+  });
+  card.appendChild(pr);
+  // knoppen
+  var acts = el('div', 'cacts');
+  if (c.type === 'no' || c.type === 'nc') {
+    var hb = el('button', 'btn pri hold', 'Houd ingedrukt'); hb.style.flexBasis = '100%'; hb.style.minHeight = '64px';
+    hb.addEventListener('pointerdown', function (e) { ensureAudio(); try { hb.setPointerCapture(e.pointerId); } catch (er) {} press(c, true); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (ev) { hb.addEventListener(ev, function () { press(c, false); }); });
+    hb.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); press(c, true); } });
+    hb.addEventListener('keyup', function () { press(c, false); });
+    acts.appendChild(hb);
+  }
+  if (c.type === 'sw') acts.appendChild(btn(c.props.on ? 'Zet uit' : 'Zet aan', 'pri', function () { tapOperate(c); fillCard(); }));
+  if (c.type === 'sw2') acts.appendChild(btn('Omzetten', 'pri', function () { tapOperate(c); }));
+  if (c.type === 'rcd') {
+    acts.appendChild(btn(c.st.trip ? 'Inschakelen' : 'Uitschakelen', 'pri', function () { tapOperate(c); fillCard(); }));
+    acts.appendChild(btn('Testknop T', '', function () { if (!c.st.trip) { c.st.trip = true; snd('trip'); changed(); toast(c.label + ' getest: hij schakelt af. Goed zo.'); fillCard(); } }));
+  }
+  if (c.type === 'fuse' && c.st.blown) acts.appendChild(btn('Vervang zekering', 'pri', function () { pushUndo(); c.st.blown = false; c.st.heat = 0; changed(); snd('click'); fillCard(); }));
+  if (c.type === 'am' && c.st.blown) acts.appendChild(btn('Vervang meterzekering', 'pri', function () { pushUndo(); c.st.blown = false; c.st.heat = 0; changed(); fillCard(); }));
+  if (c.st.broken) acts.appendChild(btn('Nieuw onderdeel', 'pri', function () { pushUndo(); c.st.broken = false; c.st.heat = 0; changed(); fillCard(); }));
+  acts.appendChild(btn('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>Draai', '', function () { rotate(c); }));
+  acts.appendChild(btn('Verwijder', 'bad', function () { removeComp(c); toastUndo(d.naam + ' verwijderd.'); }));
+  card.appendChild(acts);
+  updVals();
+}
+function row(k, v) { return '<dt>' + k + '</dt><dd>' + v + '</dd>'; }
+function updVals() {
+  var v = $('card-vals'); if (!v || !sel) return;
+  var h = '';
+  if (sel.k === 'w') { var w = sel.o; h = row('Spanning', fU(w.Va || 0)) + row('Stroom', fI(Math.abs(w.I || 0))) + row('Toestand', w.burnt ? 'doorgebrand' : 'heel'); v.innerHTML = h; return; }
+  var c = sel.o, t = c.type, st = c.st, chip = '', I = Math.abs(c.I || 0), U = Math.abs(c.U || 0);
+  if (t === 'dc' || t === 'ac') h = row('Spanning', fU(U) + (t === 'ac' ? '~' : '')) + row('Stroom', fI(I)) + row('Vermogen', fP(Math.abs(c.P || 0)));
+  else if (t === 'sw' || t === 'sw2' || t === 'no' || t === 'nc' || t === 'kno' || t === 'knc') {
+    var closed = t === 'sw' ? c.props.on : t === 'sw2' ? true : t === 'no' ? c.pressed : t === 'nc' ? !c.pressed : t === 'kno' ? coilOn(c.props.of) : !coilOn(c.props.of);
+    h = row('Contact', t === 'sw2' ? (c.props.pos ? 'midden–rechts' : 'midden–links') : closed ? 'gesloten' : 'open') + row('Stroom', fI(I));
+    if (t === 'kno' || t === 'knc') h += row('Spoel ' + c.props.of, coilOn(c.props.of) ? 'aan' : 'uit');
+    chip = closed ? '<span class="chip ok">dicht</span>' : '<span class="chip off">open</span>';
+    if (t === 'sw2') chip = '';
+  } else if (t === 'coil') {
+    h = row('Spanning', fU(U)) + row('Stroom', fI(I)) + row('Trekt aan bij', num(0.75 * c.props.Uc, 1) + ' V') + row('Valt af onder', num(0.4 * c.props.Uc, 1) + ' V');
+    chip = st.broken ? '<span class="chip bad">kapot</span>' : st.on ? '<span class="chip ok">bekrachtigd</span>' : '<span class="chip off">uit</span>';
+  } else if (t === 'rcd') {
+    h = row('Stroom L', fI(I)) + row('Lekstroom', fI(c.leak || 0)) + row('Grens', c.props.mA + ' mA');
+    chip = st.trip ? '<span class="chip bad">afgeschakeld</span>' : '<span class="chip ok">in</span>';
+  } else if (t === 'fuse') {
+    h = row('Stroom', fI(I)) + row('Belasting', Math.round(I / c.props.In * 100) + ' %');
+    chip = st.blown ? '<span class="chip bad">doorgebrand</span>' : '<span class="chip ok">heel</span>';
+  } else if (t === 'led') {
+    h = row('Spanning', fU(c.U || 0)) + row('Stroom', fI(c.I || 0)) + row('Drempel', num(C.LED_KLEUR[c.props.kleur], 1) + ' V') + row('Maximaal', '30 mA');
+    chip = st.broken ? '<span class="chip bad">kapot</span>' : c.bright > 0.02 ? '<span class="chip ok">brandt</span>' : '<span class="chip off">uit</span>';
+  } else if (t === 'vm') h = row('Meet', fU(c.U || 0));
+  else if (t === 'am') { h = row('Meet', st.blown ? 'zekering kapot' : fI(c.I || 0)); chip = st.blown ? '<span class="chip bad">zekering kapot</span>' : ''; }
+  else {
+    h = row('Spanning', fU(U)) + row('Stroom', fI(I)) + row('Vermogen', fP(Math.abs(c.P || 0)));
+    if (t === 'res') h += row('Max', fP(c.props.Pmax));
+    chip = st.broken ? '<span class="chip bad">kapot</span>' : (t === 'lamp' && c.bright > 0.05) || (t === 'buzz' && c.active) || (t === 'motor' && Math.abs(c.speed) > 0.05) ? '<span class="chip ok">aan</span>' : t === 'res' ? '' : '<span class="chip off">uit</span>';
+  }
+  v.innerHTML = h;
+  var ch = $('card-chip'); if (ch && ch.innerHTML !== chip) ch.innerHTML = chip;
+}
+
+/* ---------- meldingen ---------- */
+function toast(msg, bad, action) {
+  var box = $('toasts'), t = el('div', 'toast' + (bad ? ' bad' : '')); var s = el('span'); s.textContent = msg; t.appendChild(s);
+  if (action) { var b = el('button', null, action[0]); b.addEventListener('click', function () { action[1](); t.remove(); }); t.appendChild(b); }
+  box.appendChild(t); while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(function () { t.remove(); }, bad ? 6000 : 4000);
+}
+function toastUndo(msg) { toast(msg, false, ['Terug', doUndo]); }
+var hintOn = true;
+function hint(s) { $('hint-t').textContent = s; $('hint').hidden = false; }
+var MODEHINT = {
+  bedien: 'Tik op een onderdeel voor uitleg. Sleep om te verplaatsen. Houd een drukknop vast.',
+  draad: 'Sleep van punt naar punt. Of tik het begin en daarna het eind.',
+  meten: 'Tik twee punten. Je ziet de spanning ertussen.',
+  gum: 'Tik op een onderdeel of draad om het weg te halen.'
+};
+function setMode(m) {
+  mode = m; wireStart = null; preview = null;
+  document.querySelectorAll('.modes button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.mode === m ? 'true' : 'false'); });
+  $('meter').hidden = m !== 'meten'; hint(MODEHINT[m]);
+  if (m !== 'bedien') { sel = null; closeCard(); }
+}
+
+/* ---------- vellen: voorbeelden en bewaren ---------- */
+function openSheet(build) { var s = $('sheet-in'); s.innerHTML = ''; build(s); $('sheet').hidden = false; }
+function closeSheet() { $('sheet').hidden = true; }
+$('sheet').addEventListener('click', function (e) { if (e.target === $('sheet')) closeSheet(); });
+function sheetTop(s, title) { var t = el('div', 'top'), h = el('h2', null, title), x = el('button', 'btn', '×'); x.setAttribute('aria-label', 'Sluiten'); x.addEventListener('click', closeSheet); t.appendChild(h); t.appendChild(x); s.appendChild(t); }
+function sheetExamples() {
+  openSheet(function (s) {
+    sheetTop(s, 'Voorbeelden');
+    C.EXAMPLES.forEach(function (ex) {
+      var b = el('button', 'ex'); var bb = el('b'); bb.textContent = ex.naam; var sp = el('span'); sp.textContent = ex.uitleg; b.appendChild(bb); b.appendChild(sp);
+      b.addEventListener('click', function () { loadExample(ex); closeSheet(); }); s.appendChild(b);
+    });
+  });
+}
+function getSaved() { var a = lsGet('schakelbord.saved', []); return Array.isArray(a) ? a : []; }
+function sheetSave() {
+  openSheet(function (s) {
+    sheetTop(s, 'Bewaren');
+    s.appendChild(el('h3', null, 'Opslaan op dit apparaat'));
+    var r = el('div', 'row2'), inp = el('input'); inp.id = 'save-name'; inp.placeholder = 'Naam, bijv. Opdracht 3'; inp.value = circ.naam || '';
+    r.appendChild(inp);
+    r.appendChild(btn('Opslaan', 'pri', function () {
+      var n = inp.value.trim() || 'Schakeling ' + new Date().toLocaleDateString('nl-NL');
+      circ.naam = n; var list = getSaved().filter(function (x) { return x.naam !== n; });
+      list.unshift({ naam: n, t: Date.now(), data: C.serialize(circ) });
+      if (lsSet('schakelbord.saved', list)) { toast('Opgeslagen als "' + n + '".'); sheetSave(); } else toast('Opslaan lukt niet in deze browser. Gebruik Exporteer.', true);
+    }));
+    s.appendChild(r);
+    var list = getSaved(), auto = lsGet('schakelbord.auto', null), box = el('div', 'saved');
+    if (auto && auto.data) list = list.concat([auto]);
+    if (!list.length) box.appendChild(el('p', 'muted', 'Nog niets opgeslagen.'));
+    list.forEach(function (it) {
+      var row = el('div', 'it'), d = el('div'); d.textContent = it.naam; var sm = el('small'); sm.textContent = new Date(it.t).toLocaleString('nl-NL', { dateStyle: 'short', timeStyle: 'short' }); d.appendChild(sm);
+      row.appendChild(d);
+      row.appendChild(btn('Laden', '', function () { try { pushUndo(); setCirc(C.deserialize(it.data), true); closeSheet(); toast('"' + it.naam + '" geladen.'); } catch (e) { toast('Laden mislukt.', true); } }));
+      if (it !== auto) {
+        var del = btn('Wis', 'bad', function () {
+          if (del.dataset.sure) { lsSet('schakelbord.saved', getSaved().filter(function (x) { return x.naam !== it.naam; })); sheetSave(); }
+          else { del.dataset.sure = '1'; del.textContent = 'Zeker?'; }
+        });
+        row.appendChild(del);
+      }
+      box.appendChild(row);
+    });
+    s.appendChild(box);
+    s.appendChild(el('h3', null, 'Delen als tekst'));
+    var ta = el('textarea'); ta.id = 'io-text'; ta.placeholder = 'Plak hier een schakeling als tekst.'; ta.spellcheck = false;
+    var r2 = el('div', 'row2');
+    r2.appendChild(btn('Exporteer', '', function () { ta.value = JSON.stringify(C.serialize(circ)); ta.select(); }));
+    r2.appendChild(btn('Kopieer', '', function () {
+      if (!ta.value) ta.value = JSON.stringify(C.serialize(circ));
+      var done = function () { toast('Gekopieerd.'); };
+      try { navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); toast('Tekst is geselecteerd. Kopieer hem zelf.'); }); } catch (e) { ta.select(); }
+    }));
+    r2.appendChild(btn('Importeer', 'pri', function () {
+      try { var c = C.deserialize(JSON.parse(ta.value)); pushUndo(); setCirc(c, true); closeSheet(); toast('Schakeling geladen.'); }
+      catch (e) { toast('Deze tekst is geen schakeling. Kopieer de hele tekst opnieuw.', true); }
+    }));
+    s.appendChild(ta); s.appendChild(r2);
+    s.appendChild(el('h3', null, 'Opnieuw beginnen'));
+    var nb = btn('Leeg bord', 'bad', function () {
+      if (nb.dataset.sure) { pushUndo(); setCirc({ naam: '', comps: [], wires: [] }, false); closeSheet(); toastUndo('Bord is leeg.'); }
+      else { nb.dataset.sure = '1'; nb.textContent = 'Zeker? Tik nog een keer'; }
+    });
+    s.appendChild(nb);
+  });
+}
+
+/* ---------- hoofdlus ---------- */
+var last = performance.now(), frame = 0, cardT = 0;
+function loop(now) {
+  var dt = Math.min(0.05, (now - last) / 1000); last = now; simT += dt; frame++;
+  if (frame % 30 === 1) readTheme();
+  var n = Math.max(1, Math.round(dt / (1 / 60))), h = dt / n, buzz = false, motor = 0;
+  for (var i = 0; i < n; i++) {
+    var ev = C.step(circ, h, S);
+    ev.forEach(handleEv);
+  }
+  circ.comps.forEach(function (c) {
+    if (c.type === 'buzz' && c.active) buzz = true;
+    if (c.type === 'motor') { motor = Math.max(motor, Math.abs(c.speed || 0)); c.ang = (c.ang || 0) + (c.speed || 0) * dt * 10; }
+  });
+  updHum(buzz, motor);
+  render(dt);
+  if (mode === 'meten') updMeter();
+  cardT += dt; if (cardT > 0.2 && !$('card').hidden) { cardT = 0; updVals(); }
+  requestAnimationFrame(loop);
+}
+function handleEv(e) {
+  if (e.t === 'relay') { snd(e.on ? 'relay' : 'relayoff'); }
+  else if (e.t === 'pop') { snd('pop'); toast(e.msg, true); if (e.w) e.w.flash = simT + 1.5; if (sel && (sel.o === e.c || sel.o === e.w)) fillCard(); }
+  else if (e.t === 'trip') { snd('trip'); toast(e.msg, true); if (sel && sel.o === e.c) fillCard(); }
+  else if (e.t === 'short') {
+    if (e.w) e.w.flash = simT + 1.2;
+    if (simT - lastShort > 3) { lastShort = simT; toast('Kortsluiting! Heel grote stroom: ' + fI(e.I) + '.', true); }
+  }
+}
+
+/* ---------- start ---------- */
+document.querySelectorAll('.modes button').forEach(function (b) { b.addEventListener('click', function () { setMode(b.dataset.mode); }); });
+$('b-undo').addEventListener('click', doUndo); $('b-undo').disabled = true;
+$('b-ex').addEventListener('click', sheetExamples);
+$('b-save').addEventListener('click', sheetSave);
+$('b-snd').addEventListener('click', function () { setSound(!soundOn); toast(soundOn ? 'Geluid aan.' : 'Geluid uit.'); });
+$('hint-x').addEventListener('click', function () { $('hint').hidden = true; });
+$('z-in').addEventListener('click', function () { zoomAt(1.25, W / 2, H / 2); });
+$('z-out').addEventListener('click', function () { zoomAt(0.8, W / 2, H / 2); });
+$('z-fit').addEventListener('click', fitView);
+$('meter-clr').addEventListener('click', function () { probes = { a: null, b: null }; });
+document.addEventListener('keydown', function (e) {
+  if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === 'Escape') { if (!$('sheet').hidden) closeSheet(); else select(null); }
+  if (sel && sel.k === 'c' && (e.key === 'r' || e.key === 'R')) rotate(sel.o);
+  if (sel && (e.key === 'Delete' || e.key === 'Backspace')) { if (sel.k === 'c') removeComp(sel.o); else removeWire(sel.o); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); doUndo(); }
+});
+new ResizeObserver(resize).observe(stage);
+buildPalette(); readTheme(); setSound(soundOn);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { col._k = ''; readTheme(); });
+loadExample(C.EXAMPLES[0]);
+requestAnimationFrame(function (t) { last = t; loop(t); });
+})();
+</script>
+
+
+<div id="idee" hidden style="position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center">
+  <div style="background:var(--panel);color:var(--ink);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:16px;display:grid;gap:10px;max-height:80vh;overflow:auto">
+    <h2 style="margin:0">Onderdeel bedenken</h2>
+    <p style="margin:0;color:var(--muted)">Mis je een onderdeel? Schrijf het op. Het komt op je lijstje en bouwen we later samen.</p>
+    <textarea id="idee-tekst" rows="2" maxlength="200" placeholder="Bijvoorbeeld: bewegingsmelder" style="font:inherit;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"></textarea>
+    <div style="display:flex;gap:8px"><button class="btn pri" id="idee-bewaar">Bewaar idee</button><button class="btn" id="idee-dicht">Sluiten</button></div>
+    <b>Suggesties</b>
+    <div id="idee-sug" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    <b>Jouw ideeën</b>
+    <ul id="idee-lijst" style="margin:0;padding-left:20px"></ul>
+  </div>
+</div>
+<script>
+(function () {
+  var KEY = 'schakelbord.ideeen';
+  var SUG = ['Transformator', 'Driefasen-net (400 V)', 'Condensator', 'Diode', 'Thermisch relais', 'Tijdrelais', 'Bewegingsmelder', 'Thermostaat', 'Wisselschakelaar (hotel)', 'Kruisschakelaar', 'Stopcontact', 'Dimmer', 'Installatieautomaat'];
+  function lees() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+  function schrijf(l) { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} }
+  var bak = document.getElementById('idee');
+  function toon() {
+    var l = lees(), ul = document.getElementById('idee-lijst'); ul.innerHTML = '';
+    if (!l.length) { var li = document.createElement('li'); li.textContent = 'Nog geen ideeën.'; ul.appendChild(li); }
+    l.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+    var sg = document.getElementById('idee-sug'); sg.innerHTML = '';
+    SUG.filter(function (t) { return l.indexOf(t) < 0; }).forEach(function (t) {
+      var b = document.createElement('button'); b.className = 'btn'; b.textContent = '+ ' + t;
+      b.addEventListener('click', function () { var m = lees(); m.push(t); schrijf(m); toon(); });
+      sg.appendChild(b);
+    });
+  }
+  document.getElementById('b-idee').addEventListener('click', function () { toon(); bak.hidden = false; });
+  document.getElementById('idee-dicht').addEventListener('click', function () { bak.hidden = true; });
+  bak.addEventListener('click', function (e) { if (e.target === bak) bak.hidden = true; });
+  document.getElementById('idee-bewaar').addEventListener('click', function () {
+    var ta = document.getElementById('idee-tekst'), t = ta.value.trim(); if (!t) return;
+    var m = lees(); m.push(t.slice(0, 200)); schrijf(m); ta.value = ''; toon();
+  });
+})();
+</script>
+</body></html>

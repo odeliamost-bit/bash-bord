@@ -91,7 +91,7 @@ sealed interface Scherm {
     data class Later(val plek: Plek) : Scherm
     data class GroepTegels(val groep: Groep) : Scherm
     data object LerenTegels : Scherm
-    data class Simulator(val deel: SimDeel = SimDeel.Kast) : Scherm
+    data class Simulator(val deel: SimDeel = SimDeel.Tekenen) : Scherm
 }
 
 /** De hele app: zijbalk links, het gekozen scherm rechts. */

@@ -54,6 +54,7 @@ import nl.odelia.dashboard.ui.theme.Pastels
 
 /** De onderdelen van de Simulator. */
 enum class SimDeel(val label: String) {
+    Tekenen("✏️ Tekenen"),
     Kast("Groepenkast"),
     Kring("Stroomkring"),
     Motor("Motor"),
@@ -82,6 +83,30 @@ fun SimulatorScherm(
     var kring by remember { mutableStateOf(KringStaat()) }
     var motor by remember { mutableStateOf(MotorStaat()) }
 
+    @Composable
+    fun Kop() {
+        TerugBalk(if (begin == SimDeel.Formules) "Formules" else "Simulator", onTerug)
+        if (begin != SimDeel.Formules) {
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SimDeel.entries.filter { it != SimDeel.Formules }.forEach { d ->
+                    Keuze(d.label, d == deel, onClick = { deel = d; gekozen = null })
+                }
+            }
+        }
+    }
+
+    // Tekenen vult het hele scherm (niet scrollen: daar sleep je onderdelen).
+    if (deel == SimDeel.Tekenen) {
+        Column(
+            modifier.fillMaxSize().padding(start = 8.dp, end = 16.dp, top = 24.dp, bottom = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Kop()
+            Tekenvlak(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(22.dp)))
+        }
+        return
+    }
+
     Box(modifier.fillMaxSize().verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
         Column(
             Modifier
@@ -90,20 +115,14 @@ fun SimulatorScherm(
                 .padding(start = 8.dp, end = 16.dp, top = 24.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            TerugBalk(if (begin == SimDeel.Formules) "Formules" else "Simulator", onTerug)
-            if (begin != SimDeel.Formules) {
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SimDeel.entries.filter { it != SimDeel.Formules }.forEach { d ->
-                        Keuze(d.label, d == deel, onClick = { deel = d; gekozen = null })
-                    }
-                }
-            }
+            Kop()
             val kies: (Onderdeel) -> Unit = { gekozen = it }
             when (deel) {
                 SimDeel.Kast -> KastDeel(kast, { kast = it }, kies)
                 SimDeel.Kring -> KringDeel(kring, { kring = it }, kies)
                 SimDeel.Motor -> MotorDeel(motor, { motor = it }, kies)
                 SimDeel.Aders -> Simulator.aders.forEach { AderRegel(it) }
+                SimDeel.Tekenen -> Unit
                 SimDeel.Formules -> Simulator.formules.forEach { f ->
                     Paneel {
                         Tekst(f.titel, 20.sp)
