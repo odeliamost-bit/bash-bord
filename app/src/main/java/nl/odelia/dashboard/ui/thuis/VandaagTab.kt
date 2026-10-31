@@ -94,7 +94,7 @@ fun VandaagTab(staat: AppStaat, acties: AppActies, onGaNaar: (Scherm) -> Unit) {
                 )
                 StatTegel(
                     Pastels.Blauw, Icoontjes.mail, "Mail Kim", "vr", mailMoment(klok), Modifier.weight(1f),
-                    onClick = { onGaNaar(Scherm.Urenmail) },
+                    onClick = { onGaNaar(Scherm.Urenmail()) },
                 )
             }
         }

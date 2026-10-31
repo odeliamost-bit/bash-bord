@@ -50,6 +50,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Alleen om de uren-PDF als bijlage aan Gmail te geven (tijdelijke leesrechten, niet open voor andere apps). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.bestanden"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/bestanden" />
+        </provider>
+
         <receiver
             android:name=".meldingen.Ontvanger"
             android:exported="false" />

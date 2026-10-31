@@ -46,7 +46,8 @@ fun main(args: Array<String>) {
     teken("6-toevoegen", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Toevoegen()) }
     teken("7-lijst", 411, 1300) { DashboardApp(staat, geen, beginScherm = Scherm.Lijst()) }
     teken("8-mensen", 411, 1300) { DashboardApp(staat, geen, beginScherm = Scherm.Mensen()) }
-    teken("9-urenmail", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Urenmail) }
+    teken("9-urenmail", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Urenmail()) }
+    teken("9b-urenmail-week", 411, 1900) { DashboardApp(staat, geen, beginScherm = Scherm.Urenmail(nl.odelia.dashboard.logica.UrenBereik.Week)) }
     teken("10-tablet", 800, 1200) { DashboardApp(staat, geen) }
     val metWeer = staat.copy(zeilweer = Voorbeeld.zeilweer())
     // Op de computer staan geen weer-apps: grijze vlakjes in plaats van de echte icoontjes.
