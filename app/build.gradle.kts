@@ -19,6 +19,9 @@ android {
         // Sync (Supabase). Uit GitHub-geheimen, niet uit git (zie README). Leeg = geen sync in deze versie.
         buildConfigField("String", "SUPABASE_URL", "\"${System.getenv("SUPABASE_URL").orEmpty().trim()}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${System.getenv("SUPABASE_ANON_KEY").orEmpty().trim()}\"")
+        // Uren naar Google Sheet: adres van het Apps Script en de geheime code (zie README). Leeg = uit.
+        buildConfigField("String", "SHEET_URL", "\"${System.getenv("SHEET_URL").orEmpty().trim()}\"")
+        buildConfigField("String", "SHEET_TOKEN", "\"${System.getenv("SHEET_TOKEN").orEmpty().trim()}\"")
     }
 
     // Vaste handtekening, zodat een nieuwe versie over de oude heen gaat en je gegevens blijven.

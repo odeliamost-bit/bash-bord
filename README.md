@@ -41,7 +41,7 @@ Dan staan Geld, Onthoud (en Mensen), Wensen, Leren, Recepten en Instellingen op 
 Grote tekst en tegels blijven per apparaat. Foto's gaan nog niet mee.
 
 > **Had je Supabase al ingesteld vóór november 2026?** Plak `supabase/kompas.sql` dan nog één keer en tik **Run** (stap 1). Anders gaan de Instellingen niet mee.
-Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het apparaat.
+Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis gaan nooit via Supabase. (Uren kunnen wel naar je Google-spreadsheet, zie hieronder.)
 
 **1. Tabel maken in Supabase**
 - Open je project op supabase.com ➜ **SQL Editor** ➜ **New query**.
@@ -64,6 +64,11 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 
 **5. Alleen jij**
 - Na je eerste inlog: **Authentication ➜ Sign In / Providers** ➜ **Allow new users to sign up** uit.
+
+## 📊 Uren naar Google Sheet (één keer instellen)
+
+Na het uitklokken zet de app begin, eind en pauze in "Cargill_Registratie Werktijden_Odelia". Alleen lege dagen.
+Stappen: zie [`hulpmiddelen/sheet/README.md`](hulpmiddelen/sheet/README.md). Geheimen: `SHEET_URL` en `SHEET_TOKEN`.
 
 ## 🛡️ Beveiliging
 

@@ -34,6 +34,7 @@ import nl.odelia.dashboard.logica.Werkdag
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.online.Sync
+import nl.odelia.dashboard.online.UrenNaarSheet
 import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.Opdracht
@@ -114,6 +115,7 @@ class MainActivity : ComponentActivity() {
         )
         Meldingen.maakKanalen(this)
         Sync.start(this)
+        UrenNaarSheet.probeer(this)
         vraagToestemmingVoorMeldingen()
         lifecycleScope.launch { Planner.plan(applicationContext) }
         lees(intent)

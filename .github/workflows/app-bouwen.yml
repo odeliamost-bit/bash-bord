@@ -60,15 +60,18 @@ jobs:
           # Sync: eigen Supabase-project. Leeg = de app bouwt zonder sync.
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # Uren naar Google Sheet (Apps Script). Leeg = de app bouwt zonder.
+          SHEET_URL: ${{ secrets.SHEET_URL }}
+          SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
         run: ./gradlew assembleRelease testReleaseUnitTest --stacktrace
 
-      - name: Controle — online alleen via online/, naar Open-Meteo en de eigen Supabase
+      - name: Controle — online alleen via online/, naar Open-Meteo, de eigen Supabase en Google Apps Script
         run: |
-          # Netwerkcode mag alleen in Online.kt (weer) en Supabase.kt (sync) staan.
+          # Netwerkcode mag alleen in Online.kt (weer), Supabase.kt (sync) en Sheet.kt (uren naar Google Sheet) staan.
           buiten=$(grep -rlE "openConnection|HttpURLConnection|HttpsURLConnection|Socket\(|okhttp|io\.ktor|import java\.net\.URL$" app/src/main/java \
-            | grep -vE "/online/(Online|Supabase)\.kt$" || true)
+            | grep -vE "/online/(Online|Supabase|Sheet)\.kt$" || true)
           if [ -n "$buiten" ]; then
-            echo "::error::Netwerkcode buiten online/Online.kt en online/Supabase.kt gevonden: $buiten"
+            echo "::error::Netwerkcode buiten online/Online.kt, online/Supabase.kt en online/Sheet.kt gevonden: $buiten"
             exit 1
           fi
           # De sync mag alleen de onderdelen die Odelia koos. Uren, cyclus, mail, advies, weer en thuis: nooit.
@@ -79,6 +82,11 @@ jobs:
           # En Online.kt mag alleen naar de weerdienst Open-Meteo.
           if ! grep -q 'TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com")' app/src/main/java/nl/odelia/dashboard/online/Online.kt; then
             echo "::error::De lijst met toegestane websites in Online.kt is veranderd. Pas deze controle bewust mee aan."
+            exit 1
+          fi
+          # Sheet.kt mag alleen naar Google Apps Script (uren naar de spreadsheet, gekozen door Odelia).
+          if ! grep -q 'TOEGESTAAN = setOf("script.google.com", "script.googleusercontent.com")' app/src/main/java/nl/odelia/dashboard/online/Sheet.kt; then
+            echo "::error::De lijst met toegestane websites in Sheet.kt is veranderd. Pas deze controle bewust mee aan."
             exit 1
           fi
 
