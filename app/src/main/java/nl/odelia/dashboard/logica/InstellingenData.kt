@@ -30,6 +30,8 @@ data class InstellingenData(
     val ochtendMelding: Boolean = true,
     val urenmailSeintje: Boolean = true,
     val deadlineSeintje: Boolean = true,
+    /** Afgeronde werkdagen naar de Google-spreadsheet (alleen als dat is ingesteld, zie README). */
+    val urenNaarSheet: Boolean = true,
     /** Zichtbare tegels, in deze volgorde. Wat er niet in staat, is verborgen. */
     val tegels: List<TegelSoort> = TegelSoort.entries,
     /** Namen van menu-plekken die verborgen zijn (bijv. "Zeilweer"). */
@@ -74,6 +76,7 @@ object InstellingenJson {
         .put("ochtendMelding", d.ochtendMelding)
         .put("urenmailSeintje", d.urenmailSeintje)
         .put("deadlineSeintje", d.deadlineSeintje)
+        .put("urenNaarSheet", d.urenNaarSheet)
         .put("tegels", JSONArray(d.tegels.map { it.name }))
         .put("verborgenMenu", JSONArray(d.verborgenMenu.sorted()))
         .toString()
@@ -122,6 +125,7 @@ object InstellingenJson {
             ochtendMelding = x.optBoolean("ochtendMelding", s.ochtendMelding),
             urenmailSeintje = x.optBoolean("urenmailSeintje", s.urenmailSeintje),
             deadlineSeintje = x.optBoolean("deadlineSeintje", s.deadlineSeintje),
+            urenNaarSheet = x.optBoolean("urenNaarSheet", s.urenNaarSheet),
             tegels = tegels,
             verborgenMenu = menu,
         )

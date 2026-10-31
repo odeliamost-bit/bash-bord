@@ -2,6 +2,7 @@ package nl.odelia.dashboard
 
 import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.ClipData
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -20,14 +21,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.data.UrenPdf
+import nl.odelia.dashboard.logica.UrenPeriode
+import nl.odelia.dashboard.logica.Urenmail
+import nl.odelia.dashboard.logica.Werkdag
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.online.Sync
+import nl.odelia.dashboard.online.UrenNaarSheet
 import nl.odelia.dashboard.ui.AppActies
 import nl.odelia.dashboard.ui.DashboardApp
 import nl.odelia.dashboard.ui.Opdracht
@@ -108,6 +115,7 @@ class MainActivity : ComponentActivity() {
         )
         Meldingen.maakKanalen(this)
         Sync.start(this)
+        UrenNaarSheet.probeer(this)
         vraagToestemmingVoorMeldingen()
         lifecycleScope.launch { Planner.plan(applicationContext) }
         lees(intent)
@@ -124,6 +132,8 @@ class MainActivity : ComponentActivity() {
                     }
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
+                    override fun openUrenmail(periode: UrenPeriode, dagen: List<Werkdag>, opmerking: String) =
+                        openUrenmailApp(periode, dagen, opmerking)
                     override fun openLink(link: String) = openInBrowser(link)
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
@@ -251,11 +261,38 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun openMailApp(onderwerp: String, tekst: String): Boolean {
-        val mail = Intent(Intent.ACTION_SEND)
+    private fun openMailApp(onderwerp: String, tekst: String): Boolean = startMail(
+        Intent(Intent.ACTION_SEND)
             .setType("text/plain")
             .putExtra(Intent.EXTRA_SUBJECT, onderwerp)
-            .putExtra(Intent.EXTRA_TEXT, tekst)
+            .putExtra(Intent.EXTRA_TEXT, tekst),
+    )
+
+    /**
+     * Urenmail: tekst + tabel als PDF-bijlage. De PDF staat alleen in de cache-map van de app;
+     * Gmail mag hem lezen (tijdelijke leesrechten). Lukt de PDF niet, dan gaat de mail zonder bijlage.
+     */
+    private fun openUrenmailApp(periode: UrenPeriode, dagen: List<Werkdag>, opmerking: String): Boolean {
+        val pdf = try {
+            UrenPdf.maak(cacheDir, periode, dagen)
+        } catch (_: Exception) {
+            null
+        }
+        val mail = Intent(Intent.ACTION_SEND)
+            .setType(if (pdf != null) "application/pdf" else "text/plain")
+            .putExtra(Intent.EXTRA_SUBJECT, Urenmail.onderwerp(periode))
+            .putExtra(Intent.EXTRA_TEXT, Urenmail.tekst(dagen, opmerking, periode.zin, bijlage = pdf != null))
+        if (pdf != null) {
+            val uri = FileProvider.getUriForFile(this, "$packageName.bestanden", pdf)
+            mail.putExtra(Intent.EXTRA_STREAM, uri)
+            mail.clipData = ClipData.newRawUri(pdf.name, uri)
+            mail.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        return startMail(mail)
+    }
+
+    /** Eerst Gmail; staat die er niet op, dan mag Odelia een andere mail-app kiezen. */
+    private fun startMail(mail: Intent): Boolean {
         return try {
             startActivity(Intent(mail).setPackage("com.google.android.gm"))
             true

@@ -143,6 +143,14 @@ private fun InstellingenTab(ins: InstellingenData, wijzig: ((InstellingenData) -
         }
     }
 
+    Kaart("📊 Google Sheet") {
+        AanUit(
+            "Uren naar de spreadsheet",
+            "Na uitklokken: begin, eind en pauze in \"Cargill_Registratie Werktijden\". Alleen lege dagen.",
+            ins.urenNaarSheet,
+        ) { wijzig { it.copy(urenNaarSheet = !it.urenNaarSheet) } }
+    }
+
     Kaart("🎯 Weekdoel") {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             ZachteKnop("−", onClick = { wijzig { it.copy(weekdoel = InstellingenData.weekdoelStap(it.weekdoel, -1)) } },

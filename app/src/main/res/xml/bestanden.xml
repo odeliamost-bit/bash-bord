@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Welke bestanden de app (tijdelijk) aan een andere app mag geven: alleen de uren-PDF voor Gmail. -->
+<paths>
+    <cache-path name="urenmail" path="urenmail/" />
+</paths>

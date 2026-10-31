@@ -58,6 +58,7 @@ import nl.odelia.dashboard.ui.weer.ZeilweerScherm
 import nl.odelia.dashboard.ui.wensen.WensenBegin
 import nl.odelia.dashboard.ui.wensen.WensenScherm
 import nl.odelia.dashboard.ui.werk.UrenmailScherm
+import nl.odelia.dashboard.logica.UrenBereik
 
 /** Welk scherm rechts van de zijbalk staat. */
 sealed interface Scherm {
@@ -70,7 +71,8 @@ sealed interface Scherm {
         val groep: String? = null,
     ) : Scherm
     data class Lijst(val perPersoon: Boolean = false) : Scherm
-    data object Urenmail : Scherm
+    /** [begin]: alvast gekozen periode (de vrijdag-melding kiest "Deze week"). */
+    data class Urenmail(val begin: UrenBereik? = null) : Scherm
     data object Zeilweer : Scherm
     data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
     data object Cyclus : Scherm
@@ -145,7 +147,7 @@ fun DashboardApp(
             "toevoegen" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(tekst = o.tekst.orEmpty())) }
             "inspreken" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(inspreken = true)) }
             "onthoud" -> naarPlek(Plek.Onthoud)
-            "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
+            "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail(UrenBereik.Week)) }
             "werk" -> naarPlek(Plek.Werk)
             "cyclus" -> naarPlek(Plek.Cyclus)
         }
@@ -165,7 +167,7 @@ fun DashboardApp(
         }
         is Scherm.Toevoegen -> Plek.Onthoud
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
-        Scherm.Urenmail -> Plek.Werk
+        is Scherm.Urenmail -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Leren -> Plek.Leren
         Scherm.Cyclus -> Plek.Cyclus
@@ -217,13 +219,14 @@ fun DashboardApp(
                     onMelding = ::toon,
                     modifier = inhoud,
                 )
-                Scherm.Urenmail -> UrenmailScherm(
+                is Scherm.Urenmail -> UrenmailScherm(
                     staat = staat,
                     acties = acties,
                     onTerug = ::terug,
                     onNaarWerk = { naarPlek(Plek.Werk) },
                     onMelding = ::toon,
                     modifier = inhoud,
+                    begin = scherm.begin,
                 )
                 Scherm.Zeilweer -> ZeilweerScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)

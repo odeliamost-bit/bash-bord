@@ -14,6 +14,8 @@ import nl.odelia.dashboard.logica.LerenData
 import nl.odelia.dashboard.logica.Onthoud
 import nl.odelia.dashboard.logica.Periode
 import nl.odelia.dashboard.logica.Plek
+import nl.odelia.dashboard.logica.UrenPeriode
+import nl.odelia.dashboard.logica.Werkdag
 import nl.odelia.dashboard.logica.ReceptenData
 import nl.odelia.dashboard.logica.ReceptenStart
 import nl.odelia.dashboard.logica.Weerbericht
@@ -81,6 +83,12 @@ interface AppActies {
 
     /** Open Gmail (of een andere mail-app) met een nieuwe mail. Verstuurt niks. */
     fun openMail(onderwerp: String, tekst: String): Boolean = false
+
+    /**
+     * Open Gmail met de urenmail voor Kim: tekst + de tabel als PDF-bijlage. Verstuurt niks.
+     * De PDF wordt op de telefoon gemaakt (cache-map); de app zet niks online.
+     */
+    fun openUrenmail(periode: UrenPeriode, dagen: List<Werkdag>, opmerking: String): Boolean = false
 
     /** Open een https-link in Chrome of Google Maps (de app zelf gaat dan niet online). */
     fun openLink(link: String): Boolean = false
