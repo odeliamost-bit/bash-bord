@@ -66,6 +66,8 @@ class Opslag private constructor(context: Context) {
         var laatste: LocalDateTime? = null
         db.werktijd().lijstVanaf(vanaf()).filter { it.eind == null }.forEach {
             val tot = eind(it.begin.alsTijd())
+            // Een eindtijd in de toekomst kan niet: die periode loopt gewoon nog (vandaag al ingeklokt).
+            if (tot.alsMillis() > nu) return@forEach
             db.werktijd().bewaar(it.copy(eind = tot.alsMillis(), updatedAt = nu))
             laatste = tot
         }
