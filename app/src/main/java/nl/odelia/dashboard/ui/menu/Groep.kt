@@ -11,7 +11,7 @@ enum class Groep(val label: String, val icoon: Plek, val plekken: List<Plek>) {
     Werk("Werk", Plek.Werk, listOf(Plek.Werk, Plek.Mail)),
     Onthoud("Onthoud", Plek.Onthoud, listOf(Plek.Onthoud, Plek.Mensen)),
     Leren("Leren", Plek.Leren, listOf(Plek.Leren)),
-    Geld("Geld", Plek.Geld, listOf(Plek.Geld, Plek.Wensen)),
+    Geld("Geld", Plek.Geld, listOf(Plek.Geld, Plek.Beleggen, Plek.Wensen)),
     VoorMij("Voor mij", Plek.Wensen, listOf(Plek.Cyclus, Plek.Recepten, Plek.Zeilweer, Plek.Advies)),
     Instellingen("Instellingen", Plek.Instellingen, listOf(Plek.Instellingen)),
     ;
@@ -33,6 +33,7 @@ fun Plek.onderschrift(): String = when (this) {
     Plek.Mensen -> "wie is wie"
     Plek.Leren -> "kaarten, quiz, school"
     Plek.Geld -> "je potjes"
+    Plek.Beleggen -> "Ahold, aandelen en tips"
     Plek.Wensen -> "wensenlijst"
     Plek.Cyclus -> "alleen op je telefoon"
     Plek.Recepten -> "koken"

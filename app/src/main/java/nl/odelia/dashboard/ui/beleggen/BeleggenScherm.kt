@@ -1,5 +1,6 @@
 package nl.odelia.dashboard.ui.beleggen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,7 +49,12 @@ import nl.odelia.dashboard.ui.onderdelen.rememberVraag
 import nl.odelia.dashboard.ui.theme.Kleur
 import nl.odelia.dashboard.ui.theme.Pastels
 
-private enum class BTab(val label: String) { Vandaag("📍 Nu"), Potten("👛 Potten"), Ideeen("💡 Ideeën"), Test("🧪 Test") }
+private enum class BTab(val emoji: String, val label: String, val onder: String) {
+    Vandaag("📍", "Advies nu", "kopen, houden of verkopen"),
+    Potten("👛", "Mijn potten", "echte pot en oefenpot"),
+    Ideeen("💡", "Ideeën", "andere aandelen en ETF-tips"),
+    Test("🧪", "Test en instellingen", "werkt het model?"),
+}
 
 private val Bruin = Color(0xFF5A3426)
 private val dagNotatie = DateTimeFormatter.ofPattern("EEEE d MMM", Locale.forLanguageTag("nl"))
@@ -68,7 +75,7 @@ fun BeleggenScherm(
     onMelding: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var tab by remember { mutableStateOf(BTab.Vandaag) }
+    var tab by remember { mutableStateOf<BTab?>(null) }
     val vraag = rememberVraag()
     val d = staat.beleggen
 
@@ -80,13 +87,18 @@ fun BeleggenScherm(
                 Modifier.widthIn(max = 560.dp).fillMaxWidth().padding(start = 8.dp, end = 16.dp, top = 24.dp, bottom = 120.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                KopBalk("Beleggen", "Ahold en je potjes", onTerug) {
-                    EmojiRondje("📈", Pastels.Roze.licht, Pastels.Roze.donker)
+                val t = tab
+                KopBalk(t?.label ?: "Beleggen", t?.onder ?: "waar wil je heen?", { if (t != null) tab = null else onTerug() }) {
+                    EmojiRondje(t?.emoji ?: "📈", Pastels.Roze.licht, Pastels.Roze.donker)
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    BTab.entries.forEach { t -> Keuze(t.label, tab == t, { tab = t }, Modifier.weight(1f)) }
-                }
-                when (tab) {
+                when (t) {
+                    null -> {
+                        val s = Beleggen.signaal(d.koersen, d.echt, d.instellingen, LocalDate.now())
+                        BTab.entries.forEach { b ->
+                            val onder = if (b == BTab.Vandaag && s != null) "${s.soort.emoji} ${s.soort.woord}" else b.onder
+                            Tegel(b.emoji, b.label, onder) { tab = b }
+                        }
+                    }
                     BTab.Vandaag -> Vandaag(d, ::wijzig, onMelding) {
                         vraag.stel(OnlineVraag(
                             titel = "Koers ophalen?",
@@ -101,6 +113,22 @@ fun BeleggenScherm(
             }
         }
         vraag.Toon()
+    }
+}
+
+@Composable
+private fun Tegel(emoji: String, titel: String, onder: String, onClick: () -> Unit) {
+    val vorm = RoundedCornerShape(26.dp)
+    Row(
+        Modifier.fillMaxWidth().klei(Kleur.Kaart, vorm, Kleur.KaartSchaduw, hoogte = 10.dp).clip(vorm).clickable(onClick = onClick).padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Tekst(emoji, 36.sp)
+        Column {
+            Tekst(titel, 20.sp)
+            Tekst(onder, 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
+        }
     }
 }
 
