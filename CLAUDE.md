@@ -147,6 +147,8 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Instellingen (okt 2026):** menu "Instellingen" met 2 tabjes: ⚙️ Instellingen | 💾 Back-up (`ui/instellingen/`). Instellingen: grote tekst (+20%), herinneringstijden, weekdoel, meldingen aan/uit, tegels op Thuis (aan/uit + volgorde), menu-knoppen verbergen (Thuis en Instellingen altijd). Bewaard in `instellingen.json` (`logica/InstellingenData.kt`), alleen op het apparaat, wel in de back-up. De vaste waarden in `logica/Klok.kt` (`Instellingen`) zijn nu alleen de beginwaarden.
 - **Back-up (okt 2026):** menu "Back-up" (`ui/instellingen/`). Eén .zip met database, alle JSON, foto's, instellingen en cyclus; niet de sync-inlog. Odelia kiest zelf waar het bestand komt. Terugzetten vervangt alles en start de app opnieuw (`data/Backup.kt`).
 
+- **Beleggen (gekozen door Odelia, nov 2026):** tegel "Beleggen" onder de groep Geld (`ui/beleggen/`, `logica/Beleggen.kt`). Advies voor Ahold (AD.AS): kopen/houden/verkopen met redenen (trend 20/50 dagen, RSI, koersdoel analisten, stop-verlies 10%, helft verkopen bij +15%, 7 rustdagen, kosten-check). Echte pot (DEGIRO, zelf invullen) en oefenpot (€400 nep). Begint met 4 tegels (Odelia wilde geen krappe tabjes): Advies nu, Mijn potten, Ideeën (andere aandelen + ETF-tips), Test en instellingen. De app plaatst **nooit** zelf orders. Koers ophalen alleen na "ja", alleen bij Yahoo Finance (`query1.finance.yahoo.com`), of zelf intikken. Bewaard in `beleggen.json` in `noBackupFilesDir`: alleen op de telefoon, niet in de sync. **Geen echte bedragen of aantallen van Odelia in de code: de repo is openbaar.** Dagelijkse check + pushmelding doet Claude (geplande taak), niet de app.
+
 ## Status
 
 - Stap 1 (basis-app): gebouwd.
@@ -160,4 +162,6 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Instellingen-scherm (tabjes, grote tekst, tijden, weekdoel, meldingen, tegels, menu). **Nog niet getest op de telefoon.**
 - Kompas stap 2–4 (nog te doen): Nu doen-kaart, Papieren.
 - Sync stap 3: Onthoud (+Mensen), Wensen, Leren, Recepten, Instellingen via Supabase. ☁️-kaart ook bij Instellingen. Supabase-SQL moet één keer opnieuw (`instellingen` in de check). **Nog niet getest met echte Supabase en niet op de telefoon.**
+- Beleggen: gebouwd op tak `claude/beleggen-menu` (bovenop `claude/menu-groepen`, nov 2026). GitHub bouwt de app, 13 testjes slagen. **Nog niet getest op de telefoon; koers ophalen bij Yahoo nog niet echt geprobeerd.**
+- Let op: `claude/menu-groepen` en `ccr-4151dad2-s3u63m` (urenmail, Google-spreadsheet) zijn nog niet samengevoegd.
 - Nog te doen: sync voor foto's; tegels op de tablet bespreken; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).
