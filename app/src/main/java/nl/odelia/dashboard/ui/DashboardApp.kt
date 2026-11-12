@@ -166,6 +166,7 @@ fun DashboardApp(
             "inspreken" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(inspreken = true)) }
             "onthoud" -> naarPlek(Plek.Onthoud)
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
+            "werk" -> { ga(Scherm.Thuis); tab = Tab.Werk }
             "werk" -> naarPlek(Plek.Werk)
             "cyclus" -> naarPlek(Plek.Cyclus)
         }

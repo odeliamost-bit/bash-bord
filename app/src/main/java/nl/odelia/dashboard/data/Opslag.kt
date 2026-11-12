@@ -58,6 +58,21 @@ class Opslag private constructor(context: Context) {
     }
 
     /**
+     * Vangnet: sluit elke periode die nog open staat, op de eindtijd die [eind] bij het begin geeft.
+     * Geeft de eindtijd van de laatste terug, of `null` als er niets open stond.
+     */
+    suspend fun sluitOpen(eind: (LocalDateTime) -> LocalDateTime): LocalDateTime? {
+        val nu = LocalDateTime.now().alsMillis()
+        var laatste: LocalDateTime? = null
+        db.werktijd().lijstVanaf(vanaf()).filter { it.eind == null }.forEach {
+            val tot = eind(it.begin.alsTijd())
+            db.werktijd().bewaar(it.copy(eind = tot.alsMillis(), updatedAt = nu))
+            laatste = tot
+        }
+        return laatste
+    }
+
+    /**
      * Een dag aanpassen. Gewerkt: de dag krijgt precies één periode van [begin] tot [eind]
      * ([eind] leeg = nog bezig, alleen voor vandaag). Vrij/Ziek/Leeg: de periodes vervallen.
      */

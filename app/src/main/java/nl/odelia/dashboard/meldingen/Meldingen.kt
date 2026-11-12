@@ -23,6 +23,7 @@ object Meldingen {
     const val ID_OCHTEND = 2
     const val ID_URENMAIL = 3
     const val ID_CYCLUS = 4
+    const val ID_VANGNET = 6
     private const val ID_SEINTJE_BASIS = 1000
 
     /** Extra bij het openen van de app: welk scherm. */
