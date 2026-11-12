@@ -108,6 +108,14 @@ object Bestanden {
     @Volatile private var cyclus: JsonOpslag<CyclusData>? = null
     @Volatile private var wensen: JsonOpslag<WensenData>? = null
     @Volatile private var instellingen: JsonOpslag<InstellingenData>? = null
+    @Volatile private var beleggen: JsonOpslag<nl.odelia.dashboard.logica.BeleggenData>? = null
+
+    /** Beleggen: alleen op deze telefoon, niet in de Google-back-up en niet in de sync. */
+    fun beleggen(context: Context): JsonOpslag<nl.odelia.dashboard.logica.BeleggenData> = beleggen ?: synchronized(this) {
+        beleggen ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "beleggen.json"), nl.odelia.dashboard.logica.BeleggenData(),
+            nl.odelia.dashboard.logica.BeleggenJson::lees, nl.odelia.dashboard.logica.BeleggenJson::schrijf)
+            .also { beleggen = it }
+    }
 
     /**
      * Cyclus is gevoelig: in `noBackupFilesDir`, zodat Android het niet in de

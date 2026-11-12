@@ -137,6 +137,7 @@ private fun menuKleuren(plek: Plek): Pair<Color, Color> = when (plek) {
     Plek.Leren -> Color(0xFFF7DA8A) to Color(0xFFE5B54E)
     Plek.Cyclus -> Color(0xFFF4B0C8) to Color(0xFFDE7FA1)
     Plek.Geld -> Color(0xFFB9DDB0) to Color(0xFF82B874)
+    Plek.Beleggen -> Color(0xFFF5A9B8) to Color(0xFFE07890)
     Plek.Wensen -> Color(0xFFF7B7AE) to Color(0xFFE8877A)
     Plek.Zeilweer -> Color(0xFFA9CBF2) to Color(0xFF5B8FD6)
     Plek.Recepten -> Color(0xFFF8C29C) to Color(0xFFE9956A)
@@ -153,6 +154,7 @@ private fun menuPad(plek: Plek): String = when (plek) {
     Plek.Leren -> "M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2"
     Plek.Cyclus -> "M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"
     Plek.Geld -> "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12"
+    Plek.Beleggen -> "M3 3v18h18M7 15l4-4 3 3 6-6M15 8h5v5"
     Plek.Wensen -> "M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"
     Plek.Zeilweer -> "M12 3v14M12 4l7 11h-7zM10 6l-6 9h6zM3 18h18l-2.5 3h-13z"
     Plek.Recepten -> "M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 0-3 2.5-3 6s1 4 3 4v8"
