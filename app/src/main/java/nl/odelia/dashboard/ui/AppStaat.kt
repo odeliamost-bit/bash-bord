@@ -36,6 +36,7 @@ data class AppStaat(
     val advies: AdviesData = AdviesData(),
     val recepten: ReceptenData = ReceptenData(ReceptenStart.recepten),
     val sync: SyncStaat = SyncStaat(),
+    val beleggen: nl.odelia.dashboard.logica.BeleggenData = nl.odelia.dashboard.logica.BeleggenData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -124,6 +125,10 @@ interface AppActies {
     fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
     /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
     fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
+    /** Beleggen aanpassen. Alleen op de telefoon, gaat nooit online. */
+    fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) {}
+    /** Koers van Ahold ophalen (Yahoo Finance). Gaat online: alleen na "ja". [klaar] krijgt een kort berichtje. */
+    fun haalKoers(klaar: (String) -> Unit) {}
 
     /** Instellingen aanpassen. Wordt meteen bewaard (alleen op het apparaat) en zet de meldingen opnieuw. */
     fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) {}

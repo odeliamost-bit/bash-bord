@@ -84,6 +84,7 @@ sealed interface Scherm {
     data object Cyclus : Scherm
     data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
     data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
+    data object Beleggen : Scherm
     data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
     data class Mail(val begin: MailBegin = MailBegin()) : Scherm
     data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
@@ -143,6 +144,7 @@ fun DashboardApp(
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
             Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
             Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
+            Plek.Beleggen -> { ga(Scherm.Thuis); ga(Scherm.Beleggen) }
             Plek.Recepten -> { ga(Scherm.Thuis); ga(Scherm.Recepten()) }
             Plek.Instellingen -> { ga(Scherm.Thuis); ga(Scherm.Instellingen) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
@@ -189,6 +191,7 @@ fun DashboardApp(
         Scherm.Cyclus -> Plek.Cyclus
         is Scherm.Wensen -> Plek.Wensen
         is Scherm.Geld -> Plek.Geld
+        Scherm.Beleggen -> Plek.Beleggen
         is Scherm.Mensen -> Plek.Mensen
         is Scherm.Mail -> Plek.Mail
         is Scherm.Advies -> Plek.Advies
@@ -249,6 +252,7 @@ fun DashboardApp(
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                Scherm.Beleggen -> nl.odelia.dashboard.ui.beleggen.BeleggenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Mensen -> MensenScherm(staat, acties, onTerug = ::terug, onGaNaar = ::ga, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)

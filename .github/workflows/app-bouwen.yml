@@ -76,8 +76,8 @@ jobs:
             echo "::error::De lijst met online-onderdelen in SyncRegels.kt is veranderd. Pas deze controle (en CLAUDE.md) bewust mee aan."
             exit 1
           fi
-          # En Online.kt mag alleen naar de weerdienst Open-Meteo.
-          if ! grep -q 'TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com")' app/src/main/java/nl/odelia/dashboard/online/Online.kt; then
+          # En Online.kt mag alleen naar de weerdienst Open-Meteo en Yahoo Finance (koers Ahold).
+          if ! grep -q 'TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com", "query1.finance.yahoo.com")' app/src/main/java/nl/odelia/dashboard/online/Online.kt; then
             echo "::error::De lijst met toegestane websites in Online.kt is veranderd. Pas deze controle bewust mee aan."
             exit 1
           fi
