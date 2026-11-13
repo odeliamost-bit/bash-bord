@@ -51,6 +51,7 @@ fun main(args: Array<String>) {
     teken("24-leren-tegels", 411, 1150) { DashboardApp(staat, geen, beginScherm = Scherm.LerenTegels) }
     teken("25-simulator-kast", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Simulator(nl.odelia.dashboard.ui.leren.SimDeel.Kast)) }
     teken("26-formules", 411, 1300) { DashboardApp(staat, geen, beginScherm = Scherm.Simulator(nl.odelia.dashboard.ui.leren.SimDeel.Formules)) }
+    teken("9b-logboek", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Logboek) }
     teken("9c-vertalen", 411, 900) { DashboardApp(staat, geen, beginScherm = Scherm.Vertalen(tekst = "Hoe laat begint de les morgen?")) }
     teken("10-tablet", 800, 1200) { DashboardApp(staat, geen) }
     val metWeer = staat.copy(zeilweer = Voorbeeld.zeilweer())

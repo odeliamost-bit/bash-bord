@@ -79,6 +79,7 @@ sealed interface Scherm {
     ) : Scherm
     data class Lijst(val perPersoon: Boolean = false) : Scherm
     data object Urenmail : Scherm
+    data object Logboek : Scherm
     data object Zeilweer : Scherm
     data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
     data object Cyclus : Scherm
@@ -191,7 +192,7 @@ fun DashboardApp(
         }
         is Scherm.Toevoegen -> Plek.Onthoud
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
-        Scherm.Urenmail -> Plek.Werk
+        Scherm.Urenmail, Scherm.Logboek -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Leren -> Plek.Leren
         Scherm.Cyclus -> Plek.Cyclus
@@ -247,6 +248,7 @@ fun DashboardApp(
                     onMelding = ::toon,
                     modifier = inhoud,
                 )
+                Scherm.Logboek -> nl.odelia.dashboard.ui.werk.LogboekScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
                 Scherm.Urenmail -> UrenmailScherm(
                     staat = staat,
                     acties = acties,
