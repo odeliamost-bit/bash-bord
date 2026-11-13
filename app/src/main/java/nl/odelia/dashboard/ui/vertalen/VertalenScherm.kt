@@ -50,6 +50,7 @@ fun VertalenScherm(
 ) {
     var tekst by rememberSaveable { mutableStateOf(start.tekst.take(Vertalen.MAX)) }
     var taal by rememberSaveable { mutableStateOf(Vertalen.Taal.Auto) }
+    var soort by rememberSaveable { mutableStateOf(Vertalen.Soort.Tekst) }
     var uitleg by rememberSaveable { mutableStateOf(false) }
     val klembord = LocalClipboardManager.current
 
@@ -78,7 +79,11 @@ fun VertalenScherm(
         ) {
             TerugBalk("Vertalen", onTerug)
 
-            Invoer(tekst, onWijzig = { tekst = it.take(Vertalen.MAX) }, hint = "Typ of plak je tekst", regels = 4)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Vertalen.Soort.entries.forEach { s -> Keuze(s.label, aan = soort == s, onClick = { soort = s }, Modifier.weight(1f)) }
+            }
+
+            Invoer(tekst, onWijzig = { tekst = it.take(Vertalen.MAX) }, hint = soort.hint, regels = 4)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ZachteKnop("📋 Plakken", onClick = ::plak, Modifier.weight(1f))
                 ZachteKnop("🎤 Inspreken", onClick = ::spreekIn, Modifier.weight(1f))
@@ -92,7 +97,7 @@ fun VertalenScherm(
             Keuze("💡 Ook lastige woorden uitleggen", aan = uitleg, onClick = { uitleg = !uitleg }, Modifier.fillMaxWidth())
 
             GroteKnop("Vertaal met Claude", icoon = Icoontjes.mailWit, onClick = {
-                val vraag = Vertalen.vraag(tekst, taal, uitleg)
+                val vraag = Vertalen.vraag(tekst, taal, uitleg, soort)
                 when {
                     vraag == null -> onMelding("Typ of plak eerst een tekst.")
                     !acties.vraagClaude(vraag) -> onMelding("De Claude-app is niet gevonden.")

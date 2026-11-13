@@ -18,12 +18,18 @@ object Vertalen {
         Spaans("Spaans", "Vertaal deze tekst naar het Spaans."),
     }
 
+    /** Twee soorten (gekozen door Odelia): gewone tekst of een appje (chatbericht). */
+    enum class Soort(val label: String, val hint: String, val stijl: String) {
+        Tekst("📄 Gewone tekst", "Typ of plak je tekst", ""),
+        Appje("💬 Appje", "Typ of plak je appje", "Het is een appje (chatbericht): houd het kort en in spreektaal, met dezelfde toon. Laat emoji staan."),
+    }
+
     /** De hele vraag voor Claude, of `null` als er geen tekst is. */
-    fun vraag(tekst: String, taal: Taal, uitleg: Boolean = false): String? {
+    fun vraag(tekst: String, taal: Taal, uitleg: Boolean = false, soort: Soort = Soort.Tekst): String? {
         val schoon = tekst.trim().take(MAX)
         if (schoon.isEmpty()) return null
         val slot = if (uitleg) "Geef eerst de vertaling. Leg daarna kort en simpel uit wat lastige woorden betekenen."
         else "Geef alleen de vertaling, zonder uitleg."
-        return "${taal.opdracht} $slot\n\n$schoon"
+        return listOf(taal.opdracht, soort.stijl, slot).filter { it.isNotEmpty() }.joinToString(" ") + "\n\n$schoon"
     }
 }
