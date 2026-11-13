@@ -55,6 +55,7 @@ import nl.odelia.dashboard.ui.theme.Pastels
 /** De onderdelen van de Simulator. */
 enum class SimDeel(val label: String) {
     Tekenen("✏️ Tekenen"),
+    Loop("📐 Schema lezen"),
     Kast("Groepenkast"),
     Kring("Stroomkring"),
     Motor("Motor"),
@@ -82,6 +83,7 @@ fun SimulatorScherm(
     var kast by remember { mutableStateOf(KastStaat()) }
     var kring by remember { mutableStateOf(KringStaat()) }
     var motor by remember { mutableStateOf(MotorStaat()) }
+    var loop by remember { mutableStateOf(nl.odelia.dashboard.logica.LoopSchema.Staat()) }
 
     @Composable
     fun Kop() {
@@ -118,6 +120,7 @@ fun SimulatorScherm(
             Kop()
             val kies: (Onderdeel) -> Unit = { gekozen = it }
             when (deel) {
+                SimDeel.Loop -> LoopDeel(loop, { loop = it }, kies)
                 SimDeel.Kast -> KastDeel(kast, { kast = it }, kies)
                 SimDeel.Kring -> KringDeel(kring, { kring = it }, kies)
                 SimDeel.Motor -> MotorDeel(motor, { motor = it }, kies)
