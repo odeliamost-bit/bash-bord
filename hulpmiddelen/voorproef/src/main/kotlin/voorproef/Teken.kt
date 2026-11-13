@@ -47,6 +47,7 @@ fun main(args: Array<String>) {
     teken("7-lijst", 411, 1300) { DashboardApp(staat, geen, beginScherm = Scherm.Lijst()) }
     teken("8-mensen", 411, 1300) { DashboardApp(staat, geen, beginScherm = Scherm.Mensen()) }
     teken("9-urenmail", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Urenmail) }
+    teken("9b-logboek", 411, 1700) { DashboardApp(staat, geen, beginScherm = Scherm.Logboek) }
     teken("23-groep-voor-mij", 411, 870) { DashboardApp(staat, geen, beginScherm = Scherm.GroepTegels(nl.odelia.dashboard.ui.menu.Groep.VoorMij)) }
     teken("24-leren-tegels", 411, 1150) { DashboardApp(staat, geen, beginScherm = Scherm.LerenTegels) }
     teken("25-simulator-kast", 411, 1500) { DashboardApp(staat, geen, beginScherm = Scherm.Simulator(nl.odelia.dashboard.ui.leren.SimDeel.Kast)) }

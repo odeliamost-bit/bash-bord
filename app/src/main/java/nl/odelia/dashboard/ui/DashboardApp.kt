@@ -85,6 +85,7 @@ sealed interface Scherm {
     data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
     data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
     data object Beleggen : Scherm
+    data object Logboek : Scherm
     data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
     data class Mail(val begin: MailBegin = MailBegin()) : Scherm
     data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
@@ -167,6 +168,7 @@ fun DashboardApp(
             "onthoud" -> naarPlek(Plek.Onthoud)
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
             "werk" -> { ga(Scherm.Thuis); tab = Tab.Werk }
+            "logboek" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Logboek) }
             "werk" -> naarPlek(Plek.Werk)
             "cyclus" -> naarPlek(Plek.Cyclus)
         }
@@ -186,7 +188,7 @@ fun DashboardApp(
         }
         is Scherm.Toevoegen -> Plek.Onthoud
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
-        Scherm.Urenmail -> Plek.Werk
+        Scherm.Urenmail, Scherm.Logboek -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Leren -> Plek.Leren
         Scherm.Cyclus -> Plek.Cyclus
@@ -239,6 +241,12 @@ fun DashboardApp(
                     onTerug = ::terug,
                     onGaNaar = ::ga,
                     onMelding = ::toon,
+                    modifier = inhoud,
+                )
+                Scherm.Logboek -> nl.odelia.dashboard.ui.werk.LogboekScherm(
+                    staat = staat,
+                    acties = acties,
+                    onTerug = ::terug,
                     modifier = inhoud,
                 )
                 Scherm.Urenmail -> UrenmailScherm(

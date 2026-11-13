@@ -152,8 +152,8 @@ class Opslag private constructor(context: Context) {
     )
 
     companion object {
-        /** Zoveel dagen terug halen we werktijden op (genoeg voor deze en vorige week). */
-        private const val BEWAAR_DAGEN = 21L
+        /** Zoveel dagen terug halen we werktijden op (ruim een jaar, voor het urenlogboek). */
+        private const val BEWAAR_DAGEN = 400L
 
         @Volatile private var instantie: Opslag? = null
 
