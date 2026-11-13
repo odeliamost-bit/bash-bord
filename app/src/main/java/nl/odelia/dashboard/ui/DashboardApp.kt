@@ -85,6 +85,7 @@ sealed interface Scherm {
     data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
     data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
     data object Beleggen : Scherm
+    data class Vertalen(val tekst: String = "", val inspreken: Boolean = false, val plak: Boolean = false) : Scherm
     data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
     data class Mail(val begin: MailBegin = MailBegin()) : Scherm
     data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
@@ -139,6 +140,7 @@ fun DashboardApp(
             Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Mensen()) }
             Plek.Mail -> { ga(Scherm.Thuis); ga(Scherm.Mail()) }
             Plek.Advies -> { ga(Scherm.Thuis); ga(Scherm.Advies()) }
+            Plek.Vertalen -> { ga(Scherm.Thuis); ga(Scherm.Vertalen()) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
             Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.LerenTegels) }
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
@@ -165,6 +167,9 @@ fun DashboardApp(
             "toevoegen" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(tekst = o.tekst.orEmpty())) }
             "inspreken" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(inspreken = true)) }
             "onthoud" -> naarPlek(Plek.Onthoud)
+            "vertalen" -> { ga(Scherm.Thuis); ga(Scherm.Vertalen(tekst = o.tekst.orEmpty())) }
+            "vertalen-plak" -> { ga(Scherm.Thuis); ga(Scherm.Vertalen(plak = true)) }
+            "vertalen-spreek" -> { ga(Scherm.Thuis); ga(Scherm.Vertalen(inspreken = true)) }
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
             "werk" -> { ga(Scherm.Thuis); tab = Tab.Werk }
             "werk" -> naarPlek(Plek.Werk)
@@ -196,6 +201,7 @@ fun DashboardApp(
         is Scherm.Mensen -> Plek.Mensen
         is Scherm.Mail -> Plek.Mail
         is Scherm.Advies -> Plek.Advies
+        is Scherm.Vertalen -> Plek.Vertalen
         is Scherm.Recepten -> Plek.Recepten
         Scherm.Instellingen -> Plek.Instellingen
         is Scherm.Later -> scherm.plek
@@ -253,6 +259,7 @@ fun DashboardApp(
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Vertalen -> nl.odelia.dashboard.ui.vertalen.VertalenScherm(scherm, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 Scherm.Beleggen -> nl.odelia.dashboard.ui.beleggen.BeleggenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Mensen -> MensenScherm(staat, acties, onTerug = ::terug, onGaNaar = ::ga, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)

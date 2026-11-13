@@ -3,5 +3,8 @@
     <string name="widget_klok_naam">Klok</string>
     <string name="widget_klok_uitleg">Grote in/uit-knop en je uren van deze week</string>
     <string name="widget_onthoud_naam">Onthoud</string>
+    <string name="widget_vertaal_naam">Vertalen</string>
+    <string name="widget_vertaal_uitleg">Snel vertalen met Claude: typen, plakken of inspreken</string>
+    <string name="vertaal_keuze">Vertalen (Bash-bord)</string>
     <string name="widget_onthoud_uitleg">Snel iets onthouden: typen of inspreken</string>
 </resources>

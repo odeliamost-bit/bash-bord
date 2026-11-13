@@ -108,6 +108,9 @@ interface AppActies {
     /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen bewaard, en gesynct als Odelia is ingelogd. */
     fun wijzigGeld(wat: (GeldData) -> GeldData) {}
 
+    /** Zet een vraag klaar in de Claude-app (bijv. vertalen). Verstuurt niks. Geeft `false` als dat niet lukt. */
+    fun vraagClaude(tekst: String): Boolean = false
+
     /** Deel tekst met een andere app (bijv. Google Drive of Sheets). Geeft `false` als dat niet lukt. */
     fun deelTekst(titel: String, tekst: String): Boolean = false
     // Foto's bij Onthoud. Blijven op de telefoon (filesDir), gaan nooit online.

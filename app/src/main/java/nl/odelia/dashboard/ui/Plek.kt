@@ -8,6 +8,7 @@ enum class Plek(val label: String) {
     Mensen("Mensen"),
     Mail("Mail-hulp"),
     Advies("Advies"),
+    Vertalen("Vertalen"),
     Leren("Leren"),
     Cyclus("Cyclus"),
     Geld("Geld"),

@@ -135,6 +135,7 @@ private fun menuKleuren(plek: Plek): Pair<Color, Color> = when (plek) {
     Plek.Mensen -> Color(0xFFAFCBEA) to Color(0xFF7FA5D2)
     Plek.Mail -> Color(0xFFD2BDF0) to Color(0xFFA88AD8)
     Plek.Advies -> Color(0xFFF8C29C) to Color(0xFFE9956A)
+    Plek.Vertalen -> Color(0xFFA9C8EC) to Color(0xFF6E95C3)
     Plek.Leren -> Color(0xFFF7DA8A) to Color(0xFFE5B54E)
     Plek.Cyclus -> Color(0xFFF4B0C8) to Color(0xFFDE7FA1)
     Plek.Geld -> Color(0xFFB9DDB0) to Color(0xFF82B874)
@@ -151,6 +152,7 @@ private fun menuPad(plek: Plek): String = when (plek) {
     Plek.Onthoud -> "M6 3h12v18l-6-4-6 4z"
     Plek.Mensen -> "M9 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM2.5 20a6.5 6.5 0 0 1 13 0M17 6.5a2.5 2.5 0 1 1 0 5M18 14a5 5 0 0 1 3.5 5"
     Plek.Mail -> "M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3.5 7l8.5 6 8.5-6"
+    Plek.Vertalen -> "M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"
     Plek.Advies -> "M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3zM14.7 6.3l3-3a4 4 0 0 1 2 5"
     Plek.Leren -> "M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2"
     Plek.Cyclus -> "M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"

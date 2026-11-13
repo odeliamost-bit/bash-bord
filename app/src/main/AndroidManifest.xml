@@ -19,6 +19,8 @@
         </intent>
         <!-- Nodig om Gmail te vinden voor de urenmail. -->
         <package android:name="com.google.android.gm" />
+        <!-- Nodig om de Claude-app te vinden voor Vertalen (de app zet alleen tekst klaar). -->
+        <package android:name="com.anthropic.claude" />
         <!-- Weer-apps voor de knoppen in Zeilweer (zie Zeilweer.weerApps). -->
         <package android:name="com.windyty.android" />
         <package android:name="com.studioeleven.windfinder" />
@@ -49,6 +51,19 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+
+        <!-- Tekst selecteren in een andere app → "Vertalen" in het menuutje. -->
+        <activity-alias
+            android:name=".VertaalKeuze"
+            android:exported="true"
+            android:label="@string/vertaal_keuze"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity-alias>
 
         <receiver
             android:name=".meldingen.Ontvanger"
@@ -87,6 +102,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/onthoud_widget" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.VertaalWidgetOntvanger"
+            android:exported="true"
+            android:label="@string/widget_vertaal_naam">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/vertaal_widget" />
         </receiver>
     </application>
 
