@@ -68,6 +68,8 @@ fun VandaagTab(staat: AppStaat, acties: AppActies, onGaNaar: (Scherm) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         klok.vergeten?.let { begin -> VergetenKaart(begin, onEind = acties::sluitVergeten) }
         KlokKaart(klok, acties::wisselKlok)
+        VrijZiekRij(klok) { datum, soort -> acties.zetDag(datum, soort, null, null) }
+        WeekstreepKaart(klok)
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 StatTegel(
