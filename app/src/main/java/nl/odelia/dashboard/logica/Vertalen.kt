@@ -1,8 +1,13 @@
 package nl.odelia.dashboard.logica
 
+import org.json.JSONObject
+
 /**
  * Vertalen (nov 2026): de app vertaalt niet zelf. Ze zet een vraag klaar voor de Claude-app;
  * Odelia drukt daar zelf op versturen. De app gaat hiervoor dus niet online.
+ *
+ * Widget-knop "Vertalen" (nov 2026): inspreken → eigen backend (backend/vertaler) → Claude.
+ * De Claude-sleutel staat alleen in de backend, nooit in de app. Zie online/Vertaler.kt.
  */
 object Vertalen {
     /** Niet te lang: de tekst kan uit een andere app komen. */
@@ -32,4 +37,18 @@ object Vertalen {
         else "Geef alleen de vertaling, zonder uitleg."
         return listOf(taal.opdracht, soort.stijl, slot).filter { it.isNotEmpty() }.joinToString(" ") + "\n\n$schoon"
     }
+
+    /** Maximaal zoveel tekens gaan naar de backend (die weigert meer). */
+    const val MAX_ONLINE = 2_000
+
+    /** Het verzoek voor de vertaal-backend (JSON), of `null` als er geen tekst is. */
+    fun verzoek(tekst: String, taal: Taal = Taal.Auto, soort: Soort = Soort.Tekst): String? {
+        val schoon = tekst.trim().take(MAX_ONLINE)
+        if (schoon.isEmpty()) return null
+        return JSONObject().put("tekst", schoon).put("taal", taal.name).put("soort", soort.name).toString()
+    }
+
+    /** De vertaling uit het antwoord van de backend, of `null` als die er niet in staat. */
+    fun antwoord(json: String): String? =
+        runCatching { JSONObject(json).optString("vertaling").trim() }.getOrNull()?.takeIf { it.isNotEmpty() }
 }

@@ -31,4 +31,21 @@ class VertalenTest {
         val lang = Vertalen.vraag("a".repeat(9_000), Vertalen.Taal.Engels)!!
         assertEquals(Vertalen.MAX, lang.substringAfter("\n\n").length)
     }
+
+    @Test
+    fun verzoekVoorDeBackend() {
+        assertNull(Vertalen.verzoek("   "))
+        val json = org.json.JSONObject(Vertalen.verzoek("  Hoi \"jij\"  ", Vertalen.Taal.Engels, Vertalen.Soort.Appje)!!)
+        assertEquals("Hoi \"jij\"", json.getString("tekst"))
+        assertEquals("Engels", json.getString("taal"))
+        assertEquals("Appje", json.getString("soort"))
+        assertEquals(Vertalen.MAX_ONLINE, org.json.JSONObject(Vertalen.verzoek("a".repeat(9_000))!!).getString("tekst").length)
+    }
+
+    @Test
+    fun antwoordVanDeBackend() {
+        assertEquals("Hi", Vertalen.antwoord("""{"vertaling":" Hi "}"""))
+        assertNull(Vertalen.antwoord("""{"fout":"geen toegang"}"""))
+        assertNull(Vertalen.antwoord("geen json"))
+    }
 }

@@ -32,26 +32,33 @@ import androidx.glance.unit.ColorProvider
 import nl.odelia.dashboard.MainActivity
 import nl.odelia.dashboard.meldingen.Meldingen
 
-/** Snel vertalen vanaf het startscherm: typen, plakken of inspreken. Opent het Vertalen-scherm. */
+/**
+ * Snel vertalen vanaf het startscherm.
+ * - 🎤 Vertalen: inspreken → Claude (via de eigen backend) → zwart balkje onderaan. De app opent niet.
+ * - 📋 Plakken en ⌨️ Typen: openen het Vertalen-scherm.
+ */
 class VertaalWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             Row(GlanceModifier.fillMaxSize().padding(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Knop(context, "🌍", "Vertalen", "vertalen", Color(0xFF6E95C3))
+                val spreek = Intent(context, SpreekVertaal::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                Knop("🎤", "Vertalen", spreek, Color(0xFF6E95C3))
                 Spacer(GlanceModifier.width(8.dp))
-                Knop(context, "📋", "Plakken", "vertalen-plak", Color(0xFFD9694F))
+                Knop("📋", "Plakken", scherm(context, "vertalen-plak"), Color(0xFFD9694F))
                 Spacer(GlanceModifier.width(8.dp))
-                Knop(context, "🎤", "Inspreken", "vertalen-spreek", Color(0xFF8FAE7E))
+                Knop("⌨️", "Typen", scherm(context, "vertalen"), Color(0xFF8FAE7E))
             }
         }
     }
 
+    private fun scherm(context: Context, scherm: String) = Intent(context, MainActivity::class.java)
+        .setAction("nl.odelia.dashboard.WIDGET_$scherm")
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        .putExtra(Meldingen.EXTRA_SCHERM, scherm)
+
     @Composable
-    private fun RowScope.Knop(context: Context, groot: String, klein: String, scherm: String, kleur: Color) {
-        val intent = Intent(context, MainActivity::class.java)
-            .setAction("nl.odelia.dashboard.WIDGET_$scherm")
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            .putExtra(Meldingen.EXTRA_SCHERM, scherm)
+    private fun RowScope.Knop(groot: String, klein: String, intent: Intent, kleur: Color) {
         Column(
             GlanceModifier
                 .defaultWeight()

@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Na het opstarten van de telefoon de herinneringen opnieuw zetten. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Vertaal-widget: zwart balkje met de vertaling over andere apps heen. Odelia zet het zelf aan. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <queries>
         <!-- Nodig om de voorleesstem (tekst-naar-spraak) van de telefoon te vinden. -->
@@ -64,6 +66,14 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Onzichtbaar schermpje achter de widget-knop Vertalen (inspreken → balkje). -->
+        <activity
+            android:name=".widget.SpreekVertaal"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Dashboard.Doorzichtig" />
 
         <receiver
             android:name=".meldingen.Ontvanger"

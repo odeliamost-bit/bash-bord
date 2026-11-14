@@ -1,0 +1,7 @@
+# Cloudflare Worker voor Vertalen (zie README, "Vertalen via Claude").
+# Geheimen staan NIET hier, maar bij Cloudflare:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put APP_CODE
+name = "bash-bord-vertaler"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
