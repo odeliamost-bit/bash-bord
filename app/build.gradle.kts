@@ -13,8 +13,8 @@ android {
         applicationId = "nl.odelia.dashboard"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.10"
+        versionCode = 11
+        versionName = "0.11"
 
         // Sync (Supabase). Uit GitHub-geheimen, niet uit git (zie README). Leeg = geen sync in deze versie.
         buildConfigField("String", "SUPABASE_URL", "\"${System.getenv("SUPABASE_URL").orEmpty().trim()}\"")

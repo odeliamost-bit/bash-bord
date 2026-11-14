@@ -1,9 +1,10 @@
 package nl.odelia.dashboard.ui.leren
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,7 @@ import nl.odelia.dashboard.ui.theme.Pastels
 private val datumTekst = DateTimeFormatter.ofPattern("EEEE d MMMM", Locale("nl", "NL"))
 
 /** Toetsen plannen (okt 2026): wat, welk vak, wanneer en welke stof. Bewaard in leren.json. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ToetsenScherm(
     leren: LerenData,
@@ -88,7 +90,7 @@ fun ToetsenScherm(
             ) {
                 Tekst("Nieuwe toets", 20.sp, kleur = Pastels.Abrikoos.groot)
                 Invoer(naam, { naam = it.take(60) }, "Bijv. Wet van Ohm (toets 2)")
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     LerenInhoud.vakken.forEach { v -> Keuze("${v.emoji} ${v.naam}", v.id == vak, onClick = { vak = v.id }) }
                 }
                 ZachteKnop("📅 ${datum.format(datumTekst)}", onClick = { kiesDatum = true })

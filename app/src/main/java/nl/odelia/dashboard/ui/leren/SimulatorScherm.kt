@@ -3,7 +3,6 @@ package nl.odelia.dashboard.ui.leren
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +43,7 @@ import nl.odelia.dashboard.logica.KringStaat
 import nl.odelia.dashboard.logica.MotorStaat
 import nl.odelia.dashboard.logica.Onderdeel
 import nl.odelia.dashboard.logica.Simulator
+import nl.odelia.dashboard.logica.SimulatorUitleg
 import nl.odelia.dashboard.ui.onderdelen.Keuze
 import nl.odelia.dashboard.ui.onderdelen.TerugBalk
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -71,6 +71,7 @@ private val Licht = Color(0xFFF7D27A)
  * Simulator voor elektrotechniek (okt 2026): tik op een onderdeel voor uitleg,
  * zet schakelaars om en kijk wat er gebeurt. Alles werkt zonder internet.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SimulatorScherm(
     begin: SimDeel,
@@ -84,14 +85,24 @@ fun SimulatorScherm(
     var kring by remember { mutableStateOf(KringStaat()) }
     var motor by remember { mutableStateOf(MotorStaat()) }
     var loop by remember { mutableStateOf(nl.odelia.dashboard.logica.LoopSchema.Staat()) }
+    var uitleg by remember { mutableStateOf(false) }
 
     @Composable
     fun Kop() {
         TerugBalk(if (begin == SimDeel.Formules) "Formules" else "Simulator", onTerug)
         if (begin != SimDeel.Formules) {
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Tabjes lopen door op een nieuwe regel: niet opzij scrollen op een smalle telefoon.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SimDeel.entries.filter { it != SimDeel.Formules }.forEach { d ->
                     Keuze(d.label, d == deel, onClick = { deel = d; gekozen = null })
+                }
+            }
+            val stappen = SimulatorUitleg.voor(deel.name)
+            if (stappen.isNotEmpty()) {
+                if (uitleg) {
+                    UitlegKaart(stappen, onVoorlezen = { onVoorlezen(SimulatorUitleg.voorlees(deel.name)) }, onSluit = { uitleg = false })
+                } else {
+                    ZachteKnop("❓ Uitleg: hoe werkt dit?", onClick = { uitleg = true }, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -307,6 +318,30 @@ private fun AderRegel(a: Ader) {
                 Tekst(a.naam, 19.sp)
                 Tekst(a.uitleg, 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktGrijs)
             }
+        }
+    }
+}
+
+/** Uitleg in stappen: zo werkt dit tabje. */
+@Composable
+private fun UitlegKaart(stappen: List<String>, onVoorlezen: () -> Unit, onSluit: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .klei(Pastels.Blauw.kaart, RoundedCornerShape(26.dp), Pastels.Blauw.donker, hoogte = 10.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Tekst("❓ Zo werkt het", 20.sp, kleur = Pastels.Blauw.groot)
+        stappen.forEachIndexed { i, stap ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tekst("${i + 1}.", 16.sp, kleur = Pastels.Blauw.label)
+                Tekst(stap, 16.sp, Modifier.weight(1f), dikte = FontWeight.Bold, kleur = Pastels.Blauw.klein)
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ZachteKnop("🔊 Voorlezen", onClick = onVoorlezen)
+            ZachteKnop("Sluiten", onClick = onSluit)
         }
     }
 }
