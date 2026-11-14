@@ -12,12 +12,12 @@ import kotlinx.coroutines.withContext
  * HET ENIGE bestand in de app dat online gaat (het bouw-recept controleert dat).
  *
  * - Alleen als Odelia eerst "ja" heeft gezegd (de schermen vragen het elke keer).
- * - Alleen versleuteld (https) en alleen naar de weerdienst Open-Meteo.
+ * - Alleen versleuteld (https) en alleen naar de weerdienst Open-Meteo en Yahoo Finance (koers van Ahold).
  * - Niet langer dan een paar seconden wachten, en nooit meer dan 2 MB ophalen.
- * - Er gaat alleen een plek (naam of coördinaten) mee, verder niks.
+ * - Er gaat alleen een plek (naam of coördinaten) of de aandeelcode (AD.AS) mee, verder niks.
  */
 object Online {
-    private val TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com")
+    private val TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com", "query1.finance.yahoo.com")
     private const val MAX_BYTES = 2_000_000
 
     suspend fun haal(link: String): String = withContext(Dispatchers.IO) {

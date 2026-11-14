@@ -13,12 +13,15 @@ android {
         applicationId = "nl.odelia.dashboard"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.4"
+        versionCode = 11
+        versionName = "0.11"
 
         // Sync (Supabase). Uit GitHub-geheimen, niet uit git (zie README). Leeg = geen sync in deze versie.
         buildConfigField("String", "SUPABASE_URL", "\"${System.getenv("SUPABASE_URL").orEmpty().trim()}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${System.getenv("SUPABASE_ANON_KEY").orEmpty().trim()}\"")
+        // Vertalen via Claude: adres van de eigen backend + app-code. Leeg = de knop zegt "nog niet ingesteld".
+        buildConfigField("String", "VERTAAL_URL", "\"${System.getenv("VERTAAL_URL").orEmpty().trim()}\"")
+        buildConfigField("String", "VERTAAL_CODE", "\"${System.getenv("VERTAAL_CODE").orEmpty().trim()}\"")
     }
 
     // Vaste handtekening, zodat een nieuwe versie over de oude heen gaat en je gegevens blijven.

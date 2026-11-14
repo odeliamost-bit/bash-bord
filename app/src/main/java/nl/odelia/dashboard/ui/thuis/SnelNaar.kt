@@ -34,9 +34,8 @@ import nl.odelia.dashboard.ui.onderdelen.klei
 import nl.odelia.dashboard.ui.theme.Pastel
 import nl.odelia.dashboard.ui.theme.Pastels
 
-/** Boeken en Simulator staan (nog) als pagina op claude.ai, zoals in het ontwerp. */
+/** Boeken staat (nog) als pagina op claude.ai. De Simulator zit nu in de app. */
 private const val BoekenLink = "https://claude.ai/code/artifact/e23f1beb-e479-44cd-83c7-2713d32d0692"
-private const val SimulatorLink = "https://claude.ai/code/artifact/5e73741c-be08-4cc6-bf2e-f07182ff4db3"
 
 private val Zon = Pastel(0xFFFBEBC4, 0xFFF7DA8A, 0xFFE5B54E, 0xFF6E5410, 0xFF4E3B08, 0xFF8A6A10)
 private val Leerkleur = Pastel(0xFFFFF1B8, 0xFFF7DA8A, 0xFFD9A633, 0xFF6E5410, 0xFF4E3B08, 0xFF6E5410)
@@ -78,7 +77,7 @@ fun SnelNaar(
         TegelSoort.Week -> Tegel(Pastels.Blauw, Icoontjes.week, t.naam, modifier) { onGaNaar(Scherm.Lijst()) }
         TegelSoort.Wensen -> Tegel(Pastels.Roze, Icoontjes.hart, t.naam, modifier) { onPlek(Plek.Wensen) }
         TegelSoort.Boeken -> Tegel(Zon, icoonBoeken, t.naam, modifier) { openPagina("Boeken", BoekenLink) }
-        TegelSoort.Simulator -> Tegel(Turkoois, icoonBliksem, t.naam, modifier) { openPagina("Simulator", SimulatorLink) }
+        TegelSoort.Simulator -> Tegel(Turkoois, icoonBliksem, t.naam, modifier) { onGaNaar(Scherm.Simulator()) }
         TegelSoort.Advies, TegelSoort.Leren -> Unit
     }
 

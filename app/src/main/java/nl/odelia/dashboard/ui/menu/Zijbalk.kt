@@ -52,9 +52,9 @@ val ZijbalkRuimte = 88.dp
 @Composable
 fun Zijbalk(
     open: Boolean,
-    gekozen: Plek,
+    gekozen: Groep,
     onWissel: () -> Unit,
-    onKies: (Plek) -> Unit,
+    onKies: (Groep) -> Unit,
     modifier: Modifier = Modifier,
     /** Namen van plekken die Odelia verborgen heeft. */
     verborgen: Set<String> = emptySet(),
@@ -65,7 +65,7 @@ fun Zijbalk(
         modifier
             .fillMaxHeight()
             .width(breedte)
-            .klei(Color(0xFFDDE9D7), vorm, schaduw = Color(0xFF5A8264), hoogte = 14.dp)
+            .klei(Color(0xFFFBE0E4), vorm, schaduw = Color(0xFFE07890), hoogte = 14.dp)
             .clip(vorm)
             .verticalScroll(rememberScrollState())
             .padding(10.dp),
@@ -83,22 +83,22 @@ fun Zijbalk(
                 .glans(knopVorm, licht = 0.45f, donker = 0.1f)
                 .clickable(onClick = onWissel)
                 .semantics { contentDescription = if (open) "Menu sluiten" else "Menu openen" }
-                .padding(start = 12.dp),
+                .padding(start = if (open) 12.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = if (open) Arrangement.spacedBy(12.dp) else Arrangement.Center,
         ) {
             Icoon(if (open) Icoontjes.pijlLinks else Icoontjes.pijlRechts, 28.dp)
             if (open) Tekst("Menu", 18.sp, kleur = Color.White, eenRegel = true)
         }
 
-        Plek.entries.filter { it.name !in verborgen || it in Plek.altijd }.forEach { plek ->
-            MenuRegel(plek, aan = plek == gekozen, open = open, onClick = { onKies(plek) })
+        Groep.entries.filter { it.zichtbaar(verborgen).isNotEmpty() }.forEach { groep ->
+            MenuRegel(groep, aan = groep == gekozen, open = open, onClick = { onKies(groep) })
         }
     }
 }
 
 @Composable
-private fun MenuRegel(plek: Plek, aan: Boolean, open: Boolean, onClick: () -> Unit) {
+private fun MenuRegel(groep: Groep, aan: Boolean, open: Boolean, onClick: () -> Unit) {
     val vorm = RoundedCornerShape(20.dp)
     Row(
         Modifier
@@ -107,15 +107,16 @@ private fun MenuRegel(plek: Plek, aan: Boolean, open: Boolean, onClick: () -> Un
             .clip(vorm)
             .background(if (aan) Kleur.Kaart else Color.Transparent)
             .selectable(selected = aan, onClick = onClick, role = Role.Tab)
-            .semantics { if (!open) contentDescription = plek.label }
-            .padding(start = 6.dp),
+            .semantics { if (!open) contentDescription = groep.label }
+            .padding(start = if (open) 6.dp else 0.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        // Dicht: icoontje in het midden. Open: icoontje links met de naam ernaast.
+        horizontalArrangement = if (open) Arrangement.spacedBy(12.dp) else Arrangement.Center,
     ) {
         Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
-            MenuIcoon(plek, 34.dp)
+            MenuIcoon(groep.icoon, 34.dp)
         }
-        if (open) Tekst(plek.label, 18.sp, kleur = Kleur.Inkt, eenRegel = true)
+        if (open) Tekst(groep.label, 18.sp, kleur = Kleur.Inkt, eenRegel = true)
     }
 }
 
@@ -134,9 +135,11 @@ private fun menuKleuren(plek: Plek): Pair<Color, Color> = when (plek) {
     Plek.Mensen -> Color(0xFFAFCBEA) to Color(0xFF7FA5D2)
     Plek.Mail -> Color(0xFFD2BDF0) to Color(0xFFA88AD8)
     Plek.Advies -> Color(0xFFF8C29C) to Color(0xFFE9956A)
+    Plek.Vertalen -> Color(0xFFA9C8EC) to Color(0xFF6E95C3)
     Plek.Leren -> Color(0xFFF7DA8A) to Color(0xFFE5B54E)
     Plek.Cyclus -> Color(0xFFF4B0C8) to Color(0xFFDE7FA1)
     Plek.Geld -> Color(0xFFB9DDB0) to Color(0xFF82B874)
+    Plek.Beleggen -> Color(0xFFF5A9B8) to Color(0xFFE07890)
     Plek.Wensen -> Color(0xFFF7B7AE) to Color(0xFFE8877A)
     Plek.Zeilweer -> Color(0xFFA9CBF2) to Color(0xFF5B8FD6)
     Plek.Recepten -> Color(0xFFF8C29C) to Color(0xFFE9956A)
@@ -149,10 +152,12 @@ private fun menuPad(plek: Plek): String = when (plek) {
     Plek.Onthoud -> "M6 3h12v18l-6-4-6 4z"
     Plek.Mensen -> "M9 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM2.5 20a6.5 6.5 0 0 1 13 0M17 6.5a2.5 2.5 0 1 1 0 5M18 14a5 5 0 0 1 3.5 5"
     Plek.Mail -> "M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3.5 7l8.5 6 8.5-6"
+    Plek.Vertalen -> "M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"
     Plek.Advies -> "M14.7 6.3a4 4 0 0 0 5 5l-8.9 8.9a2.1 2.1 0 0 1-3-3zM14.7 6.3l3-3a4 4 0 0 1 2 5"
     Plek.Leren -> "M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2"
     Plek.Cyclus -> "M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"
     Plek.Geld -> "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.6 3 2 3 1 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v12"
+    Plek.Beleggen -> "M3 3v18h18M7 15l4-4 3 3 6-6M15 8h5v5"
     Plek.Wensen -> "M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"
     Plek.Zeilweer -> "M12 3v14M12 4l7 11h-7zM10 6l-6 9h6zM3 18h18l-2.5 3h-13z"
     Plek.Recepten -> "M6 3v8a3 3 0 0 0 6 0V3M9 3v18M17 3c-2 0-3 2.5-3 6s1 4 3 4v8"

@@ -12,6 +12,7 @@ import java.time.ZoneId
 import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.logica.Instellingen
+import nl.odelia.dashboard.logica.Vangnet
 
 /**
  * Zet de "wekkers" voor alle meldingen. Wordt opnieuw gedaan na elke wijziging,
@@ -27,6 +28,8 @@ object Planner {
     const val URENMAIL = "nl.odelia.dashboard.URENMAIL"
     const val SEINTJE = "nl.odelia.dashboard.SEINTJE"
     const val CYCLUS = "nl.odelia.dashboard.CYCLUS"
+    const val HERINNER_UIT_WEER = "nl.odelia.dashboard.HERINNER_UIT_WEER"
+    const val VANGNET = "nl.odelia.dashboard.VANGNET"
     const val EXTRA_ID = "id"
 
     suspend fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
@@ -41,6 +44,12 @@ object Planner {
             stop(context, HERINNER_IN, 1)
             stop(context, HERINNER_UIT, 2)
         }
+
+        // Vangnet: nog ingeklokt? Dan komt de herinnering nog 2 keer, en om 18:00 klokt de app zelf uit.
+        val weer = if (klok.isIn && ins.klokHerinnering) Vangnet.nogEens(ins.uitklokken, nu) else null
+        if (weer != null) zet(context, HERINNER_UIT_WEER, 6, weer) else stop(context, HERINNER_UIT_WEER, 6)
+        val vangnet = nu.toLocalDate().atTime(Vangnet.OM)
+        if (klok.isIn && ins.klokHerinnering && vangnet.isAfter(nu)) zet(context, VANGNET, 7, vangnet) else stop(context, VANGNET, 7)
 
         // Ochtendmelding: 20 minuten na inklokken (alleen de eerste keer vandaag).
         val ochtend = klok.vandaag.begin?.let { nu.toLocalDate().atTime(it).plusMinutes(Instellingen.OCHTEND_NA_MINUTEN) }

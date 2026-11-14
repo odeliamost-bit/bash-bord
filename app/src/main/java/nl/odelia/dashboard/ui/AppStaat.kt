@@ -36,6 +36,7 @@ data class AppStaat(
     val advies: AdviesData = AdviesData(),
     val recepten: ReceptenData = ReceptenData(ReceptenStart.recepten),
     val sync: SyncStaat = SyncStaat(),
+    val beleggen: nl.odelia.dashboard.logica.BeleggenData = nl.odelia.dashboard.logica.BeleggenData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -107,6 +108,9 @@ interface AppActies {
     /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen bewaard, en gesynct als Odelia is ingelogd. */
     fun wijzigGeld(wat: (GeldData) -> GeldData) {}
 
+    /** Zet een vraag klaar in de Claude-app (bijv. vertalen). Verstuurt niks. Geeft `false` als dat niet lukt. */
+    fun vraagClaude(tekst: String): Boolean = false
+
     /** Deel tekst met een andere app (bijv. Google Drive of Sheets). Geeft `false` als dat niet lukt. */
     fun deelTekst(titel: String, tekst: String): Boolean = false
     // Foto's bij Onthoud. Blijven op de telefoon (filesDir), gaan nooit online.
@@ -124,6 +128,10 @@ interface AppActies {
     fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
     /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
     fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
+    /** Beleggen aanpassen. Alleen op de telefoon, gaat nooit online. */
+    fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) {}
+    /** Koers van Ahold ophalen (Yahoo Finance). Gaat online: alleen na "ja". [klaar] krijgt een kort berichtje. */
+    fun haalKoers(klaar: (String) -> Unit) {}
 
     /** Instellingen aanpassen. Wordt meteen bewaard (alleen op het apparaat) en zet de meldingen opnieuw. */
     fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) {}

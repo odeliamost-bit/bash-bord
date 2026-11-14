@@ -60,6 +60,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val advies = AdviesOpslag.van(app)
     private val recepten = ReceptenOpslag.van(app)
     private val instellingen = Bestanden.instellingen(app)
+    private val beleggen = Bestanden.beleggen(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -82,6 +83,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
             fotos.data, advies.data, recepten.data, Sync.staat,
         ) { s, f, a, r, y -> s.copy(fotos = f, advies = a, recepten = r, sync = y) }
             .combine(instellingen.data) { s, i -> s.copy(klok = s.klok.copy(weekdoel = i.weekdoel), instellingen = i) }
+            .combine(beleggen.data) { s, b -> s.copy(beleggen = b) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -147,6 +149,25 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun syncNu() = Sync.nu()
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
+    override fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) = beleggen.wijzig(wat)
+
+    // ---- Beleggen (gaat online; het scherm vraagt eerst toestemming) ----
+    override fun haalKoers(klaar: (String) -> Unit) {
+        viewModelScope.launch {
+            val bericht = try {
+                val nieuw = nl.odelia.dashboard.logica.Beleggen.leesYahoo(Online.haal(nl.odelia.dashboard.logica.Beleggen.LINK))
+                if (nieuw.isEmpty()) "Geen koersen gevonden." else {
+                    beleggen.wijzig({ it.metKoersen(nieuw) })
+                    "✅ ${nieuw.size} koersen opgehaald."
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                "Koers ophalen lukte niet. Tik de koers zelf in."
+            }
+            klaar(bericht)
+        }
+    }
 
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----

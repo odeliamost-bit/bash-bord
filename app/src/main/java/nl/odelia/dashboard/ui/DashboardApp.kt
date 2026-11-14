@@ -39,11 +39,19 @@ import nl.odelia.dashboard.ui.advies.AdviesScherm
 import nl.odelia.dashboard.ui.later.KomtLaterScherm
 import nl.odelia.dashboard.ui.instellingen.InstellingenScherm
 import nl.odelia.dashboard.ui.leren.LerenBegin
+import nl.odelia.dashboard.ui.leren.LerenTab
 import nl.odelia.dashboard.ui.leren.LerenScherm
 import nl.odelia.dashboard.ui.mail.MailBegin
 import nl.odelia.dashboard.ui.mail.MailScherm
 import nl.odelia.dashboard.ui.mensen.MensenBegin
 import nl.odelia.dashboard.ui.mensen.MensenScherm
+import nl.odelia.dashboard.ui.menu.Groep
+import nl.odelia.dashboard.ui.leren.LerenTegel
+import nl.odelia.dashboard.ui.leren.LerenTegelsScherm
+import nl.odelia.dashboard.ui.leren.SimDeel
+import nl.odelia.dashboard.ui.leren.SimulatorScherm
+import nl.odelia.dashboard.ui.leren.ToetsenScherm
+import nl.odelia.dashboard.ui.menu.GroepScherm
 import nl.odelia.dashboard.ui.menu.Zijbalk
 import nl.odelia.dashboard.ui.menu.ZijbalkRuimte
 import nl.odelia.dashboard.ui.onderdelen.Tekst
@@ -71,17 +79,24 @@ sealed interface Scherm {
     ) : Scherm
     data class Lijst(val perPersoon: Boolean = false) : Scherm
     data object Urenmail : Scherm
+    data object Logboek : Scherm
     data object Zeilweer : Scherm
     data class Leren(val begin: LerenBegin = LerenBegin()) : Scherm
     data object Cyclus : Scherm
     data class Wensen(val begin: WensenBegin = WensenBegin()) : Scherm
     data class Geld(val begin: GeldBegin = GeldBegin()) : Scherm
+    data object Beleggen : Scherm
+    data class Vertalen(val tekst: String = "", val inspreken: Boolean = false, val plak: Boolean = false) : Scherm
     data class Mensen(val begin: MensenBegin = MensenBegin()) : Scherm
     data class Mail(val begin: MailBegin = MailBegin()) : Scherm
     data class Advies(val begin: AdviesBegin = AdviesBegin()) : Scherm
     data class Recepten(val gekozen: String? = null) : Scherm
     data object Instellingen : Scherm
     data class Later(val plek: Plek) : Scherm
+    data class GroepTegels(val groep: Groep) : Scherm
+    data object LerenTegels : Scherm
+    data object Toetsen : Scherm
+    data class Simulator(val deel: SimDeel = SimDeel.Tekenen) : Scherm
 }
 
 /** De hele app: zijbalk links, het gekozen scherm rechts. */
@@ -126,15 +141,23 @@ fun DashboardApp(
             Plek.Mensen -> { ga(Scherm.Thuis); ga(Scherm.Mensen()) }
             Plek.Mail -> { ga(Scherm.Thuis); ga(Scherm.Mail()) }
             Plek.Advies -> { ga(Scherm.Thuis); ga(Scherm.Advies()) }
+            Plek.Vertalen -> { ga(Scherm.Thuis); ga(Scherm.Vertalen()) }
             Plek.Zeilweer -> { ga(Scherm.Thuis); ga(Scherm.Zeilweer) }
-            Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.Leren()) }
+            Plek.Leren -> { ga(Scherm.Thuis); ga(Scherm.LerenTegels) }
             Plek.Cyclus -> { ga(Scherm.Thuis); ga(Scherm.Cyclus) }
             Plek.Wensen -> { ga(Scherm.Thuis); ga(Scherm.Wensen()) }
             Plek.Geld -> { ga(Scherm.Thuis); ga(Scherm.Geld()) }
+            Plek.Beleggen -> { ga(Scherm.Thuis); ga(Scherm.Beleggen) }
             Plek.Recepten -> { ga(Scherm.Thuis); ga(Scherm.Recepten()) }
             Plek.Instellingen -> { ga(Scherm.Thuis); ga(Scherm.Instellingen) }
             else -> { ga(Scherm.Thuis); ga(Scherm.Later(plek)) }
         }
+    }
+
+    /** Knop in de zijbalk: één plek = meteen erheen, meer plekken = tegelscherm. */
+    fun naarGroep(groep: Groep) {
+        val plekken = groep.zichtbaar(staat.instellingen.verborgenMenu)
+        if (plekken.size == 1) naarPlek(plekken[0]) else { ga(Scherm.Thuis); ga(Scherm.GroepTegels(groep)) }
     }
 
     // Van buitenaf: melding, widget of een andere app die iets deelt.
@@ -145,7 +168,11 @@ fun DashboardApp(
             "toevoegen" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(tekst = o.tekst.orEmpty())) }
             "inspreken" -> { ga(Scherm.Thuis); ga(Scherm.Toevoegen(inspreken = true)) }
             "onthoud" -> naarPlek(Plek.Onthoud)
+            "vertalen" -> { ga(Scherm.Thuis); ga(Scherm.Vertalen(tekst = o.tekst.orEmpty())) }
+            "vertalen-plak" -> { ga(Scherm.Thuis); ga(Scherm.Vertalen(plak = true)) }
+            "vertalen-spreek" -> { ga(Scherm.Thuis); ga(Scherm.Vertalen(inspreken = true)) }
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
+            "werk" -> { ga(Scherm.Thuis); tab = Tab.Werk }
             "werk" -> naarPlek(Plek.Werk)
             "cyclus" -> naarPlek(Plek.Cyclus)
         }
@@ -165,19 +192,23 @@ fun DashboardApp(
         }
         is Scherm.Toevoegen -> Plek.Onthoud
         is Scherm.Lijst -> if (scherm.perPersoon) Plek.Mensen else Plek.Onthoud
-        Scherm.Urenmail -> Plek.Werk
+        Scherm.Urenmail, Scherm.Logboek -> Plek.Werk
         Scherm.Zeilweer -> Plek.Zeilweer
         is Scherm.Leren -> Plek.Leren
         Scherm.Cyclus -> Plek.Cyclus
         is Scherm.Wensen -> Plek.Wensen
         is Scherm.Geld -> Plek.Geld
+        Scherm.Beleggen -> Plek.Beleggen
         is Scherm.Mensen -> Plek.Mensen
         is Scherm.Mail -> Plek.Mail
         is Scherm.Advies -> Plek.Advies
+        is Scherm.Vertalen -> Plek.Vertalen
         is Scherm.Recepten -> Plek.Recepten
         Scherm.Instellingen -> Plek.Instellingen
         is Scherm.Later -> scherm.plek
-    }
+        is Scherm.GroepTegels -> scherm.groep.plekken.first()
+        Scherm.LerenTegels, Scherm.Toetsen, is Scherm.Simulator -> Plek.Leren
+    }.let(Groep::van)
 
     // Grote tekst (instelling): alle letters 20% groter.
     val dichtheid = LocalDensity.current
@@ -217,6 +248,7 @@ fun DashboardApp(
                     onMelding = ::toon,
                     modifier = inhoud,
                 )
+                Scherm.Logboek -> nl.odelia.dashboard.ui.werk.LogboekScherm(staat, acties, onTerug = ::terug, modifier = inhoud)
                 Scherm.Urenmail -> UrenmailScherm(
                     staat = staat,
                     acties = acties,
@@ -229,6 +261,8 @@ fun DashboardApp(
                 is Scherm.Leren -> LerenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 Scherm.Cyclus -> CyclusScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Wensen -> WensenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
+                is Scherm.Vertalen -> nl.odelia.dashboard.ui.vertalen.VertalenScherm(scherm, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
+                Scherm.Beleggen -> nl.odelia.dashboard.ui.beleggen.BeleggenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Geld -> GeldScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Mensen -> MensenScherm(staat, acties, onTerug = ::terug, onGaNaar = ::ga, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
                 is Scherm.Mail -> MailScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.begin)
@@ -236,6 +270,42 @@ fun DashboardApp(
                 is Scherm.Recepten -> ReceptenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud, begin = scherm.gekozen)
                 Scherm.Instellingen -> InstellingenScherm(staat, acties, onTerug = ::terug, onMelding = ::toon, modifier = inhoud)
                 is Scherm.Later -> KomtLaterScherm(scherm.plek, onTerug = ::terug, modifier = inhoud)
+                Scherm.LerenTegels -> LerenTegelsScherm(
+                    onTerug = ::terug,
+                    onKies = { t ->
+                        when (t) {
+                            LerenTegel.Simulator -> ga(Scherm.Simulator())
+                            LerenTegel.Formules -> ga(Scherm.Simulator(SimDeel.Formules))
+                            LerenTegel.Kaarten -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Kaarten)))
+                            LerenTegel.Quiz -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Quiz)))
+                            LerenTegel.Maken -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Maken)))
+                            LerenTegel.Overzicht -> ga(Scherm.Leren(LerenBegin(tab = LerenTab.Overzicht)))
+                            LerenTegel.Toetsen -> ga(Scherm.Toetsen)
+                            LerenTegel.Tutor -> toon("De tutor kan pas met een eigen server voor de sleutel.")
+                        }
+                    },
+                    modifier = inhoud,
+                )
+                Scherm.Toetsen -> ToetsenScherm(
+                    leren = staat.leren,
+                    vandaag = staat.nu.toLocalDate(),
+                    onWijzig = acties::wijzigLeren,
+                    onTerug = ::terug,
+                    modifier = inhoud,
+                )
+                is Scherm.Simulator -> SimulatorScherm(
+                    begin = scherm.deel,
+                    onTerug = ::terug,
+                    onVoorlezen = { tekst -> if (!acties.voorlezen(tekst)) toon("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?") },
+                    modifier = inhoud,
+                )
+                is Scherm.GroepTegels -> GroepScherm(
+                    groep = scherm.groep,
+                    verborgen = staat.instellingen.verborgenMenu,
+                    onTerug = ::terug,
+                    onPlek = ::naarPlek,
+                    modifier = inhoud,
+                )
             }
 
             // Waas achter het open menu: tik = menu dicht
@@ -257,9 +327,9 @@ fun DashboardApp(
                 gekozen = gekozen,
                 verborgen = staat.instellingen.verborgenMenu,
                 onWissel = { menuOpen = !menuOpen },
-                onKies = { plek ->
+                onKies = { groep ->
                     // Tik op een icoontje = meteen daarheen. Uitschuiven alleen met de bovenste knop.
-                    naarPlek(plek)
+                    naarGroep(groep)
                     menuOpen = false
                 },
                 modifier = Modifier.padding(12.dp),

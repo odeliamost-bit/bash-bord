@@ -65,6 +65,29 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 **5. Alleen jij**
 - Na je eerste inlog: **Authentication ➜ Sign In / Providers** ➜ **Allow new users to sign up** uit.
 
+## 🌍 Vertalen via Claude (één keer instellen)
+
+De widget-knop **🎤 Vertalen** gaat via een eigen mini-backend. Daar staat de Claude-sleutel, **nooit in de app**.
+
+1. 🔑 Maak een sleutel op console.anthropic.com (API keys). Zet daar ook een **maandlimiet** (Limits), bv. € 5.
+2. ☁️ Maak een gratis account op cloudflare.com.
+3. 💻 Op de laptop, in de map `backend/vertaler`:
+   ```sh
+   npm install
+   npx wrangler login
+   npx wrangler secret put ANTHROPIC_API_KEY   # plak de sleutel van stap 1
+   npx wrangler secret put APP_CODE            # verzin een lange code (geen wachtwoord dat je ergens anders gebruikt)
+   npx wrangler deploy
+   ```
+   Je krijgt een adres, zoiets als `https://bash-bord-vertaler.<naam>.workers.dev`.
+4. 🐙 Zet op GitHub (Settings → Secrets and variables → Actions) twee geheimen:
+   - `VERTAAL_URL` = dat adres + `/vertaal`
+   - `VERTAAL_CODE` = dezelfde code als `APP_CODE`
+5. 🔁 Laat de app opnieuw bouwen (Actions → App bouwen → Run workflow) en installeer de nieuwe versie.
+
+Op de telefoon: de eerste tik op 🎤 Vertalen vraagt één keer **"Over andere apps"**. Zet Bash-bord aan en tik nog eens.
+Zonder die toestemming komt de vertaling als klein grijs berichtje.
+
 ## 🛡️ Beveiliging
 
 **Wat de app al doet**
