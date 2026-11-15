@@ -39,6 +39,7 @@ import java.time.LocalTime
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.Instellingen
 import nl.odelia.dashboard.logica.KlokStaat
+import nl.odelia.dashboard.logica.NuDoen
 import nl.odelia.dashboard.logica.Overzicht
 import nl.odelia.dashboard.logica.alsBreuk
 import nl.odelia.dashboard.logica.alsKlok
@@ -69,6 +70,14 @@ fun VandaagTab(staat: AppStaat, acties: AppActies, onGaNaar: (Scherm) -> Unit) {
         klok.vergeten?.let { begin -> VergetenKaart(begin, onEind = acties::sluitVergeten) }
         KlokKaart(klok, acties::wisselKlok)
         VrijZiekRij(klok) { datum, soort -> acties.zetDag(datum, soort, null, null) }
+        NuDoen.van(overzicht)?.let { nu ->
+            NuDoenKaart(
+                nu,
+                onOpen = { onGaNaar(Scherm.Lijst()) },
+                onKlaar = { acties.bewaar(nu.item.copy(klaar = true)) },
+                onLees = { acties.voorlezen(nu.voorlees) },
+            )
+        }
         WeekstreepKaart(klok)
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
