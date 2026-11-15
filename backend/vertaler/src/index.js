@@ -4,11 +4,26 @@
 // Hij staat hier, als geheim bij Cloudflare (ANTHROPIC_API_KEY).
 //
 // - Alleen POST /vertaal, alleen met de juiste app-code (geheim APP_CODE).
-// - Max 2000 tekens tekst. Er wordt niets bewaard.
+// - Max 2000 tekens tekst. Er wordt geen tekst bewaard.
+// - Daglimiet: hooguit DAG_MAX vertalingen per dag. Alleen een teller per dag staat in KV (binding TELLER).
 // - Antwoord: { "vertaling": "..." } of { "fout": "..." }.
 import Anthropic from "@anthropic-ai/sdk";
 
 export const MAX = 2000;
+/** Hooguit zoveel vertalingen per dag (UTC), zodat de kosten niet kunnen oplopen. */
+export const DAG_MAX = 100;
+
+/**
+ * Telt één vertaling voor vandaag. Geeft false als de daglimiet bereikt is.
+ * KV telt niet tot op de vertaling precies (twee tegelijk kunnen samen één tellen); als rem is dat genoeg.
+ */
+export async function telVandaag(teller, nu = new Date()) {
+  const sleutel = `dag-${nu.toISOString().slice(0, 10)}`;
+  const aantal = Number(await teller.get(sleutel)) || 0;
+  if (aantal >= DAG_MAX) return false;
+  await teller.put(sleutel, String(aantal + 1), { expirationTtl: 2 * 24 * 60 * 60 });
+  return true;
+}
 
 // Zelfde keuzes als logica/Vertalen.kt (Taal en Soort).
 export const OPDRACHT = {
@@ -69,12 +84,16 @@ export default {
     const tekst = String(invoer?.tekst ?? "").trim();
     if (!tekst || tekst.length > MAX) return json({ fout: "tekst leeg of te lang" }, 400);
 
+    // Zonder teller geen vertaling: liever dicht dan zonder rem.
+    if (!env.TELLER) return json({ fout: "teller ontbreekt" }, 500);
+    if (!(await telVandaag(env.TELLER))) return json({ fout: "daglimiet bereikt" }, 429);
+
     const client = maakClient(env.ANTHROPIC_API_KEY);
     try {
       const antwoord = await client.beta.messages.create({
-        model: "claude-opus-5-5",
+        // Haiku: veel goedkoper dan Opus en goed genoeg voor vertalen.
+        model: "claude-haiku-5-5",
         max_tokens: 4000,
-        output_config: { effort: "low" },
         betas: ["server-side-fallback-2026-07-01"],
         fallbacks: "default",
         system: systeem(invoer.taal, invoer.soort),

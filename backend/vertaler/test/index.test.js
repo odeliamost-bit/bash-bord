@@ -1,8 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import worker, { systeem } from "../src/index.js";
+import worker, { systeem, telVandaag, DAG_MAX } from "../src/index.js";
 
-const env = { APP_CODE: "verzonnen-code-123", ANTHROPIC_API_KEY: "nep" };
+const nepTeller = (begin = {}) => {
+  const data = new Map(Object.entries(begin));
+  return { data, get: async (k) => data.get(k) ?? null, put: async (k, v) => void data.set(k, v) };
+};
+const env = { APP_CODE: "verzonnen-code-123", ANTHROPIC_API_KEY: "nep", TELLER: nepTeller() };
 const nepClient = (tekst, stop = "end_turn") => () => ({
   beta: { messages: { create: async (vraag) => ({ stop_reason: stop, content: [{ type: "text", text: tekst }], vraag }) } },
 });
@@ -49,4 +53,37 @@ test("weigering van Claude geeft een fout", async () => {
 test("opdracht hangt af van taal en soort", () => {
   assert.match(systeem("Duits", "Tekst"), /Duits/);
   assert.match(systeem("onzin", "Appje"), /Nederlands.*appje/s);
+});
+
+test("daglimiet: telt op en stopt bij het maximum", async () => {
+  const dag = new Date("2026-11-15T12:00:00Z");
+  const teller = nepTeller();
+  assert.equal(await telVandaag(teller, dag), true);
+  assert.equal(teller.data.get("dag-2026-11-15"), "1");
+  const vol = nepTeller({ "dag-2026-11-15": String(DAG_MAX) });
+  assert.equal(await telVandaag(vol, dag), false);
+  // Een nieuwe dag begint weer bij nul.
+  assert.equal(await telVandaag(vol, new Date("2026-11-16T00:00:01Z")), true);
+});
+
+test("daglimiet bereikt = 429 en Claude wordt niet gevraagd", async () => {
+  const vandaag = `dag-${new Date().toISOString().slice(0, 10)}`;
+  let gevraagd = false;
+  const client = () => ({ beta: { messages: { create: async () => { gevraagd = true; return { content: [] }; } } } });
+  const r = await worker.fetch(verzoek({ tekst: "Hoi" }), { ...env, TELLER: nepTeller({ [vandaag]: String(DAG_MAX) }) }, null, client);
+  assert.equal(r.status, 429);
+  assert.deepEqual(await r.json(), { fout: "daglimiet bereikt" });
+  assert.equal(gevraagd, false);
+});
+
+test("zonder teller geen vertaling", async () => {
+  const r = await worker.fetch(verzoek({ tekst: "Hoi" }), { ...env, TELLER: undefined }, null, nepClient("Hi"));
+  assert.equal(r.status, 500);
+});
+
+test("vraagt het goedkope model", async () => {
+  let model;
+  const client = () => ({ beta: { messages: { create: async (v) => { model = v.model; return { stop_reason: "end_turn", content: [{ type: "text", text: "Hi" }] }; } } } });
+  await worker.fetch(verzoek({ tekst: "Hoi" }), { ...env, TELLER: nepTeller() }, null, client);
+  assert.equal(model, "claude-haiku-5-5");
 });

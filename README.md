@@ -80,6 +80,7 @@ De widget-knop **🎤 Vertalen** gaat via een eigen mini-backend. Daar staat de 
    npx wrangler deploy
    ```
    Je krijgt een adres, zoiets als `https://bash-bord-vertaler.<naam>.workers.dev`.
+   Vraagt `deploy` of hij een **KV namespace** voor `TELLER` mag aanmaken? Zeg ja. Dat is de teller voor de daglimiet (hooguit 100 vertalingen per dag).
 4. 🐙 Zet op GitHub (Settings → Secrets and variables → Actions) twee geheimen:
    - `VERTAAL_URL` = dat adres + `/vertaal`
    - `VERTAAL_CODE` = dezelfde code als `APP_CODE`

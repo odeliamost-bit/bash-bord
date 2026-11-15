@@ -5,3 +5,7 @@
 name = "bash-bord-vertaler"
 main = "src/index.js"
 compatibility_date = "2026-11-01"
+
+# Teller voor de daglimiet. Geen id nodig: wrangler maakt hem zelf aan bij de eerste deploy.
+[[kv_namespaces]]
+binding = "TELLER"
