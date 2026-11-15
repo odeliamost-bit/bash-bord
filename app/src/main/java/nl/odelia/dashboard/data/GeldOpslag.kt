@@ -37,6 +37,12 @@ class GeldOpslag private constructor(context: Context) {
         if (tekst != null) _data.value = GeldJson.lees(tekst)
     }
 
+    /** Geld zoals het nu is (wacht tot het bestand gelezen is). Voor de meldingen. */
+    suspend fun nu(): GeldData {
+        geladen.await()
+        return _data.value
+    }
+
     /** Voor de sync: na elke eigen wijziging. */
     @Volatile var naWijziging: (() -> Unit)? = null
 

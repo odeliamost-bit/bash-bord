@@ -115,6 +115,7 @@ fun GeldScherm(
             }
 
             TotaalKaart(data.totaal, onLees = { lees("Totaal: ${GeldBoek.uitspraak(data.totaal)}.") })
+            BankWachtKaart(staat, acties, onMelding)
             SyncKaart(staat.sync, acties)
 
             Segment(
@@ -172,6 +173,7 @@ fun GeldScherm(
                 )
             }
 
+            BankKaart(staat, acties, onMelding)
             UrenKaart(staat, acties)
         }
     }

@@ -79,6 +79,18 @@
             android:name=".meldingen.Ontvanger"
             android:exported="false" />
 
+        <!-- Geld uit ING-meldingen. Alleen Android zelf mag deze dienst gebruiken (BIND_…), en pas nadat
+             Odelia "Meldingen lezen" aanzet. De dienst leest alleen de ING-app (zie BankLuisteraar.kt). -->
+        <service
+            android:name=".meldingen.BankLuisteraar"
+            android:exported="true"
+            android:label="@string/bank_luisteraar_naam"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".meldingen.OpstartOntvanger"
             android:exported="true">

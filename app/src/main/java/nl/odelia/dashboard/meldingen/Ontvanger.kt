@@ -61,6 +61,13 @@ class Ontvanger : BroadcastReceiver() {
 
             KLOPT -> Meldingen.weg(context, Meldingen.ID_VANGNET)
 
+            // Knop in de melding "Uit welk potje?" (Geld uit ING-meldingen).
+            BankInbox.KIES -> {
+                val wacht = intent.getStringExtra(BankInbox.EXTRA_WACHT) ?: return
+                val keuze = intent.getStringExtra(BankInbox.EXTRA_KEUZE) ?: return
+                BankInbox.kies(context, wacht, keuze)
+            }
+
             Planner.HERINNER_UIT ->
                 if (klok.isIn) {
                     Meldingen.toon(

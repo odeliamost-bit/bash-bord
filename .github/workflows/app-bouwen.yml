@@ -91,6 +91,18 @@ jobs:
             exit 1
           fi
 
+      - name: Controle — meldingen lezen alleen van de ING-app
+        run: |
+          # Er mag maar één dienst zijn die meldingen leest, en die slaat alles behalve ING meteen over.
+          f=app/src/main/java/nl/odelia/dashboard/meldingen/BankLuisteraar.kt
+          aantal=$(grep -rl "NotificationListenerService()" app/src/main/java | wc -l)
+          if [ "$aantal" != "1" ] \
+             || ! grep -q 'if (sbn == null || sbn.packageName != BankMelding.ING) return' "$f" \
+             || ! grep -q 'const val ING = "com.ing.mobile"' app/src/main/java/nl/odelia/dashboard/logica/BankMelding.kt; then
+            echo "::error::Het meelezen met meldingen is veranderd. Het mag alleen de ING-app lezen. Pas deze controle (en CLAUDE.md) bewust mee aan."
+            exit 1
+          fi
+
       - name: Controle — alleen bekende toestemmingen en geen testversie
         run: |
           apk=app/build/outputs/apk/release/app-release.apk

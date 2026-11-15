@@ -111,6 +111,14 @@ object Bestanden {
     @Volatile private var beleggen: JsonOpslag<nl.odelia.dashboard.logica.BeleggenData>? = null
 
     @Volatile private var uurloon: JsonOpslag<nl.odelia.dashboard.logica.UurloonData>? = null
+    @Volatile private var bank: JsonOpslag<nl.odelia.dashboard.logica.BankData>? = null
+
+    /** Geld uit ING-meldingen (aan/uit, onthouden winkels, wat nog wacht). Alleen op dit apparaat: niet in de sync, niet in een back-up. */
+    fun bank(context: Context): JsonOpslag<nl.odelia.dashboard.logica.BankData> = bank ?: synchronized(this) {
+        bank ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "bank.json"), nl.odelia.dashboard.logica.BankData(),
+            nl.odelia.dashboard.logica.BankJson::lees, nl.odelia.dashboard.logica.BankJson::schrijf)
+            .also { bank = it }
+    }
 
     /** Uurloon: alleen op dit apparaat. Niet in de Google-back-up, niet in de sync en niet in de eigen back-up. */
     fun uurloon(context: Context): JsonOpslag<nl.odelia.dashboard.logica.UurloonData> = uurloon ?: synchronized(this) {

@@ -39,6 +39,10 @@ data class AppStaat(
     val beleggen: nl.odelia.dashboard.logica.BeleggenData = nl.odelia.dashboard.logica.BeleggenData(),
     /** Uurloon in centen (zelf ingevuld bij Geld). Alleen op dit apparaat, gaat nooit online. */
     val uurloonCent: Long? = null,
+    /** Geld uit ING-meldingen: aan/uit, onthouden winkels en wat nog wacht. Alleen op dit apparaat. */
+    val bank: nl.odelia.dashboard.logica.BankData = nl.odelia.dashboard.logica.BankData(),
+    /** Heeft de app in de Android-instellingen toestemming om meldingen te lezen? */
+    val bankToegang: Boolean = false,
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -137,6 +141,18 @@ interface AppActies {
 
     /** Uurloon zetten (centen), of weghalen met `null`. Alleen op dit apparaat (uurloon.json), gaat nooit online. */
     fun zetUurloon(cent: Long?) {}
+
+    // Geld uit ING-meldingen. Alles blijft op dit apparaat; alleen de boeking komt bij Geld.
+    fun zetBankAan(aan: Boolean) {}
+    /** Opent de Android-instellingen "Meldingen lezen". Geeft `false` als dat niet lukt. */
+    fun openMeldingToegang(): Boolean = false
+    /** Opnieuw kijken of de toestemming er is (na terugkomen uit de instellingen). */
+    fun kijkBankToegang() {}
+    /** Wachtende betaling boeken. [keuze] = potje (uitgave) of categorie (inkomen). De keuze wordt onthouden. */
+    fun kiesBank(wachtId: String, keuze: String) {}
+    fun gooiBankWeg(wachtId: String) {}
+    fun vergeetBankRegel(regel: nl.odelia.dashboard.logica.BankRegel) {}
+    fun wisBankNietHerkend() {}
 
     /** Instellingen aanpassen. Wordt meteen bewaard (alleen op het apparaat) en zet de meldingen opnieuw. */
     fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) {}

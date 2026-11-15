@@ -175,6 +175,7 @@ fun DashboardApp(
             "werk" -> { ga(Scherm.Thuis); tab = Tab.Werk }
             "werk" -> naarPlek(Plek.Werk)
             "cyclus" -> naarPlek(Plek.Cyclus)
+            "geld" -> naarPlek(Plek.Geld)
         }
         onOpdrachtGedaan()
     }
