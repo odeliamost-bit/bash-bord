@@ -14,6 +14,8 @@ import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.logica.Cyclus
 import nl.odelia.dashboard.logica.DagSoort
 import nl.odelia.dashboard.logica.Instellingen
+import nl.odelia.dashboard.logica.Vangnet
+import nl.odelia.dashboard.logica.alsKlok
 import nl.odelia.dashboard.logica.ochtendTekst
 
 /** Hier komen de wekkers van [Planner] en de knoppen in meldingen binnen. */
@@ -34,7 +36,9 @@ class Ontvanger : BroadcastReceiver() {
         val opslag = Opslag.van(context)
         val klok = opslag.klokNu()
         when (intent.action) {
-            Planner.HERINNER_IN ->
+            Planner.HERINNER_IN -> {
+                // Gisteren (of eerder) vergeten uit te klokken en het vangnet gemist: nu alsnog.
+                if (klok.vergeten != null) klokZelfUit(context)
                 if (Instellingen.isWerkdag(LocalDate.now()) && !klok.isIn && klok.vandaag.soort == DagSoort.Leeg) {
                     Meldingen.toon(
                         context, Meldingen.ID_KLOK, Meldingen.KANAAL_KLOK,
@@ -42,6 +46,20 @@ class Ontvanger : BroadcastReceiver() {
                         knop = "Inklokken" to knop(context, INKLOKKEN),
                     )
                 }
+            }
+
+            Planner.HERINNER_UIT_WEER ->
+                if (klok.isIn) {
+                    Meldingen.toon(
+                        context, Meldingen.ID_KLOK, Meldingen.KANAAL_KLOK,
+                        "Je staat nog ingeklokt", "Klaar met werken? Tik op Uitklokken. Om ${alsKlok(Vangnet.OM)} doe ik het zelf.",
+                        knop = "Uitklokken" to knop(context, UITKLOKKEN),
+                    )
+                }
+
+            Planner.VANGNET -> if (klok.isIn) klokZelfUit(context)
+
+            KLOPT -> Meldingen.weg(context, Meldingen.ID_VANGNET)
 
             Planner.HERINNER_UIT ->
                 if (klok.isIn) {
@@ -99,6 +117,21 @@ class Ontvanger : BroadcastReceiver() {
         }
     }
 
+    /** Vangnet: klok uit op de gewone eindtijd en vraag of dat klopt. Aanpassen kan bij Werk. */
+    private suspend fun klokZelfUit(context: Context) {
+        val herinnering = Bestanden.instellingen(context).nu().uitklokken
+        val eind = Opslag.van(context).sluitOpen { Vangnet.geschatEind(it, herinnering) } ?: return
+        Acties.naWijziging(context)
+        Meldingen.weg(context, Meldingen.ID_KLOK)
+        Meldingen.toon(
+            context, Meldingen.ID_VANGNET, Meldingen.KANAAL_KLOK,
+            "Ik heb je uitgeklokt op ${alsKlok(eind.toLocalTime())}",
+            "Klopt dat? Tik op Klopt. Was het anders? Tik hier en pas de dag aan bij Werk.",
+            scherm = "werk",
+            knop = "Klopt" to knop(context, KLOPT),
+        )
+    }
+
     private fun knop(context: Context, actie: String): PendingIntent = PendingIntent.getBroadcast(
         context, actie.hashCode(), Intent(context, Ontvanger::class.java).setAction(actie),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
@@ -107,6 +140,7 @@ class Ontvanger : BroadcastReceiver() {
     companion object {
         const val INKLOKKEN = "nl.odelia.dashboard.INKLOKKEN"
         const val UITKLOKKEN = "nl.odelia.dashboard.UITKLOKKEN"
+        const val KLOPT = "nl.odelia.dashboard.KLOPT"
     }
 }
 

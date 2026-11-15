@@ -171,6 +171,8 @@ fun GeldScherm(
                     },
                 )
             }
+
+            UrenKaart(staat, acties)
         }
     }
 

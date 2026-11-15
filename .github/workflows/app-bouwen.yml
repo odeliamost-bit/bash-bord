@@ -60,15 +60,24 @@ jobs:
           # Sync: eigen Supabase-project. Leeg = de app bouwt zonder sync.
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # Vertalen via Claude: eigen backend (backend/vertaler). Leeg = knop zegt "nog niet ingesteld".
+          VERTAAL_URL: ${{ secrets.VERTAAL_URL }}
+          VERTAAL_CODE: ${{ secrets.VERTAAL_CODE }}
         run: ./gradlew assembleRelease testReleaseUnitTest --stacktrace
 
-      - name: Controle — online alleen via online/, naar Open-Meteo en de eigen Supabase
+      - name: Controle — online alleen via online/, naar Open-Meteo, de eigen Supabase en de eigen vertaal-backend
         run: |
-          # Netwerkcode mag alleen in Online.kt (weer) en Supabase.kt (sync) staan.
+          # Netwerkcode mag alleen in Online.kt (weer), Supabase.kt (sync) en Vertaler.kt (vertalen) staan.
           buiten=$(grep -rlE "openConnection|HttpURLConnection|HttpsURLConnection|Socket\(|okhttp|io\.ktor|import java\.net\.URL$" app/src/main/java \
-            | grep -vE "/online/(Online|Supabase)\.kt$" || true)
+            | grep -vE "/online/(Online|Supabase|Vertaler)\.kt$" || true)
           if [ -n "$buiten" ]; then
-            echo "::error::Netwerkcode buiten online/Online.kt en online/Supabase.kt gevonden: $buiten"
+            echo "::error::Netwerkcode buiten online/Online.kt, Supabase.kt en Vertaler.kt gevonden: $buiten"
+            exit 1
+          fi
+          # Vertaler.kt mag alleen naar het eigen backend-adres (GitHub-geheim), niet naar een vast adres.
+          if ! grep -q 'URL(BuildConfig.VERTAAL_URL)' app/src/main/java/nl/odelia/dashboard/online/Vertaler.kt \
+             || grep -q '"https://' app/src/main/java/nl/odelia/dashboard/online/Vertaler.kt; then
+            echo "::error::Vertaler.kt gaat naar een ander adres dan de eigen backend."
             exit 1
           fi
           # De sync mag alleen de onderdelen die Odelia koos. Uren, cyclus, mail, advies, weer en thuis: nooit.
@@ -76,8 +85,8 @@ jobs:
             echo "::error::De lijst met online-onderdelen in SyncRegels.kt is veranderd. Pas deze controle (en CLAUDE.md) bewust mee aan."
             exit 1
           fi
-          # En Online.kt mag alleen naar de weerdienst Open-Meteo.
-          if ! grep -q 'TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com")' app/src/main/java/nl/odelia/dashboard/online/Online.kt; then
+          # En Online.kt mag alleen naar de weerdienst Open-Meteo en Yahoo Finance (koers Ahold).
+          if ! grep -q 'TOEGESTAAN = setOf("api.open-meteo.com", "geocoding-api.open-meteo.com", "query1.finance.yahoo.com")' app/src/main/java/nl/odelia/dashboard/online/Online.kt; then
             echo "::error::De lijst met toegestane websites in Online.kt is veranderd. Pas deze controle bewust mee aan."
             exit 1
           fi
@@ -88,7 +97,7 @@ jobs:
           aapt2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2"
           "$aapt2" dump permissions "$apk" | tee rechten.txt
           # Alleen deze toestemmingen mogen erin. Iets nieuws (locatie, camera, contacten …)? Dan stopt de bouw.
-          toegestaan="POST_NOTIFICATIONS RECEIVE_BOOT_COMPLETED INTERNET ACCESS_NETWORK_STATE WAKE_LOCK FOREGROUND_SERVICE DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+          toegestaan="POST_NOTIFICATIONS SYSTEM_ALERT_WINDOW RECEIVE_BOOT_COMPLETED INTERNET ACCESS_NETWORK_STATE WAKE_LOCK FOREGROUND_SERVICE DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
           for recht in $(grep "uses-permission" rechten.txt | sed -E "s/.*name='([^']*)'.*/\1/"); do
             kort="${recht##*.}"
             if ! echo " $toegestaan " | grep -q " $kort "; then

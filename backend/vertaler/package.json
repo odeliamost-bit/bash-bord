@@ -1,0 +1,16 @@
+{
+  "name": "vertaler",
+  "private": true,
+  "description": "Kleine backend voor de vertaal-widget: bewaart de Claude-sleutel, zodat die nooit in de app staat.",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.8.0"
+  },
+  "devDependencies": {
+    "wrangler": "4.162.0"
+  }
+}

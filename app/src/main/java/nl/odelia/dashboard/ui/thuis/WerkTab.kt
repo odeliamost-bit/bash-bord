@@ -50,6 +50,7 @@ import nl.odelia.dashboard.ui.Scherm
 import nl.odelia.dashboard.ui.onderdelen.GroteKnop
 import nl.odelia.dashboard.ui.onderdelen.Icoontjes
 import nl.odelia.dashboard.ui.onderdelen.Tekst
+import nl.odelia.dashboard.ui.onderdelen.ZachteKnop
 import nl.odelia.dashboard.ui.onderdelen.glans
 import nl.odelia.dashboard.ui.onderdelen.hoekVerloop
 import nl.odelia.dashboard.ui.onderdelen.klei
@@ -80,6 +81,7 @@ fun WerkTab(staat: AppStaat, acties: AppActies, onGaNaar: (Scherm) -> Unit) {
         UrenRingKaart(dagen, totaal, staat.klok.weekdoel, if (vorigeWeek) "Uren vorige week" else "Uren deze week")
         StaafjesKaart(dagen, vandaagIndex = dagen.indexOfFirst { it.datum == vandaag }, vorigeWeek, onWissel = { vorigeWeek = !vorigeWeek })
         DagenKaart(dagen, onKies = { bewerk = it })
+        ZachteKnop("📒 Urenlogboek en statistieken", onClick = { onGaNaar(Scherm.Logboek) }, modifier = Modifier.fillMaxWidth())
         GroteKnop("Urenmail voor Kim", onClick = { onGaNaar(Scherm.Urenmail) }, icoon = Icoontjes.mailWit)
     }
 
