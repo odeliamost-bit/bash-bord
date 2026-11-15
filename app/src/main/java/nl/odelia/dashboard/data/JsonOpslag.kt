@@ -110,6 +110,15 @@ object Bestanden {
     @Volatile private var instellingen: JsonOpslag<InstellingenData>? = null
     @Volatile private var beleggen: JsonOpslag<nl.odelia.dashboard.logica.BeleggenData>? = null
 
+    @Volatile private var uurloon: JsonOpslag<nl.odelia.dashboard.logica.UurloonData>? = null
+
+    /** Uurloon: alleen op dit apparaat. Niet in de Google-back-up, niet in de sync en niet in de eigen back-up. */
+    fun uurloon(context: Context): JsonOpslag<nl.odelia.dashboard.logica.UurloonData> = uurloon ?: synchronized(this) {
+        uurloon ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "uurloon.json"), nl.odelia.dashboard.logica.UurloonData(),
+            nl.odelia.dashboard.logica.UurloonJson::lees, nl.odelia.dashboard.logica.UurloonJson::schrijf)
+            .also { uurloon = it }
+    }
+
     /** Beleggen: alleen op deze telefoon, niet in de Google-back-up en niet in de sync. */
     fun beleggen(context: Context): JsonOpslag<nl.odelia.dashboard.logica.BeleggenData> = beleggen ?: synchronized(this) {
         beleggen ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "beleggen.json"), nl.odelia.dashboard.logica.BeleggenData(),

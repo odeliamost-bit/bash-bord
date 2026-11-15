@@ -61,6 +61,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val recepten = ReceptenOpslag.van(app)
     private val instellingen = Bestanden.instellingen(app)
     private val beleggen = Bestanden.beleggen(app)
+    private val uurloon = Bestanden.uurloon(app)
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -84,6 +85,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
         ) { s, f, a, r, y -> s.copy(fotos = f, advies = a, recepten = r, sync = y) }
             .combine(instellingen.data) { s, i -> s.copy(klok = s.klok.copy(weekdoel = i.weekdoel), instellingen = i) }
             .combine(beleggen.data) { s, b -> s.copy(beleggen = b) }
+            .combine(uurloon.data) { s, u -> s.copy(uurloonCent = u.cent) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -149,6 +151,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun syncNu() = Sync.nu()
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
+    override fun zetUurloon(cent: Long?) = uurloon.wijzig({ it.copy(cent = cent) })
     override fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) = beleggen.wijzig(wat)
 
     // ---- Beleggen (gaat online; het scherm vraagt eerst toestemming) ----

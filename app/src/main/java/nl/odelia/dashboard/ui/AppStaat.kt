@@ -37,6 +37,8 @@ data class AppStaat(
     val recepten: ReceptenData = ReceptenData(ReceptenStart.recepten),
     val sync: SyncStaat = SyncStaat(),
     val beleggen: nl.odelia.dashboard.logica.BeleggenData = nl.odelia.dashboard.logica.BeleggenData(),
+    /** Uurloon in centen (zelf ingevuld bij Geld). Alleen op dit apparaat, gaat nooit online. */
+    val uurloonCent: Long? = null,
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -132,6 +134,9 @@ interface AppActies {
     fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) {}
     /** Koers van Ahold ophalen (Yahoo Finance). Gaat online: alleen na "ja". [klaar] krijgt een kort berichtje. */
     fun haalKoers(klaar: (String) -> Unit) {}
+
+    /** Uurloon zetten (centen), of weghalen met `null`. Alleen op dit apparaat (uurloon.json), gaat nooit online. */
+    fun zetUurloon(cent: Long?) {}
 
     /** Instellingen aanpassen. Wordt meteen bewaard (alleen op het apparaat) en zet de meldingen opnieuw. */
     fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) {}
