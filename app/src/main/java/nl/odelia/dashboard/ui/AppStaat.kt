@@ -107,6 +107,11 @@ interface AppActies {
     /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen bewaard, en gesynct als Odelia is ingelogd. */
     fun wijzigGeld(wat: (GeldData) -> GeldData) {}
 
+    /** ING-import: mag de app meldingen lezen? ("Toegang tot meldingen" staat aan.) */
+    fun ingToegang(): Boolean = false
+    /** Open het Android-scherm om meldingen-toegang aan te zetten, of met [appInfo] de app-info (voor "beperkte instellingen"). */
+    fun openIngToegang(appInfo: Boolean = false): Boolean = false
+
     /** Deel tekst met een andere app (bijv. Google Drive of Sheets). Geeft `false` als dat niet lukt. */
     fun deelTekst(titel: String, tekst: String): Boolean = false
     // Foto's bij Onthoud. Blijven op de telefoon (filesDir), gaan nooit online.

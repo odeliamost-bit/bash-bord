@@ -81,7 +81,7 @@ Die schermen staan al in het ontwerp, maar komen pas na fase 1:
 Mensen, Mail-hulp (chat die voorbeeldmails schrijft), Advies, Leren, Cyclus, Geld (potjes, uitgaven, verdelen), Wensen, Recepten, Zeilweer.
 
 Wensen die nog uitgezocht moeten worden (eerlijk bespreken of het kan):
-- Geld: ING- en Google Pay-meldingen lezen en uitgaven automatisch invullen.
+- Geld: Google Pay-meldingen lezen (ING is gebouwd, zie hierboven).
 - Koppeling met Google Sheets.
 - Telefoon op stil zetten bij inklokken.
 
@@ -139,6 +139,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
   - 🔒 Nooit online, alleen op het apparaat: **Uren, Cyclus, Mail-hulp, Advies, Weer, Thuis.** Niet synchroniseren tussen telefoon en tablet.
   - Lijst staat in `logica/SyncRegels.kt` (`ONLINE`), in `supabase/kompas.sql` (check) én in de CI-controle. Altijd alle drie samen aanpassen, en alleen als Odelia het vraagt.
 - **Sync (okt 2026):** eigen Supabase-project. Inloggen met code per e-mail (geen wachtwoord). Eén rij per onderdeel (JSON), nieuwste wijziging wint (tijd van de server). Realtime via websocket zolang de app open is; bij openen alles bijwerken. Netwerkcode alleen in `online/Online.kt` (weer) en `online/Supabase.kt` (sync). Sleutels via GitHub-geheimen `SUPABASE_URL` en `SUPABASE_ANON_KEY` (zie README). Inlog en sync-stand in `noBackupFilesDir`. Eerste inlog op een apparaat: online wint, oude data in `reserve-<onderdeel>.json`.
+- **ING-import (nov 2026):** Geld leest meldingen van de ING-app (`com.ing.mobile`) via een notification listener (`meldingen/IngLuisteraar.kt`). Alle andere meldingen worden genegeerd. Bedrag + winkel eruit (`logica/IngImport.kt`), pot kiezen op winkelnaam; onbekende winkel → vraag-kaart bovenaan Geld + melding. Koppeling winkel → pot (en categorie) in `geld.json` (`winkels`), gaat mee met de sync. Alleen uitgaven, geen inkomen. Odelia zet zelf "Toegang tot meldingen" aan (soms eerst "Beperkte instellingen toestaan" bij App-info). Het echte formaat van ING-meldingen is **nog niet gezien**; onbegrepen meldingen staan in het ING-paneel.
 - **Google Agenda (gewenst, okt 2026):** afspraken van vandaag en deze week op het dashboard, alleen lezen. Plan: de agenda van de telefoon lezen (Android `CalendarContract`, toestemming `READ_CALENDAR`), geen Google-login nodig. Nog niet gebouwd.
 
 - **Kompas samenvoegen (gekozen door Odelia, okt 2026):** de oude Kompas-pagina (claude.ai) gaat op in bash-bord, met de opmaak van bash-bord. Overnemen: Papieren (document → samenvatting + actiepunten), Nu doen-kaart, grote tekst, back-up. Kompas-taken en -wensen worden ingelezen uit Kompas' eigen back-up (`logica/KompasImport.kt`). Taak-in-stapjes niet overnemen.
@@ -158,4 +159,5 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Instellingen-scherm (tabjes, grote tekst, tijden, weekdoel, meldingen, tegels, menu). **Nog niet getest op de telefoon.**
 - Kompas stap 2–4 (nog te doen): Nu doen-kaart, Papieren.
 - Sync stap 3: Onthoud (+Mensen), Wensen, Leren, Recepten, Instellingen via Supabase. ☁️-kaart ook bij Instellingen. Supabase-SQL moet één keer opnieuw (`instellingen` in de check). **Nog niet getest met echte Supabase en niet op de telefoon.**
+- ING-import voor Geld (meldingen lezen, pot op winkelnaam, vragen bij onbekende winkel). Testjes slagen in de cloud; **nog niet getest met een echte ING-melding en niet op de telefoon.**
 - Nog te doen: sync voor foto's; tegels op de tablet bespreken; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).

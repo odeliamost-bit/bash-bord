@@ -13,6 +13,14 @@ data class GeldData(
     val potjes: List<Potje> = GeldStart.potjes,
     val boekingen: List<Boeking> = emptyList(),
     val tags: List<String> = GeldStart.tags,
+    /** ING-import: winkel (sleutel, zie [IngImport.sleutel]) → potje. */
+    val winkels: Map<String, WinkelPot> = emptyMap(),
+    /** ING-uitgaven bij een onbekende winkel: wachten tot Odelia een potje kiest. */
+    val ingWacht: List<IngWacht> = emptyList(),
+    /** Codes van al verwerkte ING-meldingen (de laatste 100), zodat niks dubbel telt. */
+    val ingGezien: List<String> = emptyList(),
+    /** ING-meldingen die de app niet snapte (de laatste 3), om het lezen te verbeteren. */
+    val ingOnbegrepen: List<String> = emptyList(),
 ) {
     fun potje(id: String?): Potje? = potjes.find { it.id == id }
 
@@ -235,6 +243,27 @@ object GeldJson {
             }
         })
         put("tags", JSONArray(d.tags))
+        put("winkels", JSONObject().apply {
+            d.winkels.forEach { (k, w) ->
+                put(k, JSONObject().apply {
+                    put("naam", w.naam)
+                    put("potje", w.potjeId)
+                    put("categorie", w.categorie)
+                })
+            }
+        })
+        put("ingWacht", JSONArray().apply {
+            d.ingWacht.forEach { w ->
+                put(JSONObject().apply {
+                    put("id", w.id)
+                    put("cent", w.cent)
+                    put("winkel", w.winkel)
+                    put("datum", w.datum.toString())
+                })
+            }
+        })
+        put("ingGezien", JSONArray(d.ingGezien))
+        put("ingOnbegrepen", JSONArray(d.ingOnbegrepen))
     }.toString()
 
     fun lees(tekst: String): GeldData {
@@ -281,7 +310,27 @@ object GeldJson {
             }
         }.orEmpty()
         val tags = o.optJSONArray("tags")?.let { t -> (0 until t.length()).mapNotNull { stukje { t.getString(it) } } } ?: GeldStart.tags
-        return GeldData(potjes, boekingen, tags)
+        val winkels = o.optJSONObject("winkels")?.let { w ->
+            w.keys().asSequence().mapNotNull { k ->
+                stukje {
+                    val x = w.getJSONObject(k)
+                    k to WinkelPot(x.getString("naam"), x.getString("potje"), x.optString("categorie").ifEmpty { "shop" })
+                }
+            }.toMap()
+        }.orEmpty()
+        val wacht = o.optJSONArray("ingWacht")?.let { a ->
+            (0 until a.length()).mapNotNull { i ->
+                stukje {
+                    val x = a.getJSONObject(i)
+                    val cent = x.getLong("cent")
+                    require(cent > 0)
+                    IngWacht(x.getString("id"), cent, x.getString("winkel"), LocalDate.parse(x.getString("datum")))
+                }
+            }
+        }.orEmpty()
+        fun tekstLijst(naam: String) =
+            o.optJSONArray(naam)?.let { t -> (0 until t.length()).mapNotNull { stukje { t.getString(it) } } }.orEmpty()
+        return GeldData(potjes, boekingen, tags, winkels, wacht, tekstLijst("ingGezien"), tekstLijst("ingOnbegrepen"))
     }
 
     private inline fun <T> stukje(maak: () -> T): T? = try {

@@ -15,6 +15,9 @@ import nl.odelia.dashboard.ui.Voorbeeld
 import nl.odelia.dashboard.logica.Leren
 import nl.odelia.dashboard.logica.PauzeReden
 import nl.odelia.dashboard.logica.Rondje
+import nl.odelia.dashboard.logica.IngWacht
+import nl.odelia.dashboard.logica.WinkelPot
+import nl.odelia.dashboard.ui.geld.GeldBegin
 import nl.odelia.dashboard.ui.leren.LerenBegin
 import nl.odelia.dashboard.ui.leren.LerenTab
 import java.time.Instant
@@ -70,4 +73,12 @@ fun main(args: Array<String>) {
     leren("20-leren-pauze-vraag", 870, LerenBegin(LerenTab.Kaarten, onderwerp = "relais", rondje = rondje, seintje = PauzeReden.Langzamer))
     leren("21-leren-pauze", 870, LerenBegin(LerenTab.Kaarten, pauzeTot = Instant.now().plusSeconds(263)))
     leren("22-leren-burgerschap", 1200, LerenBegin(LerenTab.Kaarten, onderwerp = "politiek"))
+
+    val ing = staat.geld.copy(
+        ingWacht = listOf(IngWacht("w1", 4_50, "JUMBO UTRECHT 12", staat.nu.toLocalDate())),
+        winkels = mapOf("albert heijn" to WinkelPot("Albert Heijn", "vrij", "bood"), "ns" to WinkelPot("NS", "vast", "ov")),
+        ingOnbegrepen = listOf("Betaling: er is een betaling gedaan"),
+    )
+    teken("23-geld-ing-vraag", 411, 1500) { DashboardApp(staat.copy(geld = ing), geen, beginScherm = Scherm.Geld()) }
+    teken("24-geld-ing-paneel", 411, 3200) { DashboardApp(staat.copy(geld = ing), geen, beginScherm = Scherm.Geld(GeldBegin(ing = true))) }
 }

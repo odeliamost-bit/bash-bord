@@ -2,12 +2,14 @@ package nl.odelia.dashboard
 
 import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.speech.RecognizerIntent
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -20,11 +22,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.meldingen.IngLuisteraar
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.online.Sync
@@ -36,6 +40,8 @@ import nl.odelia.dashboard.ui.theme.DashboardThema
 class MainActivity : ComponentActivity() {
     /** Wat een melding, widget of andere app wil openen. */
     private val opdracht = mutableStateOf<Opdracht?>(null)
+    /** Mag de app ING-meldingen lezen? Bijgewerkt als de app weer in beeld komt (na de Android-instellingen). */
+    private val ingAan = mutableStateOf(false)
 
     private var naInspreken: ((String) -> Unit)? = null
     private val inspreken = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultaat ->
@@ -128,6 +134,8 @@ class MainActivity : ComponentActivity() {
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
                     override fun deelTekst(titel: String, tekst: String) = deel(titel, tekst)
+                    override fun ingToegang() = ingAan.value
+                    override fun openIngToegang(appInfo: Boolean) = openMeldingToegang(appInfo)
                     override fun maakBackup(klaar: (String) -> Unit) = kiesBestand(klaar) {
                         backupMaken.launch("bash-bord-backup-${java.time.LocalDate.now()}.zip")
                     }
@@ -150,6 +158,39 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Sync.aan()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ingAan.value = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+    }
+
+    /** Android-scherm "Toegang tot meldingen" (of de app-info, voor "beperkte instellingen toestaan"). */
+    private fun openMeldingToegang(appInfo: Boolean): Boolean {
+        val pogingen = buildList {
+            if (appInfo) {
+                add(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    add(
+                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS).putExtra(
+                            Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+                            ComponentName(this@MainActivity, IngLuisteraar::class.java).flattenToString(),
+                        ),
+                    )
+                }
+                add(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            }
+        }
+        for (intent in pogingen) {
+            try {
+                startActivity(intent)
+                return true
+            } catch (_: ActivityNotFoundException) {
+            } catch (_: SecurityException) {
+            }
+        }
+        return false
     }
 
     override fun onStop() {

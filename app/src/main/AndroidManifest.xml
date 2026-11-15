@@ -65,6 +65,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- Geld: ING-meldingen lezen. Werkt pas als Odelia "Toegang tot meldingen" aanzet.
+             Alleen meldingen van de ING-app worden gelezen (zie logica/IngImport.kt). -->
+        <service
+            android:name=".meldingen.IngLuisteraar"
+            android:exported="true"
+            android:label="@string/ing_luisteraar"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".widget.KlokWidgetOntvanger"
             android:exported="true"
