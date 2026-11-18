@@ -21,6 +21,8 @@ data class Wens(
     val links: List<String>,
     val hartjes: Int = 0,
     val gekocht: Boolean = false,
+    /** Prijs-schatting als tekst, bijv. "± € 25". Staat bovenaan de kaart. */
+    val prijs: String? = null,
     /** Laatst veranderd (millis), voor later synchroniseren. */
     val updatedAt: Long = 0,
 )

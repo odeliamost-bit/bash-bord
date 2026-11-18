@@ -160,4 +160,5 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - Kompas stap 2–4 (nog te doen): Nu doen-kaart, Papieren.
 - Sync stap 3: Onthoud (+Mensen), Wensen, Leren, Recepten, Instellingen via Supabase. ☁️-kaart ook bij Instellingen. Supabase-SQL moet één keer opnieuw (`instellingen` in de check). **Nog niet getest met echte Supabase en niet op de telefoon.**
 - ING-import voor Geld (meldingen lezen, pot op winkelnaam, vragen bij onbekende winkel). Testjes slagen in de cloud; **nog niet getest met een echte ING-melding en niet op de telefoon.**
+- Wensen-aanvulling (nov 2026, tak `claude/wensen-links-prijs`): alle links uit haar Google Doc "Verlanglijst" per wens bij elkaar, nieuwe wensen uit gesprekken (zeilboot, filament, werkrugzak, perliet, laarsjes, ondergoed+pyjama, bed), prijs-schatting bovenaan elke kaart (ook zelf aan te passen). Gaat één keer over haar lijst (`logica/WensenAanvulling.kt`). Testjes slagen; **nog niet getest op de telefoon.**
 - Nog te doen: sync voor foto's; tegels op de tablet bespreken; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).

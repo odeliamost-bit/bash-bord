@@ -86,6 +86,7 @@ data class WensVenster(
     val soort: WensSoort = WensSoort.Overig,
     val links: String = "",
     val oud: Wens? = null,
+    val prijs: String = "",
 )
 
 /** Hoe het scherm opent (handig voor de voorbeeld-plaatjes). */
@@ -205,7 +206,7 @@ fun WensenScherm(
                             onHartje = { acties.wijzigWensen { it.volgendHartje(w.id, nu()) } },
                             onBekijk = { if (w.links.size == 1) open(w.links.first()) else kiesLink = w },
                             onGekocht = { acties.wijzigWensen { it.wisselGekocht(w.id, nu()) } },
-                            onAanpassen = { venster = WensVenster(w.naam, w.soort, w.links.joinToString("\n"), w) },
+                            onAanpassen = { venster = WensVenster(w.naam, w.soort, w.links.joinToString("\n"), w, w.prijs.orEmpty()) },
                         )
                     }
                     if (rij.size == 1) Spacer(Modifier.weight(1f))
@@ -223,8 +224,8 @@ fun WensenScherm(
         WensBewerken(
             v,
             onSluit = { venster = null },
-            onBewaar = { naam, s, links ->
-                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu())) }
+            onBewaar = { naam, s, links, prijs ->
+                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu(), prijs)) }
                 venster = null
                 onMelding(if (v.oud == null) "Wens bewaard" else "Aangepast")
             },
@@ -311,6 +312,7 @@ private fun WensKaart(
             }
         }
         Column(Modifier.clickable(onClickLabel = "Aanpassen", onClick = onAanpassen)) {
+            w.prijs?.let { Tekst("💶 $it", 15.sp, dikte = FontWeight.Black, kleur = Kleur.KoraalDiep) }
             androidx.compose.material3.Text(
                 w.naam,
                 fontSize = 16.sp,
@@ -354,12 +356,13 @@ private fun WensKaart(
 fun WensBewerken(
     begin: WensVenster,
     onSluit: () -> Unit,
-    onBewaar: (String, WensSoort, String) -> Unit,
+    onBewaar: (String, WensSoort, String, String) -> Unit,
     onWeg: (() -> Unit)?,
 ) {
     var naam by remember(begin) { mutableStateOf(begin.naam) }
     var soort by remember(begin) { mutableStateOf(begin.soort) }
     var links by remember(begin) { mutableStateOf(begin.links) }
+    var prijs by remember(begin) { mutableStateOf(begin.prijs) }
     Dialog(onDismissRequest = onSluit, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Column(
             Modifier
@@ -379,9 +382,11 @@ fun WensBewerken(
             }
             Kopje("🔗 Link (mag leeg)")
             Invoer(links, { links = it }, hint = "https://…", regels = 2)
+            Kopje("💶 Prijs ongeveer (mag leeg)")
+            Invoer(prijs, { prijs = it }, hint = "Bijv. ± € 25")
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ZachteKnop("Terug", onSluit, Modifier.weight(1f))
-                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
+                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links, prijs) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
             }
             if (onWeg != null) ZachteKnop("🗑️ Weghalen", onWeg, Modifier.fillMaxWidth(), kleur = Kleur.KoraalDiep)
         }
