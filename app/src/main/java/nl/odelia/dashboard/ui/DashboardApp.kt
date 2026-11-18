@@ -148,6 +148,7 @@ fun DashboardApp(
             "urenmail" -> { ga(Scherm.Thuis); tab = Tab.Werk; ga(Scherm.Urenmail) }
             "werk" -> naarPlek(Plek.Werk)
             "cyclus" -> naarPlek(Plek.Cyclus)
+            "geld" -> naarPlek(Plek.Geld)
         }
         onOpdrachtGedaan()
     }

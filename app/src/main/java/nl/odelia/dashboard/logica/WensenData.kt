@@ -5,7 +5,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** Alle wensen die op de telefoon bewaard worden. De eerste keer: de startlijst. */
-data class WensenData(val lijst: List<Wens> = WensenStart.lijst) {
+data class WensenData(
+    val lijst: List<Wens> = WensenAanvulling.pas(WensenStart.lijst),
+    /** Welke aanvulling (extra links, prijzen, nieuwe wensen) al is toegevoegd. */
+    val aanvulling: Int = WensenAanvulling.VERSIE,
+) {
     /** Nieuwe wens bovenaan, of een bestaande (zelfde id) op dezelfde plek vervangen. */
     fun bewaar(w: Wens): WensenData =
         if (lijst.any { it.id == w.id }) copy(lijst = lijst.map { if (it.id == w.id) w else it })
@@ -21,7 +25,7 @@ data class WensenData(val lijst: List<Wens> = WensenStart.lijst) {
 }
 
 /** Een wens maken of aanpassen uit wat ze in het venster invulde. */
-fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: Long): Wens {
+fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: Long, prijs: String? = oud?.prijs): Wens {
     val links = Wensen.linksUit(linkTekst)
     val emoji = if (oud != null && oud.soort == soort) oud.emoji else soort.emoji
     return Wens(
@@ -33,6 +37,7 @@ fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: 
         links = links,
         hartjes = oud?.hartjes ?: 0,
         gekocht = oud?.gekocht ?: false,
+        prijs = prijs?.trim()?.ifEmpty { null },
         updatedAt = nu,
     )
 }
@@ -43,6 +48,7 @@ object WensenJson {
 
     fun schrijf(d: WensenData): String = JSONObject().apply {
         put("versie", VERSIE)
+        put("aanvulling", d.aanvulling)
         put("wensen", JSONArray().apply {
             d.lijst.forEach { w ->
                 put(
@@ -55,19 +61,25 @@ object WensenJson {
                         .put("links", JSONArray(w.links))
                         .put("hartjes", w.hartjes)
                         .put("gekocht", w.gekocht)
+                        .put("prijs", w.prijs ?: JSONObject.NULL)
                         .put("updatedAt", w.updatedAt),
                 )
             }
         })
     }.toString()
 
-    /** Kapot bestand? Dan de startlijst, zodat het scherm nooit leeg en raar is. */
+    /**
+     * Kapot bestand? Dan de startlijst, zodat het scherm nooit leeg en raar is.
+     * Nog geen aanvulling gehad? Dan komt die er één keer bij (links, prijzen, nieuwe wensen).
+     */
     fun lees(tekst: String): WensenData {
-        val a = try {
-            JSONObject(tekst).getJSONArray("wensen")
+        val o = try {
+            JSONObject(tekst)
         } catch (_: Exception) {
             return WensenData()
         }
+        val a = o.optJSONArray("wensen") ?: return WensenData()
+        val gehad = o.optInt("aanvulling", 0)
         val lijst = (0 until a.length()).mapNotNull { i ->
             try {
                 val x = a.getJSONObject(i)
@@ -82,12 +94,14 @@ object WensenJson {
                     links = links,
                     hartjes = x.optInt("hartjes").coerceIn(0, Wensen.MAX_HARTJES),
                     gekocht = x.optBoolean("gekocht"),
+                    prijs = if (x.isNull("prijs")) null else x.optString("prijs").ifEmpty { null },
                     updatedAt = x.optLong("updatedAt"),
                 )
             } catch (_: Exception) {
                 null
             }
         }.distinctBy { it.id }
-        return WensenData(lijst)
+        return if (gehad >= WensenAanvulling.VERSIE) WensenData(lijst, gehad)
+        else WensenData(WensenAanvulling.pas(lijst), WensenAanvulling.VERSIE)
     }
 }

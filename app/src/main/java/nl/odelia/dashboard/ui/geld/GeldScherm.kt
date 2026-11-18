@@ -58,6 +58,8 @@ data class GeldBegin(
     val invoer: Boolean = false,
     val kalender: Boolean = false,
     val verdelen: Boolean = false,
+    /** ING-import-paneel open. */
+    val ing: Boolean = false,
 )
 
 private val munt = listOf(
@@ -89,6 +91,7 @@ fun GeldScherm(
     var invoerSoort by remember { mutableStateOf(BoekSoort.Uit) }
     var bewerk by remember { mutableStateOf<Potje?>(null) }
     var nieuwPotje by remember { mutableStateOf(false) }
+    var ingOpen by remember { mutableStateOf(begin.ing) }
 
     fun lees(tekst: String) {
         if (!acties.voorlezen(tekst)) onMelding("Voorlezen lukt nog niet. Staat er een Nederlandse stem op je telefoon?")
@@ -116,6 +119,7 @@ fun GeldScherm(
 
             TotaalKaart(data.totaal, onLees = { lees("Totaal: ${GeldBoek.uitspraak(data.totaal)}.") })
             SyncKaart(staat.sync, acties)
+            IngVraag(data, vandaag, acties, onMelding, ::lees)
 
             Segment(
                 keuzes = GeldTab.entries,
@@ -140,6 +144,8 @@ fun GeldScherm(
                         KleineKnop("🕒", "Overzicht", Modifier.weight(1f), aan = overzichtOpen) { overzichtOpen = !overzichtOpen }
                     }
                     if (overzichtOpen) OverzichtPaneel(data, vandaag, acties, onMelding)
+                    KleineKnop("🏦", "ING-import" + if (acties.ingToegang()) " ✅" else "", Modifier.fillMaxWidth(), aan = ingOpen) { ingOpen = !ingOpen }
+                    if (ingOpen) IngPaneel(data, acties, onMelding)
                 }
                 GeldTab.Uitgaven -> UitgavenPaneel(data, vandaag, acties, onMelding, ::lees)
             }
