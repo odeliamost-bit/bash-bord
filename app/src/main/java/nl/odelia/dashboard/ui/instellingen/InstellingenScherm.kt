@@ -79,6 +79,7 @@ fun InstellingenScherm(
             when (tab) {
                 InstTab.Instellingen -> {
                     SyncKaart(staat.sync, acties)
+                    PrivacyKaart()
                     InstellingenTab(staat.instellingen, acties::wijzigInstellingen)
                 }
                 InstTab.Backup -> BackupTab(acties, onMelding)

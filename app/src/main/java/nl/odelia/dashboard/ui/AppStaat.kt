@@ -69,6 +69,8 @@ data class SyncStaat(
     val live: Boolean = false,
     val laatste: LocalDateTime? = null,
     val bericht: String? = null,
+    /** Ingelogd, maar nog geen geheime zin op dit apparaat: dan synct er niks. */
+    val zinNodig: Boolean = false,
 )
 
 /** Alles wat de schermen kunnen laten gebeuren. Standaard doet alles niks (handig voor voorbeelden). */
@@ -170,6 +172,8 @@ interface AppActies {
     fun logInSync(code: String) {}
     fun logUitSync() {}
     fun syncNu() {}
+    /** Geheime zin voor het versleutelen van de sync (wordt niet bewaard). */
+    fun zetSyncZin(zin: String) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

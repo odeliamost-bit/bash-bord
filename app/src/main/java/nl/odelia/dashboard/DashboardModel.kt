@@ -75,6 +75,13 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     private val zeilweer = MutableStateFlow(ZeilweerStaat(plek = PlekOpslag.lees(app)))
 
+    init {
+        // Plek gekozen op een ander apparaat (sync)? Dan hier ook.
+        viewModelScope.launch {
+            PlekOpslag.data(app).collect { p -> if (p != zeilweer.value.plek) zeilweer.value = ZeilweerStaat(plek = p) }
+        }
+    }
+
     private val basis =
         combine(opslag.perioden(), opslag.dagSoorten(), opslag.onthoud(), tik, zeilweer) { perioden, soorten, onthoud, nu, weer ->
             AppStaat(KlokStaat.maak(perioden, soorten, nu), perioden, soorten, onthoud, weer)
@@ -153,6 +160,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun logInSync(code: String) = Sync.logIn(code)
     override fun logUitSync() = Sync.logUit()
     override fun syncNu() = Sync.nu()
+    override fun zetSyncZin(zin: String) = Sync.zetZin(zin)
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
     override fun zetUurloon(cent: Long?) = uurloon.wijzig({ it.copy(cent = cent) })

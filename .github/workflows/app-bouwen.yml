@@ -80,8 +80,8 @@ jobs:
             echo "::error::Vertaler.kt gaat naar een ander adres dan de eigen backend."
             exit 1
           fi
-          # De sync mag alleen de onderdelen die Odelia koos. Uren, cyclus, mail, advies, weer en thuis: nooit.
-          if ! grep -q 'val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos", "instellingen")' app/src/main/java/nl/odelia/dashboard/logica/SyncRegels.kt; then
+          # De sync mag alleen de onderdelen die Odelia koos. Uren, uurloon en cyclus: nooit. Alles versleuteld.
+          if ! grep -q 'val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos", "instellingen", "advies", "weer")' app/src/main/java/nl/odelia/dashboard/logica/SyncRegels.kt; then
             echo "::error::De lijst met online-onderdelen in SyncRegels.kt is veranderd. Pas deze controle (en CLAUDE.md) bewust mee aan."
             exit 1
           fi

@@ -10,12 +10,13 @@ import java.time.Instant
  */
 object SyncRegels {
     /**
-     * Alleen deze onderdelen mogen online (gekozen door Odelia, okt 2026).
+     * Alleen deze onderdelen mogen online (gekozen door Odelia, okt 2026; advies en weer erbij in nov 2026).
+     * Alles gaat versleuteld online (zie [Versleutel]).
      * Instellingen: zonder grote tekst en tegels (die blijven per apparaat).
-     * Uren, cyclus, mail-hulp, advies, weer en thuis gaan NOOIT online.
+     * Uren, uurloon en cyclus gaan NOOIT online. Mail-hulp en Thuis bewaren zelf niets.
      * Supabase controleert dezelfde lijst (zie `supabase/kompas.sql`).
      */
-    val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos", "instellingen")
+    val ONLINE = setOf("geld", "onthoud", "leren", "wensen", "recepten", "mensen", "fotos", "instellingen", "advies", "weer")
 
     /** Wat dit apparaat weet over één onderdeel. */
     data class Stand(
