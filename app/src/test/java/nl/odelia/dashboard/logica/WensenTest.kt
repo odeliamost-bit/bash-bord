@@ -75,13 +75,13 @@ class WensenTest {
     @Test
     fun startlijst() {
         val lijst = WensenStart.lijst
-        assertEquals(29, lijst.size)
-        assertEquals(29, lijst.map { it.id }.toSet().size)
+        assertEquals(34, lijst.size)
+        assertEquals(34, lijst.map { it.id }.toSet().size)
         lijst.flatMap { it.links }.forEach { link ->
             assertEquals(link, Wensen.schoon(link))
             assertFalse(link, link.contains("utm_") || link.contains("ref="))
         }
-        assertEquals(WensTelling(open = 29, gekocht = 0), Wensen.tel(lijst))
+        assertEquals(WensTelling(open = 34, gekocht = 0), Wensen.tel(lijst))
         assertEquals("Etsy", lijst.first { it.naam == "Patroon: roze draak" }.winkel)
         assertNull(lijst.first { it.naam == "Gordijnbeugel" }.winkel)
     }
