@@ -1122,19 +1122,51 @@ function valueLine(c) {
     default: return '';
   }
 }
+/* Liggen de aansluitingen links en rechts (draden lopen horizontaal)? Dan komt de naam erboven, anders ernaast. */
+function labelBoven(c) {
+  var t = C.terminals(c); if (!t || t.length < 2) return false;
+  var xs = t.map(function (p) { return p[0]; }), ys = t.map(function (p) { return p[1]; });
+  return (Math.max.apply(0, xs) - Math.min.apply(0, xs)) > (Math.max.apply(0, ys) - Math.min.apply(0, ys));
+}
 function drawLabels(c) {
-  var b = rbox(c), x = b[2] + 0.3, y = (b[1] + b[3]) / 2, broken = c.st.broken || c.st.blown;
-  if (c.type === 'ac' || c.type === 'rcd') { x = b[2] + 0.3; y = b[1] + 0.6; }
+  var b = rbox(c), x = b[2] + 0.45, y = (b[1] + b[3]) / 2, broken = c.st.broken || c.st.blown, al = 'left';
+  if (c.type === 'ac' || c.type === 'rcd') { x = b[2] + 0.45; y = b[1] + 0.6; }
   var meter = c.type === 'vm' || c.type === 'am';
   var vl = valueLine(c);
-  txt(c.label, x, meter ? y - 0.85 : (vl || broken ? y - 0.4 : y), 0.68, col.ink, 'left', 700);
+  if (!meter && labelBoven(c)) {
+    // boven het tekeningetje, los van de draden
+    x = (b[0] + b[2]) / 2; al = 'center';
+    y = b[1] - 0.5 - ((vl || broken) ? 0.42 : 0);
+    txt(c.label, x, (vl || broken) ? y - 0.4 : y, 0.68, col.ink, al, 700);
+    if (broken) txt(c.type === 'fuse' ? 'DOORGEBRAND' : 'KAPOT', x, y + 0.42, 0.55, col.bad, al, 700);
+    else if (vl) txt(vl, x, y + 0.42, 0.52, col.muted, al, 600, 'mono');
+    return;
+  }
+  if (!meter) {
+    // loopt er een draad door de plek rechts? dan de naam links van het onderdeel
+    var bw = 0.42 * Math.max(String(c.label).length, vl ? vl.length * 0.8 : 0) + 0.3;
+    if (labelBotst(x, y - 0.8, x + bw, y + 0.8)) { var xl = b[0] - 0.45; if (!labelBotst(xl - bw, y - 0.8, xl, y + 0.8)) { x = xl; al = 'right'; } }
+  }
+  txt(c.label, x, meter ? y - 0.85 : (vl || broken ? y - 0.4 : y), 0.68, col.ink, al, 700);
   if (meter) {
     var s = c.type === 'vm' ? fU(c.U || 0) : (c.st.blown ? 'ZEKERING' : fI(c.I || 0));
     ctx.save(); ctx.fillStyle = '#B9C7A5'; ctx.strokeStyle = '#3A4133'; ctx.lineWidth = 0.06;
     var w = 0.36 * s.length + 0.5; ctx.beginPath(); ctx.rect(x, y - 0.42, w, 0.95); ctx.fill(); ctx.stroke(); ctx.restore();
     txt(s, x + 0.25, y + 0.06, 0.6, '#1D2416', 'left', 700, 'mono');
-  } else if (broken) txt(c.type === 'fuse' ? 'DOORGEBRAND' : 'KAPOT', x, y + 0.42, 0.55, col.bad, 'left', 700);
-  else if (vl) txt(vl, x, y + 0.42, 0.52, col.muted, 'left', 600, 'mono');
+  } else if (broken) txt(c.type === 'fuse' ? 'DOORGEBRAND' : 'KAPOT', x, y + 0.42, 0.55, col.bad, al, 700);
+  else if (vl) txt(vl, x, y + 0.42, 0.52, col.muted, al, 600, 'mono');
+}
+/* Gaat er een draad door dit vakje? */
+function labelBotst(x1, y1, x2, y2) {
+  for (var i = 0; i < circ.wires.length; i++) {
+    var pa = C.wirePath(circ.wires[i]);
+    for (var j = 0; j < pa.length - 1; j++) {
+      var a = pa[j], b = pa[j + 1];
+      var lx = Math.min(a[0], b[0]), hx = Math.max(a[0], b[0]), ly = Math.min(a[1], b[1]), hy = Math.max(a[1], b[1]);
+      if (hx >= x1 && lx <= x2 && hy >= y1 && ly <= y2) return true;
+    }
+  }
+  return false;
 }
 function wireColor(w, vmax) {
   if (w.burnt) return col.muted;
@@ -1343,10 +1375,27 @@ function up(e) {
 cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 cv.addEventListener('wheel', function (e) { e.preventDefault(); var p = local(e); zoomAt(Math.exp(-e.deltaY * 0.0015), p[0], p[1]); }, { passive: false });
 
+/* Onderdelen die je met één tik om zet (open/dicht). */
+var BEDIEN = ['sw', 'sw2', 'rcd', 'estop', 'rot', 'key', 'mcb', 'mbs', 'th', 'no', 'nc'];
+var lastTap = null;
 function tap(gs) {
   var w = gs.w;
   if (mode === 'bedien') {
-    if (gs.c) { tapOperate(gs.c); select({ k: 'c', o: gs.c }); }
+    if (gs.c) {
+      var now = Date.now(), dubbel = lastTap && lastTap.c === gs.c && now - lastTap.t < 380;
+      if (BEDIEN.indexOf(gs.c.type) < 0) { lastTap = null; select({ k: 'c', o: gs.c }); }
+      else if (dubbel) {
+        // 2x tikken: de eerste tik terugdraaien en de kaart ernaast openen
+        lastTap = null;
+        if (gs.c.type !== 'th' && gs.c.type !== 'no' && gs.c.type !== 'nc') tapOperate(gs.c);
+        select({ k: 'c', o: gs.c });
+      } else {
+        // 1x tikken: alleen open/dicht, geen kaart
+        lastTap = { c: gs.c, t: now };
+        tapOperate(gs.c);
+        if (sel && sel.o === gs.c) fillCard();
+      }
+    }
     else if (gs.wire) select({ k: 'w', o: gs.wire });
     else { select(null); }
   } else if (mode === 'draad') {
@@ -1514,7 +1563,7 @@ function toastUndo(msg) { toast(msg, false, ['Terug', doUndo]); }
 var hintOn = true;
 function hint(s) { $('hint-t').textContent = s; $('hint').hidden = false; }
 var MODEHINT = {
-  bedien: 'Tik op een onderdeel voor uitleg. Sleep om te verplaatsen. Houd een drukknop vast.',
+  bedien: 'Tik op een schakelaar of contact = open/dicht. Tik 2x = uitleg ernaast. Sleep om te verplaatsen. Houd een drukknop vast.',
   draad: 'Sleep van punt naar punt. Of tik het begin en daarna het eind.',
   meten: 'Tik twee punten. Je ziet de spanning ertussen.',
   gum: 'Tik op een onderdeel of draad om het weg te halen.'

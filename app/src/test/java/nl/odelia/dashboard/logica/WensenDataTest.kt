@@ -29,4 +29,25 @@ class WensenDataTest {
         assertEquals(d, WensenJson.lees(WensenJson.schrijf(d)))
         assertEquals(WensenData(), WensenJson.lees("{}"))
     }
+
+    @Test
+    fun beschrijvingBlijftBewaard() {
+        val w = maakWens("Mok", WensSoort.Huis, "", null, 5, beschrijving = "  blauw, 300 ml ")
+        assertEquals("blauw, 300 ml", w.beschrijving)
+        val d = WensenData(emptyList()).bewaar(w)
+        assertEquals("blauw, 300 ml", WensenJson.lees(WensenJson.schrijf(d)).lijst.first().beschrijving)
+        // aanpassen zonder nieuwe tekst houdt de oude beschrijving
+        assertEquals("blauw, 300 ml", maakWens("Mok 2", WensSoort.Huis, "", w, 6).beschrijving)
+        // oud bestand zonder beschrijving
+        assertEquals("", WensenJson.lees("{\"wensen\":[{\"id\":\"a\",\"naam\":\"X\"}]}").lijst.first().beschrijving)
+    }
+
+    @Test
+    fun tweeKolommenZonderGaten() {
+        val lijst = WensenStart.lijst
+        val k = Wensen.tweeKolommen(lijst)
+        assertEquals(2, k.size)
+        assertEquals(lijst.size, k[0].size + k[1].size)
+        assertTrue(kotlin.math.abs(k[0].size - k[1].size) <= 2)
+    }
 }

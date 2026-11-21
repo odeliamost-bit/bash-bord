@@ -21,6 +21,8 @@ data class Wens(
     val links: List<String>,
     val hartjes: Int = 0,
     val gekocht: Boolean = false,
+    /** Eigen uitleg bij de wens. Alleen te zien als je op de tegel tikt. */
+    val beschrijving: String = "",
     /** Laatst veranderd (millis), voor later synchroniseren. */
     val updatedAt: Long = 0,
 )
@@ -35,6 +37,22 @@ data class WensTelling(val open: Int, val gekocht: Int)
  * Openen gebeurt later in Chrome.
  */
 object Wensen {
+    /**
+     * Verdeel de tegels over 2 kolommen zonder gaten: elke tegel gaat in de kolom
+     * die nu het kortst is. Hoogte is een schatting (lange naam en een link maken de tegel hoger).
+     */
+    fun tweeKolommen(lijst: List<Wens>): List<List<Wens>> {
+        val links = mutableListOf<Wens>()
+        val rechts = mutableListOf<Wens>()
+        var hoogLinks = 0
+        var hoogRechts = 0
+        lijst.forEach { w ->
+            val h = 6 + (w.naam.length / 14 + 1) + if (w.links.isNotEmpty()) 2 else 0
+            if (hoogLinks <= hoogRechts) { links += w; hoogLinks += h } else { rechts += w; hoogRechts += h }
+        }
+        return listOf(links, rechts)
+    }
+
     const val MAX_HARTJES = 3
 
     private val linkPatroon = Regex("""https?://[^\s<>"]+""", RegexOption.IGNORE_CASE)

@@ -86,6 +86,7 @@ data class WensVenster(
     val soort: WensSoort = WensSoort.Overig,
     val links: String = "",
     val oud: Wens? = null,
+    val beschrijving: String = oud?.beschrijving.orEmpty(),
 )
 
 /** Hoe het scherm opent (handig voor de voorbeeld-plaatjes). */
@@ -109,6 +110,7 @@ fun WensenScherm(
     var soort by remember { mutableStateOf(begin.soort) }
     var venster by remember { mutableStateOf(begin.venster) }
     var kiesLink by remember { mutableStateOf<Wens?>(null) }
+    var bekijk by remember { mutableStateOf<Wens?>(null) }
     val klembord = LocalClipboardManager.current
     val telling = Wensen.tel(alle)
     val lijst = Wensen.sorteer(Wensen.filter(alle, soort))
@@ -164,8 +166,8 @@ fun WensenScherm(
             }
 
             // Toevoegen
+            GroteKnop("Nieuwe wens", { venster = WensVenster(soort = soort ?: WensSoort.Overig) })
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                GroteKnop("Nieuwe wens", { venster = WensVenster(soort = soort ?: WensSoort.Overig) }, Modifier.weight(1f))
                 ZachteKnop("📋 Plakken", {
                     val geplakt = klembord.getText()?.text.orEmpty()
                     if (geplakt.isBlank()) onMelding("Er staat niks om te plakken.") else uitTekst(geplakt)
@@ -195,20 +197,21 @@ fun WensenScherm(
                 Tekst("Nog geen wensen hier. Tik op Nieuwe wens.", 17.sp, Modifier.padding(8.dp), dikte = FontWeight.ExtraBold, kleur = Grijs)
             }
 
-            // Lijst: twee naast elkaar
-            lijst.chunked(2).forEach { rij ->
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    rij.forEach { w ->
-                        WensKaart(
-                            w,
-                            Modifier.weight(1f),
-                            onHartje = { acties.wijzigWensen { it.volgendHartje(w.id, nu()) } },
-                            onBekijk = { if (w.links.size == 1) open(w.links.first()) else kiesLink = w },
-                            onGekocht = { acties.wijzigWensen { it.wisselGekocht(w.id, nu()) } },
-                            onAanpassen = { venster = WensVenster(w.naam, w.soort, w.links.joinToString("\n"), w) },
-                        )
+            // Lijst: twee kolommen zonder gaten (elke tegel gaat in de kortste kolom)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
+                Wensen.tweeKolommen(lijst).forEach { kolom ->
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        kolom.forEach { w ->
+                            WensKaart(
+                                w,
+                                Modifier.fillMaxWidth(),
+                                onHartje = { acties.wijzigWensen { it.volgendHartje(w.id, nu()) } },
+                                onBekijk = { if (w.links.size == 1) open(w.links.first()) else kiesLink = w },
+                                onGekocht = { acties.wijzigWensen { it.wisselGekocht(w.id, nu()) } },
+                                onTik = { bekijk = w },
+                            )
+                        }
                     }
-                    if (rij.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
 
@@ -223,8 +226,8 @@ fun WensenScherm(
         WensBewerken(
             v,
             onSluit = { venster = null },
-            onBewaar = { naam, s, links ->
-                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu())) }
+            onBewaar = { naam, s, links, uitleg ->
+                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu(), uitleg)) }
                 venster = null
                 onMelding(if (v.oud == null) "Wens bewaard" else "Aangepast")
             },
@@ -236,6 +239,44 @@ fun WensenScherm(
                 }
             },
         )
+    }
+
+    bekijk?.let { b ->
+        val w = alle.firstOrNull { it.id == b.id } ?: b
+        Dialog(onDismissRequest = { bekijk = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Column(
+                Modifier
+                    .padding(16.dp)
+                    .widthIn(max = 520.dp)
+                    .klei(Kleur.Kaart, RoundedCornerShape(30.dp), Kleur.KaartSchaduw)
+                    .verticalScroll(rememberScrollState())
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Tekst(w.emoji, 30.sp)
+                    Tekst(w.naam, 22.sp, Modifier.weight(1f), kleur = Bruin)
+                }
+                Tekst(w.winkel ?: "${w.soort.emoji} ${w.soort.label}", 15.sp, dikte = FontWeight.Bold, kleur = Grijs)
+                Kopje("📝 Beschrijving")
+                Tekst(
+                    w.beschrijving.ifBlank { "Nog geen beschrijving. Tik op Aanpassen om er een te schrijven." },
+                    17.sp,
+                    dikte = FontWeight.Bold,
+                    kleur = if (w.beschrijving.isBlank()) Grijs else Bruin,
+                )
+                if (w.links.isNotEmpty()) {
+                    ZachteKnop("🔗 Bekijken", { bekijk = null; if (w.links.size == 1) open(w.links.first()) else kiesLink = w }, Modifier.fillMaxWidth(), kleur = BruinPijl)
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ZachteKnop("Terug", { bekijk = null }, Modifier.weight(1f))
+                    ZachteKnop("✏️ Aanpassen", {
+                        bekijk = null
+                        venster = WensVenster(w.naam, w.soort, w.links.joinToString("\n"), w)
+                    }, Modifier.weight(1f), kleur = BruinPijl)
+                }
+            }
+        }
     }
 
     kiesLink?.let { w ->
@@ -280,7 +321,7 @@ private fun WensKaart(
     onHartje: () -> Unit,
     onBekijk: () -> Unit,
     onGekocht: () -> Unit,
-    onAanpassen: () -> Unit,
+    onTik: () -> Unit,
 ) {
     Column(
         modifier
@@ -295,7 +336,7 @@ private fun WensKaart(
                 Modifier
                     .size(58.dp)
                     .background(Color.White.copy(alpha = 0.75f), RoundedCornerShape(18.dp))
-                    .clickable(onClickLabel = "Aanpassen", onClick = onAanpassen),
+                    .clickable(onClickLabel = "Bekijken", onClick = onTik),
                 contentAlignment = Alignment.Center,
             ) { Tekst(w.emoji, 30.sp) }
             Spacer(Modifier.weight(1f))
@@ -310,7 +351,7 @@ private fun WensKaart(
                 Tekst("❤️".repeat(w.hartjes) + "🤍".repeat(Wensen.MAX_HARTJES - w.hartjes), 12.sp)
             }
         }
-        Column(Modifier.clickable(onClickLabel = "Aanpassen", onClick = onAanpassen)) {
+        Column(Modifier.fillMaxWidth().clickable(onClickLabel = "Bekijken", onClick = onTik)) {
             androidx.compose.material3.Text(
                 w.naam,
                 fontSize = 16.sp,
@@ -354,12 +395,13 @@ private fun WensKaart(
 fun WensBewerken(
     begin: WensVenster,
     onSluit: () -> Unit,
-    onBewaar: (String, WensSoort, String) -> Unit,
+    onBewaar: (String, WensSoort, String, String) -> Unit,
     onWeg: (() -> Unit)?,
 ) {
     var naam by remember(begin) { mutableStateOf(begin.naam) }
     var soort by remember(begin) { mutableStateOf(begin.soort) }
     var links by remember(begin) { mutableStateOf(begin.links) }
+    var uitleg by remember(begin) { mutableStateOf(begin.beschrijving) }
     Dialog(onDismissRequest = onSluit, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Column(
             Modifier
@@ -379,9 +421,11 @@ fun WensBewerken(
             }
             Kopje("🔗 Link (mag leeg)")
             Invoer(links, { links = it }, hint = "https://…", regels = 2)
+            Kopje("📝 Beschrijving (mag leeg)")
+            Invoer(uitleg, { uitleg = it }, hint = "Bijv. maat, kleur, waarom je het wilt", regels = 3)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ZachteKnop("Terug", onSluit, Modifier.weight(1f))
-                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
+                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links, uitleg) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
             }
             if (onWeg != null) ZachteKnop("🗑️ Weghalen", onWeg, Modifier.fillMaxWidth(), kleur = Kleur.KoraalDiep)
         }

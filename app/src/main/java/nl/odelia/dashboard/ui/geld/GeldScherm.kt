@@ -114,7 +114,7 @@ fun GeldScherm(
                 ) { Icoon(munt, 28.dp) }
             }
 
-            TotaalKaart(data.totaal, onLees = { lees("Totaal: ${GeldBoek.uitspraak(data.totaal)}.") })
+            TotaalKaart(data.totaal)
             BankWachtKaart(staat, acties, onMelding)
             SyncKaart(staat.sync, acties)
 
@@ -206,7 +206,7 @@ fun GeldScherm(
 }
 
 @Composable
-private fun TotaalKaart(cent: Long, onLees: () -> Unit) {
+private fun TotaalKaart(cent: Long) {
     val vorm = RoundedCornerShape(30.dp)
     Row(
         Modifier
@@ -217,35 +217,32 @@ private fun TotaalKaart(cent: Long, onLees: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Tekst("💰", 44.sp)
-        Column(Modifier.weight(1f)) {
-            Tekst("Totaal", 16.sp, dikte = FontWeight.ExtraBold, kleur = Color.White.copy(alpha = 0.95f))
-            Tekst(Geld.bedrag(cent), 32.sp, kleur = Color.White, regel = 36.sp)
-        }
-        Box(
-            Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.3f))
-                .clickable(onClick = onLees)
-                .semantics { contentDescription = "Voorlezen" },
-            contentAlignment = Alignment.Center,
-        ) { Icoon(Icoontjes.afspelen, 20.dp) }
+        // "Totaal" en het bedrag op één regel
+        Tekst("Totaal", 20.sp, Modifier.weight(1f), dikte = FontWeight.ExtraBold, kleur = Color.White.copy(alpha = 0.95f), eenRegel = true)
+        Tekst(Geld.bedrag(cent), 30.sp, kleur = Color.White, eenRegel = true)
     }
 }
 
 @Composable
 private fun PotjesRaster(data: GeldData, onKies: (Potje) -> Unit, onNieuw: () -> Unit) {
     val kaarten: List<Potje?> = data.potjes + null
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        kaarten.chunked(2).forEach { rij ->
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                rij.forEach { p ->
+    // Twee kolommen zonder gaten: elk potje gaat in de kolom die nu het kortst is
+    val kolommen = listOf(mutableListOf<Potje?>(), mutableListOf())
+    val hoogte = intArrayOf(0, 0)
+    kaarten.forEach { p ->
+        val k = if (hoogte[0] <= hoogte[1]) 0 else 1
+        kolommen[k] += p
+        hoogte[k] += 4 + (p?.naam?.length ?: 0) / 14 + (if (p != null && potjeOnder(p).isNotEmpty()) 1 + potjeOnder(p).length / 18 else 0)
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
+        kolommen.forEach { kolom ->
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                kolom.forEach { p ->
                     val i = if (p == null) -1 else data.potjes.indexOf(p)
-                    PotjeKaart(p, if (p == null) Color(0x99FBF3EA) else potKleuren[i % potKleuren.size], data, Modifier.weight(1f)) {
+                    PotjeKaart(p, if (p == null) Color(0x99FBF3EA) else potKleuren[i % potKleuren.size], data, Modifier.fillMaxWidth()) {
                         if (p == null) onNieuw() else onKies(p)
                     }
                 }
-                if (rij.size == 1) Spacer(Modifier.weight(1f))
             }
         }
     }
@@ -279,9 +276,12 @@ private fun PotjeKaart(p: Potje?, achter: Color, data: GeldData, modifier: Modif
         Tekst(p.naam, 15.sp, dikte = FontWeight.ExtraBold, kleur = Kleur.InktZacht, regel = 17.sp)
         val onder = potjeOnder(p)
         if (onder.isNotEmpty()) Tekst(onder, 13.sp, dikte = FontWeight.Bold, kleur = Grijs)
-        Spacer(Modifier.weight(1f))
         val saldo = data.saldo(p.id)
-        Tekst(Geld.bedrag(saldo), 21.sp, kleur = if (saldo < 0) Color(0xFFC2453A) else Bruin)
+        // Bedrag rechts, zodat alle bedragen recht onder elkaar staan
+        Tekst(
+            Geld.bedrag(saldo), 21.sp, Modifier.fillMaxWidth().padding(top = 4.dp),
+            kleur = if (saldo < 0) Color(0xFFC2453A) else Bruin, uitlijning = androidx.compose.ui.text.style.TextAlign.End, eenRegel = true,
+        )
     }
 }
 

@@ -21,7 +21,7 @@ data class WensenData(val lijst: List<Wens> = WensenStart.lijst) {
 }
 
 /** Een wens maken of aanpassen uit wat ze in het venster invulde. */
-fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: Long): Wens {
+fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: Long, beschrijving: String = oud?.beschrijving.orEmpty()): Wens {
     val links = Wensen.linksUit(linkTekst)
     val emoji = if (oud != null && oud.soort == soort) oud.emoji else soort.emoji
     return Wens(
@@ -33,6 +33,7 @@ fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: 
         links = links,
         hartjes = oud?.hartjes ?: 0,
         gekocht = oud?.gekocht ?: false,
+        beschrijving = beschrijving.trim(),
         updatedAt = nu,
     )
 }
@@ -55,6 +56,7 @@ object WensenJson {
                         .put("links", JSONArray(w.links))
                         .put("hartjes", w.hartjes)
                         .put("gekocht", w.gekocht)
+                        .put("beschrijving", w.beschrijving)
                         .put("updatedAt", w.updatedAt),
                 )
             }
@@ -82,6 +84,7 @@ object WensenJson {
                     links = links,
                     hartjes = x.optInt("hartjes").coerceIn(0, Wensen.MAX_HARTJES),
                     gekocht = x.optBoolean("gekocht"),
+                    beschrijving = x.optString("beschrijving"),
                     updatedAt = x.optLong("updatedAt"),
                 )
             } catch (_: Exception) {
