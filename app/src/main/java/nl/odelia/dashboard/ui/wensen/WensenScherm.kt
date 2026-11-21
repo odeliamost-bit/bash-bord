@@ -226,8 +226,8 @@ fun WensenScherm(
         WensBewerken(
             v,
             onSluit = { venster = null },
-            onBewaar = { naam, s, links, uitleg ->
-                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu(), uitleg)) }
+            onBewaar = { naam, s, links, uitleg, hartjes ->
+                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu(), uitleg, hartjes)) }
                 venster = null
                 onMelding(if (v.oud == null) "Wens bewaard" else "Aangepast")
             },
@@ -395,9 +395,10 @@ private fun WensKaart(
 fun WensBewerken(
     begin: WensVenster,
     onSluit: () -> Unit,
-    onBewaar: (String, WensSoort, String, String) -> Unit,
+    onBewaar: (String, WensSoort, String, String, Int) -> Unit,
     onWeg: (() -> Unit)?,
 ) {
+    var hartjes by remember(begin) { mutableStateOf(begin.oud?.hartjes ?: 0) }
     var naam by remember(begin) { mutableStateOf(begin.naam) }
     var soort by remember(begin) { mutableStateOf(begin.soort) }
     var links by remember(begin) { mutableStateOf(begin.links) }
@@ -419,13 +420,25 @@ fun WensBewerken(
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 WensSoort.entries.forEach { s -> Keuze("${s.emoji} ${s.label}", soort == s, { soort = s }, achter = kaartKleur(s)) }
             }
+            Kopje("❤️ Hoe graag wil je het?")
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                (1..Wensen.MAX_HARTJES).forEach { i ->
+                    Box(
+                        Modifier
+                            .size(48.dp)
+                            .clickable { hartjes = if (hartjes == i) i - 1 else i }
+                            .semantics { contentDescription = "$i van ${Wensen.MAX_HARTJES} hartjes" },
+                        contentAlignment = Alignment.Center,
+                    ) { Tekst(if (i <= hartjes) "❤️" else "🤍", 28.sp) }
+                }
+            }
             Kopje("🔗 Link (mag leeg)")
             Invoer(links, { links = it }, hint = "https://…", regels = 2)
             Kopje("📝 Beschrijving (mag leeg)")
             Invoer(uitleg, { uitleg = it }, hint = "Bijv. maat, kleur, waarom je het wilt", regels = 3)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ZachteKnop("Terug", onSluit, Modifier.weight(1f))
-                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links, uitleg) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
+                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links, uitleg, hartjes) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
             }
             if (onWeg != null) ZachteKnop("🗑️ Weghalen", onWeg, Modifier.fillMaxWidth(), kleur = Kleur.KoraalDiep)
         }

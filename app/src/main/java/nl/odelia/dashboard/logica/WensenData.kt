@@ -21,7 +21,12 @@ data class WensenData(val lijst: List<Wens> = WensenStart.lijst) {
 }
 
 /** Een wens maken of aanpassen uit wat ze in het venster invulde. */
-fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: Long, beschrijving: String = oud?.beschrijving.orEmpty()): Wens {
+fun maakWens(
+    naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: Long,
+    beschrijving: String = oud?.beschrijving.orEmpty(),
+    /** Hartjes al ingevuld in het venster (bouwnacht 1). `null` = houden wat het was. */
+    hartjes: Int? = null,
+): Wens {
     val links = Wensen.linksUit(linkTekst)
     val emoji = if (oud != null && oud.soort == soort) oud.emoji else soort.emoji
     return Wens(
@@ -31,7 +36,7 @@ fun maakWens(naam: String, soort: WensSoort, linkTekst: String, oud: Wens?, nu: 
         soort = soort,
         winkel = links.firstNotNullOfOrNull { Wensen.winkel(it) },
         links = links,
-        hartjes = oud?.hartjes ?: 0,
+        hartjes = (hartjes ?: oud?.hartjes ?: 0).coerceIn(0, Wensen.MAX_HARTJES),
         gekocht = oud?.gekocht ?: false,
         beschrijving = beschrijving.trim(),
         updatedAt = nu,
