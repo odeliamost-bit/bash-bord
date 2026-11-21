@@ -37,6 +37,11 @@ object WensenStart {
         Triple(WensSoort.Overig, "📱", "Digitaal boek") to "https://garbie.com/",
         Triple(WensSoort.Overig, "🎲", "Andromeda Escape spel") to "https://www.badrulegames.com/nl/games/andromeda-escape/",
         Triple(WensSoort.Overig, "🐴", "Equigroomer") to "https://equigroomer.nl/Equigroomer_small_natural",
+        Triple(WensSoort.Overig, "⛵", "Zeilboot-modelletje: Randmeer (of Laser/Splash/Valk), resin mag, bijv. Artitec Laser ca. €26,90") to "",
+        Triple(WensSoort.Overig, "🧵", "Filament Polymaker Panchroma PLA Marble Sandstone, ca. €21/kg bij 3DJake") to "",
+        Triple(WensSoort.Overig, "🎒", "Werkrugzak: Klein Tools Tradesman Pro 55475 (~€157), Milwaukee Packout 4932471131 (~€170), Veto Pro Pac Tech Pac VPP10070 (~€374) of Stanley Fatmax Quick Access (€72–89)") to "",
+        Triple(WensSoort.Huis, "🪴", "Zakje perliet") to "",
+        Triple(WensSoort.Kleding, "🥾", "Warme, hoge laarsjes") to "",
     )
 
     /** Vaste id per wens, zodat de lijst nooit dubbel wordt (ook niet na synchroniseren). */
