@@ -80,6 +80,8 @@ fun InstellingenScherm(
                 InstTab.Instellingen -> {
                     SyncKaart(staat.sync, acties)
                     PrivacyKaart()
+                    LogboekKaart(staat.logboek)
+                    ApiKostenKaart(staat.apiKosten, acties::wijzigApiKosten)
                     InstellingenTab(staat.instellingen, acties::wijzigInstellingen)
                 }
                 InstTab.Backup -> BackupTab(acties, onMelding)

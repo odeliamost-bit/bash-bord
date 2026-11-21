@@ -122,6 +122,8 @@ object BankInbox {
         // Ook als de app niet open is: de sync moet weten dat Geld veranderd is, anders raakt de boeking zoek.
         Sync.start(context)
         GeldOpslag.van(context).wijzig { GeldBoek.voegToe(it, b) }
+        val pot = GeldOpslag.van(context).data.value.potje(b.potjeId)
+        Bestanden.log(context, "🏦", "ING: ${nl.odelia.dashboard.logica.Geld.bedrag(b.cent)} ${if (b.soort == BoekSoort.In) "erbij in" else "uit"} ${pot?.naam ?: "potje"}")
     }
 
     /** Onbekende winkel: melding met maximaal 3 knoppen (meer laat Android niet toe). De rest kiest ze in de app. */

@@ -64,6 +64,7 @@ object Sync {
     private val delen = mutableMapOf<String, Deel>()
     private val standen = mutableMapOf<String, Stand>()
     private val wachtrij = mutableMapOf<String, Job>()
+    private var logboek: (String) -> Unit = {}
 
     @Volatile private var aan = false
     @Volatile private var generatie = 0
@@ -124,6 +125,7 @@ object Sync {
         delen["weer"] = Deel({ PlekOpslag.alsTekst(app) }, { t -> PlekOpslag.vervang(app, t) })
         PlekOpslag.naWijziging = { lokaalVeranderd("weer") }
 
+        logboek = { t -> Bestanden.log(app, "☁️", t) }
         _staat.value = SyncStaat(kan = supabase != null, email = sessie?.email, zinNodig = sessie != null && sleutel == null)
     }
 
@@ -282,6 +284,7 @@ object Sync {
                 }
                 deel.vervang(tekst)
                 standen[naam] = Stand(versie = online.versie)
+                logboek("Opgehaald: $naam")
                 // Stond het er nog onversleuteld (van vóór nov 2026)? Meteen versleuteld terugzetten.
                 if (!Versleutel.isDicht(online.inhoud)) standen[naam] = Stand(versie = sb.zet(s, naam, Versleutel.dicht(tekst, sl)).versie)
                 try {
@@ -291,6 +294,7 @@ object Sync {
             }
             Stap.Verstuur -> {
                 val rij = sb.zet(s, naam, Versleutel.dicht(deel.tekst(), sl))
+                logboek("Verstuurd: $naam")
                 standen[naam] = Stand(versie = rij.versie)
             }
         }

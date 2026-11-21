@@ -63,6 +63,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val beleggen = Bestanden.beleggen(app)
     private val uurloon = Bestanden.uurloon(app)
     private val bank = Bestanden.bank(app)
+    private val logboek = Bestanden.logboek(app)
+    private val apiKosten = Bestanden.apiKosten(app)
     private val bankToegang = MutableStateFlow(nl.odelia.dashboard.meldingen.BankInbox.heeftToegang(app))
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
@@ -97,6 +99,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
             .combine(uurloon.data) { s, u -> s.copy(uurloonCent = u.cent) }
             .combine(bank.data) { s, b -> s.copy(bank = b) }
             .combine(bankToegang) { s, t -> s.copy(bankToegang = t) }
+            .combine(logboek.data) { s, l -> s.copy(logboek = l) }
+            .combine(apiKosten.data) { s, k -> s.copy(apiKosten = nl.odelia.dashboard.logica.ApiKosten.voorMaand(k, java.time.YearMonth.now())) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -161,6 +165,8 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun logUitSync() = Sync.logUit()
     override fun syncNu() = Sync.nu()
     override fun zetSyncZin(zin: String) = Sync.zetZin(zin)
+    override fun wijzigApiKosten(wat: (nl.odelia.dashboard.logica.ApiKostenData) -> nl.odelia.dashboard.logica.ApiKostenData) =
+        apiKosten.wijzig({ wat(nl.odelia.dashboard.logica.ApiKosten.voorMaand(it, java.time.YearMonth.now())) })
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
     override fun zetUurloon(cent: Long?) = uurloon.wijzig({ it.copy(cent = cent) })

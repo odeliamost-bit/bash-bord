@@ -148,6 +148,27 @@ object Bestanden {
             .also { wensen = it }
     }
 
+    @Volatile private var logboek: JsonOpslag<nl.odelia.dashboard.logica.LogboekData>? = null
+    @Volatile private var apiKosten: JsonOpslag<nl.odelia.dashboard.logica.ApiKostenData>? = null
+
+    /** Logboek "laatst gebeurd". Alleen op dit apparaat: niet in de sync, niet in een back-up. */
+    fun logboek(context: Context): JsonOpslag<nl.odelia.dashboard.logica.LogboekData> = logboek ?: synchronized(this) {
+        logboek ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "logboek.json"), nl.odelia.dashboard.logica.LogboekData(),
+            nl.odelia.dashboard.logica.Logboek::lees, nl.odelia.dashboard.logica.Logboek::schrijf)
+            .also { logboek = it }
+    }
+
+    /** Schrijf één regel in het logboek. */
+    fun log(context: Context, icoon: String, tekst: String) =
+        logboek(context).wijzig({ nl.odelia.dashboard.logica.Logboek.voegToe(it, nl.odelia.dashboard.logica.LogRegel(java.time.LocalDateTime.now(), icoon, tekst)) })
+
+    /** Claude-kosten deze maand (zelf ingevuld) + limiet. Alleen op dit apparaat. */
+    fun apiKosten(context: Context): JsonOpslag<nl.odelia.dashboard.logica.ApiKostenData> = apiKosten ?: synchronized(this) {
+        apiKosten ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "apikosten.json"), nl.odelia.dashboard.logica.ApiKostenData(),
+            nl.odelia.dashboard.logica.ApiKosten::lees, nl.odelia.dashboard.logica.ApiKosten::schrijf)
+            .also { apiKosten = it }
+    }
+
     /** Wat Odelia zelf instelt (tijden, tegels, grote tekst …). Op het apparaat, niet online. */
     fun instellingen(context: Context): JsonOpslag<InstellingenData> = instellingen ?: synchronized(this) {
         instellingen ?: JsonOpslag(File(context.applicationContext.filesDir, "instellingen.json"), InstellingenData(), InstellingenJson::lees, InstellingenJson::schrijf)

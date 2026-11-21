@@ -64,6 +64,12 @@ object Planner {
             stop(context, URENMAIL, 4)
         }
 
+        // Eind van de week (bouwnacht 1, nov 2026): vrijdag niet in- en uitgeklokt (vrij, ziek, vergeten)?
+        // Dan komt het urenmail-seintje toch, om de uitkloktijd + 30 min. Anders regelt de gewone urenmail het.
+        val vrijdag = volgendeVrijdagOm(ins.uitklokken.plusMinutes(Instellingen.URENMAIL_NA_MINUTEN), nu)
+        val vandaagGeklokt = vrijdag.toLocalDate() == nu.toLocalDate() && (klok.isIn || klok.vandaag.eind != null)
+        if (ins.urenmailSeintje && !vandaagGeklokt) zet(context, URENMAIL, 8, vrijdag) else stop(context, URENMAIL, 8)
+
         // Seintje de dag ervoor, voor alles met een datum.
         opslag.onthoudNu()
             .filter { it.seintje && !it.klaar && it.wanneer != null }
@@ -76,6 +82,13 @@ object Planner {
         // Cyclus: seintje 2 dagen voor de verwachte dag ("Neem verband mee").
         val cyclus = Bestanden.cyclus(context).nu().seintjeOm(nu)
         if (cyclus != null) zet(context, CYCLUS, 5, cyclus) else stop(context, CYCLUS, 5)
+    }
+
+    /** Eerstvolgende vrijdag om [tijd], vanaf nu. */
+    fun volgendeVrijdagOm(tijd: LocalTime, nu: LocalDateTime): LocalDateTime {
+        var dag: LocalDate = nu.toLocalDate()
+        while (dag.dayOfWeek != DayOfWeek.FRIDAY || !dag.atTime(tijd).isAfter(nu)) dag = dag.plusDays(1)
+        return dag.atTime(tijd)
     }
 
     /** Eerstvolgende werkdag (ma–vr) om [tijd], vanaf nu. */

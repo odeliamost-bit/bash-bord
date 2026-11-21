@@ -43,6 +43,10 @@ data class AppStaat(
     val bank: nl.odelia.dashboard.logica.BankData = nl.odelia.dashboard.logica.BankData(),
     /** Heeft de app in de Android-instellingen toestemming om meldingen te lezen? */
     val bankToegang: Boolean = false,
+    /** Logboek "laatst gebeurd". Alleen op dit apparaat. */
+    val logboek: nl.odelia.dashboard.logica.LogboekData = nl.odelia.dashboard.logica.LogboekData(),
+    /** Claude-kosten deze maand (zelf ingevuld) + limiet. Alleen op dit apparaat. */
+    val apiKosten: nl.odelia.dashboard.logica.ApiKostenData = nl.odelia.dashboard.logica.ApiKostenData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -174,6 +178,7 @@ interface AppActies {
     fun syncNu() {}
     /** Geheime zin voor het versleutelen van de sync (wordt niet bewaard). */
     fun zetSyncZin(zin: String) {}
+    fun wijzigApiKosten(wat: (nl.odelia.dashboard.logica.ApiKostenData) -> nl.odelia.dashboard.logica.ApiKostenData) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

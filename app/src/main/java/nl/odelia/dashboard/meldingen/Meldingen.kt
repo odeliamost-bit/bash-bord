@@ -19,12 +19,15 @@ object Meldingen {
     const val KANAAL_URENMAIL = "urenmail"
     const val KANAAL_CYCLUS = "cyclus"
     const val KANAAL_GELD = "geld"
+    const val KANAAL_POTJE = "potje"
 
     const val ID_KLOK = 1
     const val ID_OCHTEND = 2
     const val ID_URENMAIL = 3
     const val ID_CYCLUS = 4
     const val ID_VANGNET = 6
+    /** Potje onder nul: 500 + iets per potje. */
+    const val ID_POTJE_MIN = 500
     private const val ID_SEINTJE_BASIS = 1000
 
     /** Extra bij het openen van de app: welk scherm. */
@@ -40,6 +43,7 @@ object Meldingen {
                 NotificationChannel(KANAAL_URENMAIL, "Urenmail klaar", NotificationManager.IMPORTANCE_HIGH),
                 NotificationChannel(KANAAL_CYCLUS, "Cyclus: seintje 2 dagen ervoor", NotificationManager.IMPORTANCE_DEFAULT),
                 NotificationChannel(KANAAL_GELD, "Geld: in welk potje? (uit een ING-melding)", NotificationManager.IMPORTANCE_HIGH),
+                NotificationChannel(KANAAL_POTJE, "Geld: potje onder nul", NotificationManager.IMPORTANCE_DEFAULT),
             ),
         )
     }
