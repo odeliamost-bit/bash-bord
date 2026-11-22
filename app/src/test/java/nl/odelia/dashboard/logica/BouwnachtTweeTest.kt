@@ -63,3 +63,24 @@ class BouwnachtTweeTest {
         assertNull(k[1].link)
     }
 }
+
+class PoortTest {
+    private val poort = PoortData(true, 52.0, 5.0)
+
+    @Test
+    fun binnenOfBuiten() {
+        assertTrue(!Poort.buiten(poort, 52.0005, 5.0, 20f))
+        assertTrue(Poort.buiten(poort, 52.01, 5.0, 30f))
+        // Onnauwkeurige meting: niet zeker = niet buiten.
+        assertTrue(!Poort.buiten(poort, 52.004, 5.0, 300f))
+    }
+
+    @Test
+    fun alleenTussen16En18() {
+        val d = java.time.LocalDate.of(2026, 11, 23)
+        assertEquals(d.atTime(16, 0), Poort.volgende(d.atTime(9, 0), java.time.LocalTime.of(18, 0)))
+        assertEquals(d.atTime(16, 17), Poort.volgende(d.atTime(16, 0), java.time.LocalTime.of(18, 0)))
+        assertNull(Poort.volgende(d.atTime(17, 50), java.time.LocalTime.of(18, 0)))
+        assertEquals(poort, Poort.lees(Poort.schrijf(poort)))
+    }
+}

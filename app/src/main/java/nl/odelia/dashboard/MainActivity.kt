@@ -58,6 +58,11 @@ class MainActivity : ComponentActivity() {
         if (uri == null || klaar == null || m == null) klaar?.invoke(null) else m.bewaarFoto(uri, klaar)
     }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    private var naLocatie: ((Boolean) -> Unit)? = null
+    private val vraagLocatieContract = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { r ->
+        naLocatie?.invoke(r[android.Manifest.permission.ACCESS_FINE_LOCATION] == true)
+        naLocatie = null
+    }
 
     // Back-up en Kompas: Odelia kiest zelf het bestand (Downloads, Drive, …).
     private var naBestand: ((String) -> Unit)? = null
@@ -123,6 +128,11 @@ class MainActivity : ComponentActivity() {
                         kiesFotoContract.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
+                    override fun vraagLocatie(klaar: (Boolean) -> Unit): Boolean {
+                        naLocatie = klaar
+                        vraagLocatieContract.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION))
+                        return true
+                    }
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
                     override fun openLink(link: String) = openInBrowser(link)
                     override fun appIcoon(pakket: String) = icoonVan(pakket)

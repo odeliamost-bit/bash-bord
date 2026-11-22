@@ -108,8 +108,9 @@ jobs:
           apk=app/build/outputs/apk/release/app-release.apk
           aapt2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2"
           "$aapt2" dump permissions "$apk" | tee rechten.txt
-          # Alleen deze toestemmingen mogen erin. Iets nieuws (locatie, camera, contacten …)? Dan stopt de bouw.
-          toegestaan="POST_NOTIFICATIONS SYSTEM_ALERT_WINDOW RECEIVE_BOOT_COMPLETED INTERNET ACCESS_NETWORK_STATE WAKE_LOCK FOREGROUND_SERVICE DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+          # Alleen deze toestemmingen mogen erin. Iets nieuws (camera, contacten …)? Dan stopt de bouw.
+          # Locatie: alleen voor de poort-check (bouwnacht 2, gevraagd door Odelia, standaard uit, data/Locatie.kt).
+          toegestaan="ACCESS_COARSE_LOCATION ACCESS_FINE_LOCATION ACCESS_BACKGROUND_LOCATION POST_NOTIFICATIONS SYSTEM_ALERT_WINDOW RECEIVE_BOOT_COMPLETED INTERNET ACCESS_NETWORK_STATE WAKE_LOCK FOREGROUND_SERVICE DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
           for recht in $(grep "uses-permission" rechten.txt | sed -E "s/.*name='([^']*)'.*/\1/"); do
             kort="${recht##*.}"
             if ! echo " $toegestaan " | grep -q " $kort "; then

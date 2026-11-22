@@ -162,6 +162,15 @@ object Bestanden {
     fun log(context: Context, icoon: String, tekst: String) =
         logboek(context).wijzig({ nl.odelia.dashboard.logica.Logboek.voegToe(it, nl.odelia.dashboard.logica.LogRegel(java.time.LocalDateTime.now(), icoon, tekst)) })
 
+    @Volatile private var poort: JsonOpslag<nl.odelia.dashboard.logica.PoortData>? = null
+
+    /** Poort-check: aan/uit en de plek van de poort. Alleen op dit apparaat: niet in de sync, niet in een back-up. */
+    fun poort(context: Context): JsonOpslag<nl.odelia.dashboard.logica.PoortData> = poort ?: synchronized(this) {
+        poort ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "poort.json"), nl.odelia.dashboard.logica.PoortData(),
+            nl.odelia.dashboard.logica.Poort::lees, nl.odelia.dashboard.logica.Poort::schrijf)
+            .also { poort = it }
+    }
+
     /** Claude-kosten deze maand (zelf ingevuld) + limiet. Alleen op dit apparaat. */
     fun apiKosten(context: Context): JsonOpslag<nl.odelia.dashboard.logica.ApiKostenData> = apiKosten ?: synchronized(this) {
         apiKosten ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "apikosten.json"), nl.odelia.dashboard.logica.ApiKostenData(),

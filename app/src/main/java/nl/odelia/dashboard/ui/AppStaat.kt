@@ -178,6 +178,8 @@ interface AppActies {
     fun syncNu() {}
     /** Geheime zin voor het versleutelen van de sync (wordt niet bewaard). */
     fun zetSyncZin(zin: String) {}
+    /** Vraag Android om de plek (voor de poort-check). [klaar] krijgt true als het mag. */
+    fun vraagLocatie(klaar: (Boolean) -> Unit): Boolean = false
     /** Nieuwskoppen van de NOS ophalen (alleen na een tik). Lukt het niet: lege lijst. */
     suspend fun haalNieuws(): List<nl.odelia.dashboard.logica.Nieuws.Kop> = emptyList()
     fun wijzigApiKosten(wat: (nl.odelia.dashboard.logica.ApiKostenData) -> nl.odelia.dashboard.logica.ApiKostenData) {}

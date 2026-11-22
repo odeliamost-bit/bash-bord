@@ -12,6 +12,7 @@ import java.time.ZoneId
 import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.logica.Instellingen
+import nl.odelia.dashboard.logica.Poort
 import nl.odelia.dashboard.logica.Vangnet
 
 /**
@@ -30,6 +31,7 @@ object Planner {
     const val CYCLUS = "nl.odelia.dashboard.CYCLUS"
     const val HERINNER_UIT_WEER = "nl.odelia.dashboard.HERINNER_UIT_WEER"
     const val VANGNET = "nl.odelia.dashboard.VANGNET"
+    const val POORT = "nl.odelia.dashboard.POORT"
     const val EXTRA_ID = "id"
 
     suspend fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
@@ -50,6 +52,11 @@ object Planner {
         if (weer != null) zet(context, HERINNER_UIT_WEER, 6, weer) else stop(context, HERINNER_UIT_WEER, 6)
         val vangnet = nu.toLocalDate().atTime(Vangnet.OM)
         if (klok.isIn && ins.klokHerinnering && vangnet.isAfter(nu)) zet(context, VANGNET, 7, vangnet) else stop(context, VANGNET, 7)
+
+        // Poort-check (bouwnacht 2): na 16:00 om de 17 min, alleen als hij aan staat en ze nog ingeklokt is.
+        val poort = Bestanden.poort(context).nu()
+        val check = if (klok.isIn && Poort.klaar(poort) && Instellingen.isWerkdag(nu.toLocalDate())) Poort.volgende(nu, Vangnet.OM) else null
+        if (check != null) zet(context, POORT, 9, check) else stop(context, POORT, 9)
 
         // Ochtendmelding: 20 minuten na inklokken (alleen de eerste keer vandaag).
         val ochtend = klok.vandaag.begin?.let { nu.toLocalDate().atTime(it).plusMinutes(Instellingen.OCHTEND_NA_MINUTEN) }

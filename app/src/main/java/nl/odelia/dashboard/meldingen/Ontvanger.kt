@@ -59,6 +59,19 @@ class Ontvanger : BroadcastReceiver() {
 
             Planner.VANGNET -> if (klok.isIn) klokZelfUit(context)
 
+            // Poort-check: buiten de poort en nog ingeklokt? Zoempje.
+            Planner.POORT -> if (klok.isIn) {
+                val poort = Bestanden.poort(context).nu()
+                val plek = nl.odelia.dashboard.data.Locatie.eenKeer(context)
+                if (plek != null && nl.odelia.dashboard.logica.Poort.buiten(poort, plek.latitude, plek.longitude, plek.accuracy)) {
+                    Meldingen.toon(
+                        context, Meldingen.ID_KLOK, Meldingen.KANAAL_UITKLOK,
+                        "📍 Je bent buiten de poort", "Vergeten uit te klokken? Tik op Uitklokken.",
+                        knop = "Uitklokken" to knop(context, UITKLOKKEN),
+                    )
+                }
+            }
+
             KLOPT -> Meldingen.weg(context, Meldingen.ID_VANGNET)
 
             // Knop in de melding "Uit welk potje?" (Geld uit ING-meldingen).
