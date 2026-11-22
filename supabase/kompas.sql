@@ -44,6 +44,10 @@ create policy "alleen eigen data" on public.kompas_data
 -- Niet-ingelogde bezoekers mogen niks.
 revoke all on public.kompas_data from anon;
 
+-- Ingelogd mag wel (het slot hierboven zorgt dat het alleen je eigen rijen zijn).
+-- Nieuwe Supabase-projecten (nov 2026) geven dit niet meer vanzelf: zonder deze regel fout 403.
+grant select, insert, update, delete on public.kompas_data to authenticated;
+
 -- Realtime: andere apparaten horen meteen dat er iets veranderd is.
 do $$
 begin
