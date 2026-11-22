@@ -162,6 +162,7 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     override fun vraagSyncCode(email: String) = Sync.vraagCode(email)
     override fun logInSync(code: String) = Sync.logIn(code)
+    override fun nieuweSyncMail() = Sync.nieuweMail()
     override fun logUitSync() = Sync.logUit()
     override fun syncNu() = Sync.nu()
     override fun zetSyncZin(zin: String) = Sync.zetZin(zin)

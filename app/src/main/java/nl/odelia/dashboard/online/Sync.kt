@@ -158,10 +158,15 @@ object Sync {
         ingelogd(supabase!!.logIn(email, code.filter(Char::isDigit)))
     }
 
+    /** ↩️ Terug naar het e-mailvakje, om een nieuwe mail te vragen. */
+    fun nieuweMail() {
+        _staat.update { it.copy(codeVoor = null, bericht = null) }
+    }
+
     /** Tik op de link in de mail opende de app (bashbord://login#…). [deel] = alles na de # of ?. */
     fun logInMetLink(deel: String?) = bezig {
         when (val u = LoginLink.lees(deel)) {
-            is LoginLink.Uitkomst.Fout -> _staat.update { it.copy(bericht = u.bericht) }
+            is LoginLink.Uitkomst.Fout -> _staat.update { it.copy(codeVoor = null, bericht = u.bericht) }
             is LoginLink.Uitkomst.Ok -> {
                 val nieuw = supabase!!.logInMetLink(u.ververs)
                 val email = nieuw.email.lowercase()

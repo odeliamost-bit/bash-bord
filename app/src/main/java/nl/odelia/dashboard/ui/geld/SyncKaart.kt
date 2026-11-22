@@ -79,6 +79,7 @@ fun SyncKaart(sync: SyncStaat, acties: AppActies) {
                 Tekst("Staat er een code in de mail? Typ die dan hier:", 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 Invoer(code, { code = it.filter(Char::isDigit).take(8) }, "123456", toetsen = KeyboardType.Number)
                 GroteKnop(if (sync.bezig) "Even wachten…" else "✅ Inloggen", { if (!sync.bezig && code.length >= 6) acties.logInSync(code) })
+                ZachteKnop("↩️ Nieuwe mail", { code = ""; acties.nieuweSyncMail() })
             }
         }
         sync.bericht?.let { Tekst(it, 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht) }

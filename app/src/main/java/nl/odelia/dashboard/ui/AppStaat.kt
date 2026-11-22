@@ -174,6 +174,7 @@ interface AppActies {
     // Sync tussen apparaten. Inloggen met een code per e-mail, geen wachtwoord.
     fun vraagSyncCode(email: String) {}
     fun logInSync(code: String) {}
+    fun nieuweSyncMail() {}
     fun logUitSync() {}
     fun syncNu() {}
     /** Geheime zin voor het versleutelen van de sync (wordt niet bewaard). */
