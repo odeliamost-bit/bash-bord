@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,7 +95,15 @@ fun UrenmailScherm(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Tekst("Onderwerp: ${Urenmail.ONDERWERP}", 15.sp, dikte = FontWeight.ExtraBold, kleur = Kleur.InktGrijs)
-                Tekst(tekst, 16.sp, dikte = FontWeight.SemiBold, regel = 23.sp)
+                // Vaste letterbreedte, zodat de kolommen van de tabel recht onder elkaar staan.
+                Text(
+                    tekst,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 13.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Kleur.Inkt,
+                )
             }
 
             GroteKnop("Open in Gmail", icoon = Icoontjes.mailWit, onClick = {
