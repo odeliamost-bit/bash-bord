@@ -37,9 +37,6 @@ class UrenmailTest {
             vr 23-10: –
 
             Totaal: 14,75 uur
-
-            Met vriendelijke groet,
-            Odelia van der Most
         """.trimIndent()
         assertEquals(verwacht, Urenmail.tekst(dagen, " Woensdag was ik vrij. "))
     }
@@ -48,7 +45,8 @@ class UrenmailTest {
     fun zonderOpmerking() {
         val tekst = Urenmail.tekst(emptyList(), "")
         assertEquals(true, tekst.startsWith("Hallo Kim,\n\nHierbij mijn gewerkte uren:\n\n"))
-        assertEquals(true, tekst.endsWith("Met vriendelijke groet,\nOdelia van der Most"))
+        assertEquals(true, tekst.endsWith("Totaal: 0,00 uur"))
+        assertEquals(false, tekst.contains("groet"))
     }
 
     @Test

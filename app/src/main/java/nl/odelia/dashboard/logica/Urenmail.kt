@@ -22,10 +22,8 @@ object Urenmail {
         appendLine(if (week != null) "Hierbij mijn gewerkte uren van week $week:" else "Hierbij mijn gewerkte uren:")
         if (opmerking.isNotBlank()) appendLine(opmerking.trim())
         appendLine()
-        appendLine(tabel(dagen))
-        appendLine()
-        appendLine("Met vriendelijke groet,")
-        append("Odelia van der Most")
+        // Geen afsluiting ("Met vriendelijke groet"): Gmail zet Odelia's handtekening er zelf onder.
+        append(tabel(dagen))
     }
 
     /**
