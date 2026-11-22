@@ -51,7 +51,7 @@ class Ontvanger : BroadcastReceiver() {
             Planner.HERINNER_UIT_WEER ->
                 if (klok.isIn) {
                     Meldingen.toon(
-                        context, Meldingen.ID_KLOK, Meldingen.KANAAL_KLOK,
+                        context, Meldingen.ID_KLOK, Meldingen.KANAAL_UITKLOK,
                         "Je staat nog ingeklokt", "Klaar met werken? Tik op Uitklokken. Om ${alsKlok(Vangnet.OM)} doe ik het zelf.",
                         knop = "Uitklokken" to knop(context, UITKLOKKEN),
                     )
@@ -71,7 +71,7 @@ class Ontvanger : BroadcastReceiver() {
             Planner.HERINNER_UIT ->
                 if (klok.isIn) {
                     Meldingen.toon(
-                        context, Meldingen.ID_KLOK, Meldingen.KANAAL_KLOK,
+                        context, Meldingen.ID_KLOK, Meldingen.KANAAL_UITKLOK,
                         "Vergeet niet uit te klokken", "Klaar met werken? Tik op Uitklokken.",
                         knop = "Uitklokken" to knop(context, UITKLOKKEN),
                     )

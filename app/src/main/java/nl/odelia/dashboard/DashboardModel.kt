@@ -165,6 +165,11 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     override fun logUitSync() = Sync.logUit()
     override fun syncNu() = Sync.nu()
     override fun zetSyncZin(zin: String) = Sync.zetZin(zin)
+    override suspend fun haalNieuws(): List<nl.odelia.dashboard.logica.Nieuws.Kop> = try {
+        nl.odelia.dashboard.logica.Nieuws.lees(Online.haal(nl.odelia.dashboard.logica.Nieuws.LINK))
+    } catch (_: Exception) {
+        emptyList()
+    }
     override fun wijzigApiKosten(wat: (nl.odelia.dashboard.logica.ApiKostenData) -> nl.odelia.dashboard.logica.ApiKostenData) =
         apiKosten.wijzig({ wat(nl.odelia.dashboard.logica.ApiKosten.voorMaand(it, java.time.YearMonth.now())) })
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)

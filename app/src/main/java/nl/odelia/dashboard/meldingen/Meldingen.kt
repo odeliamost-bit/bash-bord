@@ -20,6 +20,9 @@ object Meldingen {
     const val KANAAL_CYCLUS = "cyclus"
     const val KANAAL_GELD = "geld"
     const val KANAAL_POTJE = "potje"
+    /** Uitklokken: met zoempje (trillen) en geluidje (bouwnacht 2). Eigen kanaal, want een kanaal kan achteraf niet veranderen. */
+    const val KANAAL_UITKLOK = "uitklok"
+    val ZOEMPJE = longArrayOf(0, 400, 200, 400, 200, 700)
 
     const val ID_KLOK = 1
     const val ID_OCHTEND = 2
@@ -44,6 +47,14 @@ object Meldingen {
                 NotificationChannel(KANAAL_CYCLUS, "Cyclus: seintje 2 dagen ervoor", NotificationManager.IMPORTANCE_DEFAULT),
                 NotificationChannel(KANAAL_GELD, "Geld: in welk potje? (uit een ING-melding)", NotificationManager.IMPORTANCE_HIGH),
                 NotificationChannel(KANAAL_POTJE, "Geld: potje onder nul", NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(KANAAL_UITKLOK, "Uitklokken (zoempje + geluid)", NotificationManager.IMPORTANCE_HIGH).apply {
+                    enableVibration(true)
+                    vibrationPattern = ZOEMPJE
+                    setSound(
+                        android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION),
+                        android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT).build(),
+                    )
+                },
             ),
         )
     }

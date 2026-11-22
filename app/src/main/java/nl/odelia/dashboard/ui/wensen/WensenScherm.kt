@@ -225,9 +225,10 @@ fun WensenScherm(
     venster?.let { v ->
         WensBewerken(
             v,
+            potjes = staat.geld.potjes,
             onSluit = { venster = null },
-            onBewaar = { naam, s, links, uitleg, hartjes ->
-                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu(), uitleg, hartjes)) }
+            onBewaar = { naam, s, links, uitleg, hartjes, prijs, potje ->
+                acties.wijzigWensen { it.bewaar(maakWens(naam, s, links, v.oud, nu(), uitleg, hartjes, prijs, potje)) }
                 venster = null
                 onMelding(if (v.oud == null) "Wens bewaard" else "Aangepast")
             },
@@ -265,6 +266,10 @@ fun WensenScherm(
                     dikte = FontWeight.Bold,
                     kleur = if (w.beschrijving.isBlank()) Grijs else Bruin,
                 )
+                nl.odelia.dashboard.logica.Vooruit.sparen(w, staat.geld, java.time.YearMonth.from(staat.nu))?.let { sp ->
+                    Kopje("🫙 Sparen")
+                    Tekst(nl.odelia.dashboard.logica.Vooruit.sparenTekst(sp, java.time.YearMonth.from(staat.nu)), 17.sp, dikte = FontWeight.Bold, kleur = Bruin)
+                }
                 if (w.links.isNotEmpty()) {
                     ZachteKnop("🔗 Bekijken", { bekijk = null; if (w.links.size == 1) open(w.links.first()) else kiesLink = w }, Modifier.fillMaxWidth(), kleur = BruinPijl)
                 }
@@ -394,10 +399,13 @@ private fun WensKaart(
 @Composable
 fun WensBewerken(
     begin: WensVenster,
+    potjes: List<nl.odelia.dashboard.logica.Potje>,
     onSluit: () -> Unit,
-    onBewaar: (String, WensSoort, String, String, Int) -> Unit,
+    onBewaar: (String, WensSoort, String, String, Int, Long?, String?) -> Unit,
     onWeg: (() -> Unit)?,
 ) {
+    var prijs by remember(begin) { mutableStateOf(begin.oud?.prijsCent?.let { nl.odelia.dashboard.logica.Geld.bedrag(it).removePrefix("€").trim() } ?: "") }
+    var potje by remember(begin) { mutableStateOf(begin.oud?.potjeId) }
     var hartjes by remember(begin) { mutableStateOf(begin.oud?.hartjes ?: 0) }
     var naam by remember(begin) { mutableStateOf(begin.naam) }
     var soort by remember(begin) { mutableStateOf(begin.soort) }
@@ -432,13 +440,18 @@ fun WensBewerken(
                     ) { Tekst(if (i <= hartjes) "❤️" else "🤍", 28.sp) }
                 }
             }
+            Kopje("🫙 Sparen uit potje (mag leeg)")
+            Invoer(prijs, { prijs = it }, "Wat kost het? bijv. 25", toetsen = androidx.compose.ui.text.input.KeyboardType.Decimal)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                potjes.forEach { p -> Keuze("${p.emoji} ${p.naam}", potje == p.id, { potje = if (potje == p.id) null else p.id }) }
+            }
             Kopje("🔗 Link (mag leeg)")
             Invoer(links, { links = it }, hint = "https://…", regels = 2)
             Kopje("📝 Beschrijving (mag leeg)")
             Invoer(uitleg, { uitleg = it }, hint = "Bijv. maat, kleur, waarom je het wilt", regels = 3)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ZachteKnop("Terug", onSluit, Modifier.weight(1f))
-                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links, uitleg, hartjes) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
+                GroteKnop("Bewaar", { if (naam.isNotBlank()) onBewaar(naam, soort, links, uitleg, hartjes, nl.odelia.dashboard.logica.Geld.leesBedrag(prijs)?.takeIf { it > 0 }, potje) }, Modifier.weight(1f), icoon = Icoontjes.vinkje)
             }
             if (onWeg != null) ZachteKnop("🗑️ Weghalen", onWeg, Modifier.fillMaxWidth(), kleur = Kleur.KoraalDiep)
         }

@@ -80,6 +80,7 @@ fun VandaagTab(staat: AppStaat, acties: AppActies, onGaNaar: (Scherm) -> Unit) {
         }
         WeekstreepKaart(klok)
         MaandAfsluitingKaart(staat.geld, klok.nu.toLocalDate(), acties::wijzigGeld)
+        if (klok.nu.hour < 12) NieuwsKaart(acties)
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 StatTegel(
