@@ -25,21 +25,23 @@ class UrenmailTest {
             Werkdag(maandag.plusDays(4), DagSoort.Leeg, null, null, 0f, false),
         )
         val verwacht = """
-            Hoi Kim,
+            Hallo Kim,
 
-            Hier de uren van afgelopen week.
+            Hierbij mijn gewerkte uren van week 43:
             Woensdag was ik vrij.
 
-            Met hartelijke groet,
-            Odelia van der Most
+            Datum     | Begin | Eind  |  Uren
+            ----------|-------|-------|------
+            ma 19-10  | 7:45  | 15:45 |  7,25
+            di 20-10  | 7:30  | 15:45 |  7,50
+            wo 21-10  | vrij
+            do 22-10  | ziek
+            vr 23-10  | –
+            ----------|-------|-------|------
+            Totaal    |       |       | 14,75
 
-            Datum | Begin | Eind | Uren
-            ma 19-10 | 7:45 | 15:45 | 7,25
-            di 20-10 | 7:30 | 15:45 | 7,50
-            wo 21-10 | vrij
-            do 22-10 | ziek
-            vr 23-10 | –
-            Totaal | | | 14,75
+            Met vriendelijke groet,
+            Odelia van der Most
         """.trimIndent()
         assertEquals(verwacht, Urenmail.tekst(dagen, " Woensdag was ik vrij. "))
     }
@@ -47,6 +49,15 @@ class UrenmailTest {
     @Test
     fun zonderOpmerking() {
         val tekst = Urenmail.tekst(emptyList(), "")
-        assertEquals(true, tekst.startsWith("Hoi Kim,\n\nHier de uren van afgelopen week.\n\nMet hartelijke groet,"))
+        assertEquals(true, tekst.startsWith("Hallo Kim,\n\nHierbij mijn gewerkte uren:\n\n"))
+        assertEquals(true, tekst.endsWith("Met vriendelijke groet,\nOdelia van der Most"))
+    }
+
+    @Test
+    fun totaalIsOptelsomVanAfgerondeDagen() {
+        // Zoals week 47: 9,30 + 9,57 + 7,75 + 9,10 + 8,72 = 44,44
+        val uren = listOf(9.30f, 9.5667f, 7.75f, 9.10f, 8.7234f)
+        val dagen = uren.mapIndexed { i, u -> Werkdag(maandag.plusDays(i.toLong()), DagSoort.Gewerkt, null, null, u, false) }
+        assertEquals("44,44", Urenmail.decimaal(Urenmail.totaal(dagen)))
     }
 }

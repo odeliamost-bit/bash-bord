@@ -2,6 +2,7 @@ package nl.odelia.dashboard.logica
 
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.IsoFields
 import java.util.Locale
 
 /** De wekelijkse urenmail aan Kim (Randstad). De app zet alleen een concept klaar; versturen doet Odelia zelf. */
@@ -15,33 +16,45 @@ object Urenmail {
     }
 
     fun tekst(dagen: List<Werkdag>, opmerking: String): String = buildString {
-        appendLine("Hoi Kim,")
+        appendLine("Hallo Kim,")
         appendLine()
-        appendLine("Hier de uren van afgelopen week.")
+        val week = dagen.firstOrNull()?.datum?.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+        appendLine(if (week != null) "Hierbij mijn gewerkte uren van week $week:" else "Hierbij mijn gewerkte uren:")
         if (opmerking.isNotBlank()) appendLine(opmerking.trim())
         appendLine()
-        appendLine("Met hartelijke groet,")
-        appendLine("Odelia van der Most")
+        appendLine(tabel(dagen))
         appendLine()
-        append(tabel(dagen))
+        appendLine("Met vriendelijke groet,")
+        append("Odelia van der Most")
     }
 
-    /** Tabel ma–vr: datum, begin, eind, uren. "vrij" of "ziek" als tekst. */
-    fun tabel(dagen: List<Werkdag>): String = buildString {
-        appendLine("Datum | Begin | Eind | Uren")
-        dagen.forEach { d ->
-            val datum = "${korteDagNaam(d.datum)} ${d.datum.dayOfMonth}-${d.datum.monthValue}"
-            when (d.soort) {
-                DagSoort.Vrij -> appendLine("$datum | vrij")
-                DagSoort.Ziek -> appendLine("$datum | ziek")
-                DagSoort.Leeg -> appendLine("$datum | –")
-                DagSoort.Gewerkt -> appendLine(
-                    "$datum | ${d.begin?.let(::alsKlok) ?: "–"} | ${d.eind?.let(::alsKlok) ?: "–"} | ${decimaal(d.uren)}",
-                )
+    /** Uitgelijnde tabel ma–vr: datum, begin, eind, uren. "vrij" of "ziek" als tekst. */
+    fun tabel(dagen: List<Werkdag>): String {
+        val streep = "-".repeat(10) + "|" + "-".repeat(7) + "|" + "-".repeat(7) + "|" + "-".repeat(6)
+        fun rij(datum: String, begin: String, eind: String, uren: String) =
+            "${datum.padEnd(10)}| ${begin.padEnd(6)}| ${eind.padEnd(6)}| ${uren.padStart(5)}".trimEnd()
+        return buildString {
+            appendLine(rij("Datum", "Begin", "Eind", "Uren"))
+            appendLine(streep)
+            dagen.forEach { d ->
+                val datum = "${korteDagNaam(d.datum)} ${d.datum.dayOfMonth}-${d.datum.monthValue}"
+                when (d.soort) {
+                    DagSoort.Vrij -> appendLine("${datum.padEnd(10)}| vrij")
+                    DagSoort.Ziek -> appendLine("${datum.padEnd(10)}| ziek")
+                    DagSoort.Leeg -> appendLine("${datum.padEnd(10)}| –")
+                    DagSoort.Gewerkt -> appendLine(
+                        rij(datum, d.begin?.let(::alsKlok) ?: "–", d.eind?.let(::alsKlok) ?: "–", decimaal(d.uren)),
+                    )
+                }
             }
+            appendLine(streep)
+            append(rij("Totaal", "", "", decimaal(totaal(dagen))))
         }
-        append("Totaal | | | ${decimaal(dagen.sumOf { it.uren.toDouble() }.toFloat())}")
     }
+
+    /** Totaal = optelsom van de afgeronde dag-uren, zodat het klopt met wat in de tabel staat. */
+    fun totaal(dagen: List<Werkdag>): Float =
+        dagen.sumOf { Math.round(it.uren * 100.0).toLong() } / 100f
 
     /** 7.25 → "7,25" */
     fun decimaal(uren: Float): String = String.format(Locale.forLanguageTag("nl-NL"), "%.2f", uren)
