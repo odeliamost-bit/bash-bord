@@ -22,34 +22,29 @@ object Urenmail {
         appendLine(if (week != null) "Hierbij mijn gewerkte uren van week $week:" else "Hierbij mijn gewerkte uren:")
         if (opmerking.isNotBlank()) appendLine(opmerking.trim())
         appendLine()
-        appendLine(tabel(dagen))
-        appendLine()
-        appendLine("Met vriendelijke groet,")
-        append("Odelia van der Most")
+        // Geen afsluiting ("Met vriendelijke groet"): Gmail zet Odelia's handtekening er zelf onder.
+        append(tabel(dagen))
     }
 
-    /** Uitgelijnde tabel ma–vr: datum, begin, eind, uren. "vrij" of "ziek" als tekst. */
-    fun tabel(dagen: List<Werkdag>): String {
-        val streep = "-".repeat(10) + "|" + "-".repeat(7) + "|" + "-".repeat(7) + "|" + "-".repeat(6)
-        fun rij(datum: String, begin: String, eind: String, uren: String) =
-            "${datum.padEnd(10)}| ${begin.padEnd(6)}| ${eind.padEnd(6)}| ${uren.padStart(5)}".trimEnd()
-        return buildString {
-            appendLine(rij("Datum", "Begin", "Eind", "Uren"))
-            appendLine(streep)
-            dagen.forEach { d ->
-                val datum = "${korteDagNaam(d.datum)} ${d.datum.dayOfMonth}-${d.datum.monthValue}"
-                when (d.soort) {
-                    DagSoort.Vrij -> appendLine("${datum.padEnd(10)}| vrij")
-                    DagSoort.Ziek -> appendLine("${datum.padEnd(10)}| ziek")
-                    DagSoort.Leeg -> appendLine("${datum.padEnd(10)}| –")
-                    DagSoort.Gewerkt -> appendLine(
-                        rij(datum, d.begin?.let(::alsKlok) ?: "–", d.eind?.let(::alsKlok) ?: "–", decimaal(d.uren)),
-                    )
-                }
+    /**
+     * Eén regel per dag (ma–vr): datum, begin – eind = uren. "vrij" of "ziek" als tekst.
+     * Geen uitgelijnde kolommen: Gmail toont mail in een letter waar niet elke letter even breed is,
+     * dan staan streepjes en | nooit recht onder elkaar (getest door Odelia, nov 2026).
+     */
+    fun tabel(dagen: List<Werkdag>): String = buildString {
+        dagen.forEach { d ->
+            val datum = "${korteDagNaam(d.datum)} ${d.datum.dayOfMonth}-${d.datum.monthValue}"
+            val wat = when (d.soort) {
+                DagSoort.Vrij -> "vrij"
+                DagSoort.Ziek -> "ziek"
+                DagSoort.Leeg -> "–"
+                DagSoort.Gewerkt ->
+                    "${d.begin?.let(::alsKlok) ?: "?"} – ${d.eind?.let(::alsKlok) ?: "?"} = ${decimaal(d.uren)} uur"
             }
-            appendLine(streep)
-            append(rij("Totaal", "", "", decimaal(totaal(dagen))))
+            appendLine("$datum: $wat")
         }
+        appendLine()
+        append("Totaal: ${decimaal(totaal(dagen))} uur")
     }
 
     /** Totaal = optelsom van de afgeronde dag-uren, zodat het klopt met wat in de tabel staat. */

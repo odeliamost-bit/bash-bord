@@ -18,7 +18,7 @@ data class Potje(
     val naam: String,
     val emoji: String,
     val startCent: Long = 0,
-    /** Vast bedrag bij verdelen, bv. Zorg € 180. */
+    /** Vast bedrag bij verdelen, bv. Zorg € 100. */
     val vastCent: Long? = null,
     /** Deel van de rest bij verdelen, bv. Investeren 30. */
     val procent: Int? = null,

@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nl.odelia.dashboard.logica.LoginLink
 import nl.odelia.dashboard.logica.SyncRegels
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -51,9 +52,15 @@ class Supabase(private val basis: String, private val sleutel: String) {
 
     // ---------- Inloggen (code per e-mail) ----------
 
+    /** Stuurt een mail. Nieuwe projecten sturen alleen een link; die opent de app via [LoginLink.TERUG]. */
     suspend fun vraagCode(email: String) {
-        vraag("/auth/v1/otp", JSONObject().put("email", email).put("create_user", true))
+        val terug = java.net.URLEncoder.encode(LoginLink.TERUG, "UTF-8")
+        vraag("/auth/v1/otp?redirect_to=$terug", JSONObject().put("email", email).put("create_user", true))
     }
+
+    /** Na een tik op de link: met de ververs-sleutel uit de link een volledige sessie (met gebruiker) ophalen. */
+    suspend fun logInMetLink(ververs: String): Sessie =
+        sessie(vraag("/auth/v1/token?grant_type=refresh_token", JSONObject().put("refresh_token", ververs)))
 
     suspend fun logIn(email: String, code: String): Sessie =
         sessie(vraag("/auth/v1/verify", JSONObject().put("type", "email").put("email", email).put("token", code)))

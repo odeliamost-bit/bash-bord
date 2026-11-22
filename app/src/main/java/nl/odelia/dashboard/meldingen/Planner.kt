@@ -12,6 +12,8 @@ import java.time.ZoneId
 import nl.odelia.dashboard.data.Bestanden
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.logica.Instellingen
+import nl.odelia.dashboard.logica.Poort
+import nl.odelia.dashboard.logica.Vangnet
 
 /**
  * Zet de "wekkers" voor alle meldingen. Wordt opnieuw gedaan na elke wijziging,
@@ -27,6 +29,9 @@ object Planner {
     const val URENMAIL = "nl.odelia.dashboard.URENMAIL"
     const val SEINTJE = "nl.odelia.dashboard.SEINTJE"
     const val CYCLUS = "nl.odelia.dashboard.CYCLUS"
+    const val HERINNER_UIT_WEER = "nl.odelia.dashboard.HERINNER_UIT_WEER"
+    const val VANGNET = "nl.odelia.dashboard.VANGNET"
+    const val POORT = "nl.odelia.dashboard.POORT"
     const val EXTRA_ID = "id"
 
     suspend fun plan(context: Context, nu: LocalDateTime = LocalDateTime.now()) {
@@ -42,6 +47,17 @@ object Planner {
             stop(context, HERINNER_UIT, 2)
         }
 
+        // Vangnet: nog ingeklokt? Dan komt de herinnering nog 2 keer, en om 18:00 klokt de app zelf uit.
+        val weer = if (klok.isIn && ins.klokHerinnering) Vangnet.nogEens(ins.uitklokken, nu) else null
+        if (weer != null) zet(context, HERINNER_UIT_WEER, 6, weer) else stop(context, HERINNER_UIT_WEER, 6)
+        val vangnet = nu.toLocalDate().atTime(Vangnet.OM)
+        if (klok.isIn && ins.klokHerinnering && vangnet.isAfter(nu)) zet(context, VANGNET, 7, vangnet) else stop(context, VANGNET, 7)
+
+        // Poort-check (bouwnacht 2): na 16:00 om de 17 min, alleen als hij aan staat en ze nog ingeklokt is.
+        val poort = Bestanden.poort(context).nu()
+        val check = if (klok.isIn && Poort.klaar(poort) && Instellingen.isWerkdag(nu.toLocalDate())) Poort.volgende(nu, Vangnet.OM) else null
+        if (check != null) zet(context, POORT, 9, check) else stop(context, POORT, 9)
+
         // Ochtendmelding: 20 minuten na inklokken (alleen de eerste keer vandaag).
         val ochtend = klok.vandaag.begin?.let { nu.toLocalDate().atTime(it).plusMinutes(Instellingen.OCHTEND_NA_MINUTEN) }
         if (ins.ochtendMelding && klok.isIn && ochtend != null && ochtend.isAfter(nu)) zet(context, OCHTEND, 3, ochtend) else stop(context, OCHTEND, 3)
@@ -55,6 +71,12 @@ object Planner {
             stop(context, URENMAIL, 4)
         }
 
+        // Eind van de week (bouwnacht 1, nov 2026): vrijdag niet in- en uitgeklokt (vrij, ziek, vergeten)?
+        // Dan komt het urenmail-seintje toch, om de uitkloktijd + 30 min. Anders regelt de gewone urenmail het.
+        val vrijdag = volgendeVrijdagOm(ins.uitklokken.plusMinutes(Instellingen.URENMAIL_NA_MINUTEN), nu)
+        val vandaagGeklokt = vrijdag.toLocalDate() == nu.toLocalDate() && (klok.isIn || klok.vandaag.eind != null)
+        if (ins.urenmailSeintje && !vandaagGeklokt) zet(context, URENMAIL, 8, vrijdag) else stop(context, URENMAIL, 8)
+
         // Seintje de dag ervoor, voor alles met een datum.
         opslag.onthoudNu()
             .filter { it.seintje && !it.klaar && it.wanneer != null }
@@ -67,6 +89,13 @@ object Planner {
         // Cyclus: seintje 2 dagen voor de verwachte dag ("Neem verband mee").
         val cyclus = Bestanden.cyclus(context).nu().seintjeOm(nu)
         if (cyclus != null) zet(context, CYCLUS, 5, cyclus) else stop(context, CYCLUS, 5)
+    }
+
+    /** Eerstvolgende vrijdag om [tijd], vanaf nu. */
+    fun volgendeVrijdagOm(tijd: LocalTime, nu: LocalDateTime): LocalDateTime {
+        var dag: LocalDate = nu.toLocalDate()
+        while (dag.dayOfWeek != DayOfWeek.FRIDAY || !dag.atTime(tijd).isAfter(nu)) dag = dag.plusDays(1)
+        return dag.atTime(tijd)
     }
 
     /** Eerstvolgende werkdag (ma–vr) om [tijd], vanaf nu. */

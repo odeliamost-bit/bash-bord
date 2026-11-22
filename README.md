@@ -47,9 +47,10 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 - Open je project op supabase.com ➜ **SQL Editor** ➜ **New query**.
 - Plak alles uit `supabase/kompas.sql` en tik **Run**.
 
-**2. Inloggen met een code aanzetten**
+**2. Inloggen met de link uit de mail aanzetten**
 - **Authentication ➜ Sign In / Providers ➜ Email**: aan.
-- **Authentication ➜ Emails**: zet bij **Magic Link** én **Confirm signup** de code in de mail: `{{ .Token }}`.
+- **Authentication ➜ URL Configuration**: **Site URL** én bij **Redirect URLs**: `bashbord://login`.
+- Nieuwe projecten sturen alleen een link (de mail aanpassen kan pas met een eigen mailserver). Tik in de mail op de link, **op het apparaat waar je inlogt**: de app gaat open en je bent ingelogd. Staat er wél een code in de mail (`{{ .Token }}`), dan kan je die ook typen.
 
 **3. Twee geheimen in GitHub**
 - Supabase ➜ **Project Settings ➜ API**: kopieer de **Project URL** en de **anon/publishable key**.
@@ -59,11 +60,35 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 - Nooit de **service_role/secret key** gebruiken.
 
 **4. Inloggen in de app**
-- Eerst op de **telefoon**: Instellingen (of Geld) ➜ ☁️-kaart ➜ e-mail ➜ code uit de mail.
+- Eerst op de **telefoon**: Instellingen (of Geld) ➜ ☁️-kaart ➜ e-mail ➜ 📬 Stuur mail ➜ tik in de mail op de link.
 - Daarna op de tablet. Let op: de eerste keer wint wat online staat. (Wat er op de tablet stond, blijft als reserve bewaard.)
 
 **5. Alleen jij**
 - Na je eerste inlog: **Authentication ➜ Sign In / Providers** ➜ **Allow new users to sign up** uit.
+
+## 🌍 Vertalen via Claude (één keer instellen)
+
+De widget-knop **🎤 Vertalen** gaat via een eigen mini-backend. Daar staat de Claude-sleutel, **nooit in de app**.
+
+1. 🔑 Maak een sleutel op console.anthropic.com (API keys). Zet daar ook een **maandlimiet** (Limits), bv. € 5.
+2. ☁️ Maak een gratis account op cloudflare.com.
+3. 💻 Op de laptop, in de map `backend/vertaler`:
+   ```sh
+   npm install
+   npx wrangler login
+   npx wrangler secret put ANTHROPIC_API_KEY   # plak de sleutel van stap 1
+   npx wrangler secret put APP_CODE            # verzin een lange code (geen wachtwoord dat je ergens anders gebruikt)
+   npx wrangler deploy
+   ```
+   Je krijgt een adres, zoiets als `https://bash-bord-vertaler.<naam>.workers.dev`.
+   Vraagt `deploy` of hij een **KV namespace** voor `TELLER` mag aanmaken? Zeg ja. Dat is de teller voor de daglimiet (hooguit 100 vertalingen per dag).
+4. 🐙 Zet op GitHub (Settings → Secrets and variables → Actions) twee geheimen:
+   - `VERTAAL_URL` = dat adres + `/vertaal`
+   - `VERTAAL_CODE` = dezelfde code als `APP_CODE`
+5. 🔁 Laat de app opnieuw bouwen (Actions → App bouwen → Run workflow) en installeer de nieuwe versie.
+
+Op de telefoon: de eerste tik op 🎤 Vertalen vraagt één keer **"Over andere apps"**. Zet Bash-bord aan en tik nog eens.
+Zonder die toestemming komt de vertaling als klein grijs berichtje.
 
 ## 🛡️ Beveiliging
 

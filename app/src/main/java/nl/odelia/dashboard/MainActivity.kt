@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.logica.LoginLink
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.online.Sync
@@ -58,6 +59,11 @@ class MainActivity : ComponentActivity() {
         if (uri == null || klaar == null || m == null) klaar?.invoke(null) else m.bewaarFoto(uri, klaar)
     }
     private val vraagMeldingen = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    private var naLocatie: ((Boolean) -> Unit)? = null
+    private val vraagLocatieContract = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { r ->
+        naLocatie?.invoke(r[android.Manifest.permission.ACCESS_FINE_LOCATION] == true)
+        naLocatie = null
+    }
 
     // Back-up en Kompas: Odelia kiest zelf het bestand (Downloads, Drive, …).
     private var naBestand: ((String) -> Unit)? = null
@@ -123,11 +129,17 @@ class MainActivity : ComponentActivity() {
                         kiesFotoContract.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                     override fun inspreken(klaar: (String) -> Unit) = spreekIn(klaar)
+                    override fun vraagLocatie(klaar: (Boolean) -> Unit): Boolean {
+                        naLocatie = klaar
+                        vraagLocatieContract.launch(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION))
+                        return true
+                    }
                     override fun openMail(onderwerp: String, tekst: String) = openMailApp(onderwerp, tekst)
                     override fun openLink(link: String) = openInBrowser(link)
                     override fun appIcoon(pakket: String) = icoonVan(pakket)
                     override fun openApp(pakket: String) = openAndereApp(pakket)
                     override fun deelTekst(titel: String, tekst: String) = deel(titel, tekst)
+                    override fun vraagClaude(tekst: String) = openClaude(tekst)
                     override fun maakBackup(klaar: (String) -> Unit) = kiesBestand(klaar) {
                         backupMaken.launch("bash-bord-backup-${java.time.LocalDate.now()}.zip")
                     }
@@ -168,6 +180,14 @@ class MainActivity : ComponentActivity() {
         if (intent.action == Intent.ACTION_SEND && intent.type == "text/plain") {
             // Niet te lang: gedeelde tekst komt van een andere app.
             opdracht.value = Opdracht("toevoegen", intent.getStringExtra(Intent.EXTRA_TEXT)?.take(MAX_GEDEELD))
+        } else if (intent.action == Intent.ACTION_VIEW && intent.data?.scheme == LoginLink.SCHEMA && intent.data?.host == LoginLink.HOST) {
+            // Tik op de inlog-link uit de mail van Supabase → inloggen, en Geld tonen (daar staat de ☁️-kaart).
+            val link = intent.data!!
+            Sync.logInMetLink(link.encodedFragment ?: link.encodedQuery)
+            opdracht.value = Opdracht("geld")
+        } else if (intent.action == Intent.ACTION_PROCESS_TEXT) {
+            // Geselecteerde tekst uit een andere app → Vertalen.
+            opdracht.value = Opdracht("vertalen", intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()?.take(MAX_GEDEELD))
         } else {
             intent.getStringExtra(Meldingen.EXTRA_SCHERM)?.let { opdracht.value = Opdracht(it) }
         }
@@ -248,6 +268,22 @@ class MainActivity : ComponentActivity() {
             true
         } catch (_: ActivityNotFoundException) {
             false
+        }
+    }
+
+    /** Zet een vraag klaar in de Claude-app. Versturen doet Odelia zelf; de app gaat niet online. */
+    private fun openClaude(tekst: String): Boolean {
+        val vraag = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, tekst)
+        return try {
+            startActivity(Intent(vraag).setPackage("com.anthropic.claude"))
+            true
+        } catch (_: ActivityNotFoundException) {
+            try {
+                startActivity(Intent.createChooser(vraag, "Vertalen met"))
+                true
+            } catch (_: ActivityNotFoundException) {
+                false
+            }
         }
     }
 

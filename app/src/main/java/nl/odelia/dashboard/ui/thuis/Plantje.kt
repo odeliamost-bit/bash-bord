@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 
 /**
- * Zelf getekend plantje in een potje op een hangend plankje.
+ * Zelf getekend plantje in een rond zandkleurig potje op een hangend plankje.
  * Vervangt het plantje van internet uit het ontwerp.
  *
  * Tekenvlak is 74 breed. De rechter 14 steekt buiten de kaart uit;
@@ -38,36 +38,34 @@ fun Plantje(modifier: Modifier = Modifier) {
         drawCircle(Color(0xFFB98A63), radius = 5.2f * u, center = spijker)
         drawCircle(Color(0xFFD9A27A), radius = 3.7f * u, center = spijker)
 
-        // Blaadjes (achter de pot)
-        val voet = Offset(potMidden, potBoven + 3f * u)
-        val donker = Color(0xFF5E9E6E)
-        val midden = Color(0xFF7DB889)
-        val licht = Color(0xFF9FD0A0)
-        blad(voet + Offset(-6f * u, 0f), 24f * u, 9f * u, -128f, midden) // hangt links over de rand
-        blad(voet + Offset(6f * u, 0f), 20f * u, 8f * u, 132f, licht) // hangt rechts over de rand
-        blad(voet, 40f * u, 11f * u, -58f, donker)
-        blad(voet, 46f * u, 12f * u, -30f, midden)
-        blad(voet, 50f * u, 12f * u, -6f, licht)
-        blad(voet, 44f * u, 12f * u, 18f, donker)
-        blad(voet, 38f * u, 11f * u, 44f, midden)
-        blad(voet, 30f * u, 10f * u, 68f, licht)
+        // Blaadjes (achter de pot): brede, ronde olijfgroene blaadjes in een waaier (zoals Odelia koos)
+        val voet = Offset(potMidden, potBoven + 2f * u)
+        val donker = Color(0xFF6E8F45)
+        val midden = Color(0xFF86A657)
+        val licht = Color(0xFFA0BC6E)
+        blad(voet + Offset(-3f * u, 0f), 30f * u, 15f * u, -62f, midden)
+        blad(voet + Offset(3f * u, 0f), 30f * u, 15f * u, 62f, midden)
+        blad(voet, 40f * u, 16f * u, -32f, donker)
+        blad(voet, 40f * u, 16f * u, 32f, donker)
+        blad(voet, 48f * u, 17f * u, -6f, licht)
 
-        // Potje
+        // Potje: rond en buikig, zandkleur
+        val potOnder = plankBoven
         val pot = Path().apply {
-            moveTo(potMidden - 15f * u, potBoven)
-            lineTo(potMidden + 15f * u, potBoven)
-            lineTo(potMidden + 11f * u, plankBoven)
-            lineTo(potMidden - 11f * u, plankBoven)
+            moveTo(potMidden - 14f * u, potBoven)
+            cubicTo(potMidden - 22f * u, potBoven + 8f * u, potMidden - 18f * u, potOnder - 2f * u, potMidden - 10f * u, potOnder)
+            lineTo(potMidden + 10f * u, potOnder)
+            cubicTo(potMidden + 18f * u, potOnder - 2f * u, potMidden + 22f * u, potBoven + 8f * u, potMidden + 14f * u, potBoven)
             close()
         }
-        drawPath(pot, Brush.verticalGradient(listOf(Color(0xFFEBA084), Color(0xFFC9704F)), potBoven, plankBoven))
+        drawPath(pot, Brush.verticalGradient(listOf(Color(0xFFF4DFC2), Color(0xFFDDB88E)), potBoven, potOnder))
         drawRoundRect(
-            Brush.verticalGradient(listOf(Color(0xFFF4B89A), Color(0xFFDD8C6D)), potBoven - 3f * u, potBoven + 5f * u),
-            topLeft = Offset(potMidden - 17f * u, potBoven - 3f * u),
-            size = Size(34f * u, 8f * u),
-            cornerRadius = CornerRadius(4f * u),
+            Brush.verticalGradient(listOf(Color(0xFFF8E9D2), Color(0xFFE7C9A0)), potBoven - 3f * u, potBoven + 4f * u),
+            topLeft = Offset(potMidden - 15f * u, potBoven - 3f * u),
+            size = Size(30f * u, 7f * u),
+            cornerRadius = CornerRadius(3.5f * u),
         )
-        drawLine(Color.White.copy(alpha = 0.35f), Offset(potMidden - 9f * u, potBoven + 9f * u), Offset(potMidden - 7.5f * u, plankBoven - 5f * u), strokeWidth = 2.5f * u, cap = StrokeCap.Round)
+        drawLine(Color.White.copy(alpha = 0.4f), Offset(potMidden - 11f * u, potBoven + 8f * u), Offset(potMidden - 10f * u, potOnder - 6f * u), strokeWidth = 2.5f * u, cap = StrokeCap.Round)
 
         // Plankje: links rond, rechts recht tegen de kaartrand
         val plank = RoundRect(
@@ -90,11 +88,14 @@ fun Plantje(modifier: Modifier = Modifier) {
 private fun DrawScope.blad(voet: Offset, lengte: Float, breedte: Float, hoek: Float, kleur: Color) {
     val vorm = Path().apply {
         moveTo(voet.x, voet.y)
-        cubicTo(voet.x + breedte, voet.y - lengte * 0.3f, voet.x + breedte * 0.8f, voet.y - lengte * 0.8f, voet.x, voet.y - lengte)
-        cubicTo(voet.x - breedte * 0.8f, voet.y - lengte * 0.8f, voet.x - breedte, voet.y - lengte * 0.3f, voet.x, voet.y)
+        // Steeltje onderaan, daarboven een breed rond blad
+        lineTo(voet.x, voet.y - lengte * 0.3f)
+        cubicTo(voet.x + breedte, voet.y - lengte * 0.35f, voet.x + breedte * 0.9f, voet.y - lengte * 0.9f, voet.x, voet.y - lengte)
+        cubicTo(voet.x - breedte * 0.9f, voet.y - lengte * 0.9f, voet.x - breedte, voet.y - lengte * 0.35f, voet.x, voet.y - lengte * 0.3f)
         close()
     }
     rotate(hoek, pivot = voet) {
+        drawLine(kleur, voet, Offset(voet.x, voet.y - lengte * 0.32f), strokeWidth = breedte * 0.16f, cap = StrokeCap.Round)
         drawPath(vorm, kleur)
         drawLine(
             Color.White.copy(alpha = 0.35f),

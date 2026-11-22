@@ -67,10 +67,6 @@ internal fun UitgavenPaneel(data: GeldData, vandaag: LocalDate, acties: AppActie
                 Tekst(Geld.bedrag(totaal), 28.sp, kleur = Bruin)
             }
         }
-        ZachteKnop("🔊 Voorlezen", {
-            val delen = totalen.take(3).joinToString(", ") { "${categorie(it.categorie).label} ${GeldBoek.uitspraak(it.cent)}" }
-            onLees("$periodeTekst uitgegeven: ${GeldBoek.uitspraak(totaal)}." + if (delen.isNotEmpty()) " Meeste aan: $delen." else "")
-        })
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (totalen.isEmpty()) Tekst("Nog niks uitgegeven in deze tijd.", 16.sp, dikte = FontWeight.Bold, kleur = Grijs)
             totalen.forEach { t ->

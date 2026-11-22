@@ -12,6 +12,7 @@ object Acties {
     /** In of uit klokken. Geeft `true` als je nu ingeklokt bent. */
     suspend fun wisselKlok(context: Context): Boolean {
         val isIn = Opslag.van(context).wisselKlok()
+        nl.odelia.dashboard.data.Bestanden.log(context, if (isIn) "🟢" else "🔴", if (isIn) "Ingeklokt" else "Uitgeklokt")
         naWijziging(context)
         return isIn
     }

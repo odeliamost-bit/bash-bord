@@ -10,15 +10,15 @@ create table if not exists public.kompas_data (
   updated_at timestamptz not null default now(),
   primary key (user_id, onderdeel),
   -- Alleen deze onderdelen mogen online (gekozen door Odelia).
-  -- Uren, cyclus, mail-hulp, advies, weer en thuis: NOOIT. Zelfde lijst als SyncRegels.kt.
-  constraint alleen_toegestaan check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos', 'instellingen')),
+  -- Uren, uurloon en cyclus: NOOIT. Zelfde lijst als SyncRegels.kt. De app versleutelt alles vóór het hier komt.
+  constraint alleen_toegestaan check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos', 'instellingen', 'advies', 'weer')),
   constraint niet_te_groot check (octet_length(inhoud) < 5000000)
 );
 
--- Bestond de tabel al? Dan de lijst hierboven ook daar bijwerken (okt 2026: instellingen erbij).
+-- Bestond de tabel al? Dan de lijst hierboven ook daar bijwerken (okt 2026: instellingen erbij; nov 2026: advies en weer erbij).
 alter table public.kompas_data drop constraint if exists alleen_toegestaan;
 alter table public.kompas_data add constraint alleen_toegestaan
-  check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos', 'instellingen'));
+  check (onderdeel in ('geld', 'onthoud', 'leren', 'wensen', 'recepten', 'mensen', 'fotos', 'instellingen', 'advies', 'weer'));
 
 -- De server zet de tijd (niet de telefoon), zodat "nieuwste wint" eerlijk is.
 create or replace function public.kompas_tijd() returns trigger
@@ -43,6 +43,10 @@ create policy "alleen eigen data" on public.kompas_data
 
 -- Niet-ingelogde bezoekers mogen niks.
 revoke all on public.kompas_data from anon;
+
+-- Ingelogd mag wel (het slot hierboven zorgt dat het alleen je eigen rijen zijn).
+-- Nieuwe Supabase-projecten (nov 2026) geven dit niet meer vanzelf: zonder deze regel fout 403.
+grant select, insert, update, delete on public.kompas_data to authenticated;
 
 -- Realtime: andere apparaten horen meteen dat er iets veranderd is.
 do $$

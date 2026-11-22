@@ -38,6 +38,7 @@ fun SyncKaart(sync: SyncStaat, acties: AppActies) {
     if (!sync.kan) return
     var email by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
+    var zin by remember { mutableStateOf("") }
     val vorm = RoundedCornerShape(26.dp)
     Column(
         Modifier
@@ -47,10 +48,20 @@ fun SyncKaart(sync: SyncStaat, acties: AppActies) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when {
+            sync.email != null && sync.zinNodig -> {
+                Tekst("🔐 Kies je geheime zin", 17.sp, kleur = Kleur.Inkt)
+                Tekst(
+                    "Daarmee versleutelt de app alles vóór het online gaat. Supabase kan het dan niet lezen. " +
+                        "Typ op al je apparaten dezelfde zin. De app bewaart de zin niet. Kwijt? Dan zijn de online gegevens niet meer te lezen (op je apparaat staat alles nog).",
+                    15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht,
+                )
+                Invoer(zin, { zin = it }, "bijv. drie woorden die je onthoudt")
+                GroteKnop(if (sync.bezig) "Even wachten…" else "🔒 Zin instellen", { if (!sync.bezig && zin.trim().length >= 8) acties.zetSyncZin(zin).also { zin = "" } })
+            }
             sync.email != null -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Tekst(if (sync.live) "☁️" else "🌥️", 28.sp)
                 Column(Modifier.weight(1f)) {
-                    Tekst(if (sync.live) "Sync aan" else "Sync wacht op internet", 17.sp, kleur = Kleur.Inkt)
+                    Tekst(if (sync.live) "Sync aan 🔒" else "Sync wacht op internet", 17.sp, kleur = Kleur.Inkt)
                     val tijd = sync.laatste?.let { " · laatst ${it.format(uurMinuut)}" }.orEmpty()
                     Tekst("${sync.email}$tijd", 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 }
@@ -58,15 +69,17 @@ fun SyncKaart(sync: SyncStaat, acties: AppActies) {
             }
             sync.codeVoor == null -> {
                 Tekst("☁️ Zelfde gegevens op al je apparaten", 17.sp, kleur = Kleur.Inkt)
-                Tekst("Log in met je e-mail. Je krijgt een code, geen wachtwoord.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                Tekst("Log in met je e-mail. Je krijgt een mail met een link, geen wachtwoord.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 Invoer(email, { email = it }, "jouw@gmail.com", toetsen = KeyboardType.Email)
-                GroteKnop(if (sync.bezig) "Even wachten…" else "📬 Stuur code", { if (!sync.bezig && "@" in email) acties.vraagSyncCode(email) })
+                GroteKnop(if (sync.bezig) "Even wachten…" else "📬 Stuur mail", { if (!sync.bezig && "@" in email) acties.vraagSyncCode(email) })
             }
             else -> {
                 Tekst("📬 Kijk in je mail", 17.sp, kleur = Kleur.Inkt)
-                Tekst("Typ de code uit de mail van Supabase.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                Tekst("Tik in de mail van Supabase op de link, op dít apparaat. De app gaat dan vanzelf open.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                Tekst("Staat er een code in de mail? Typ die dan hier:", 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 Invoer(code, { code = it.filter(Char::isDigit).take(8) }, "123456", toetsen = KeyboardType.Number)
                 GroteKnop(if (sync.bezig) "Even wachten…" else "✅ Inloggen", { if (!sync.bezig && code.length >= 6) acties.logInSync(code) })
+                ZachteKnop("↩️ Nieuwe mail", { code = ""; acties.nieuweSyncMail() })
             }
         }
         sync.bericht?.let { Tekst(it, 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht) }

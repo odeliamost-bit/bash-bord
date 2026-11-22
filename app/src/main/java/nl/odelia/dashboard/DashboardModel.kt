@@ -60,6 +60,12 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     private val advies = AdviesOpslag.van(app)
     private val recepten = ReceptenOpslag.van(app)
     private val instellingen = Bestanden.instellingen(app)
+    private val beleggen = Bestanden.beleggen(app)
+    private val uurloon = Bestanden.uurloon(app)
+    private val bank = Bestanden.bank(app)
+    private val logboek = Bestanden.logboek(app)
+    private val apiKosten = Bestanden.apiKosten(app)
+    private val bankToegang = MutableStateFlow(nl.odelia.dashboard.meldingen.BankInbox.heeftToegang(app))
 
     /** Elke 20 seconden de tijd, zodat "al 5½ uur gewerkt" vanzelf meeloopt. */
     private val tik = flow {
@@ -70,6 +76,13 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
     }
 
     private val zeilweer = MutableStateFlow(ZeilweerStaat(plek = PlekOpslag.lees(app)))
+
+    init {
+        // Plek gekozen op een ander apparaat (sync)? Dan hier ook.
+        viewModelScope.launch {
+            PlekOpslag.data(app).collect { p -> if (p != zeilweer.value.plek) zeilweer.value = ZeilweerStaat(plek = p) }
+        }
+    }
 
     private val basis =
         combine(opslag.perioden(), opslag.dagSoorten(), opslag.onthoud(), tik, zeilweer) { perioden, soorten, onthoud, nu, weer ->
@@ -82,6 +95,12 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
             fotos.data, advies.data, recepten.data, Sync.staat,
         ) { s, f, a, r, y -> s.copy(fotos = f, advies = a, recepten = r, sync = y) }
             .combine(instellingen.data) { s, i -> s.copy(klok = s.klok.copy(weekdoel = i.weekdoel), instellingen = i) }
+            .combine(beleggen.data) { s, b -> s.copy(beleggen = b) }
+            .combine(uurloon.data) { s, u -> s.copy(uurloonCent = u.cent) }
+            .combine(bank.data) { s, b -> s.copy(bank = b) }
+            .combine(bankToegang) { s, t -> s.copy(bankToegang = t) }
+            .combine(logboek.data) { s, l -> s.copy(logboek = l) }
+            .combine(apiKosten.data) { s, k -> s.copy(apiKosten = nl.odelia.dashboard.logica.ApiKosten.voorMaand(k, java.time.YearMonth.now())) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppStaat(KlokStaat.leeg(LocalDateTime.now())))
 
     private fun doe(werk: suspend () -> Unit) {
@@ -143,10 +162,70 @@ class DashboardModel(app: Application) : AndroidViewModel(app), AppActies {
 
     override fun vraagSyncCode(email: String) = Sync.vraagCode(email)
     override fun logInSync(code: String) = Sync.logIn(code)
+    override fun nieuweSyncMail() = Sync.nieuweMail()
     override fun logUitSync() = Sync.logUit()
     override fun syncNu() = Sync.nu()
+    override fun zetSyncZin(zin: String) = Sync.zetZin(zin)
+    override suspend fun haalNieuws(): List<nl.odelia.dashboard.logica.Nieuws.Kop> = try {
+        nl.odelia.dashboard.logica.Nieuws.lees(Online.haal(nl.odelia.dashboard.logica.Nieuws.LINK))
+    } catch (_: Exception) {
+        emptyList()
+    }
+    override fun wijzigApiKosten(wat: (nl.odelia.dashboard.logica.ApiKostenData) -> nl.odelia.dashboard.logica.ApiKostenData) =
+        apiKosten.wijzig({ wat(nl.odelia.dashboard.logica.ApiKosten.voorMaand(it, java.time.YearMonth.now())) })
     override fun wijzigAdvies(wat: (AdviesData) -> AdviesData) = advies.wijzig(wat)
     override fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) = recepten.wijzig(wat)
+    override fun zetUurloon(cent: Long?) = uurloon.wijzig({ it.copy(cent = cent) })
+
+    // ---- Geld uit ING-meldingen (blijft op dit apparaat) ----
+    override fun zetBankAan(aan: Boolean) {
+        bank.wijzig({ it.copy(aan = aan) })
+        kijkBankToegang()
+    }
+
+    override fun kijkBankToegang() {
+        bankToegang.value = nl.odelia.dashboard.meldingen.BankInbox.heeftToegang(getApplication<Application>())
+    }
+
+    override fun openMeldingToegang(): Boolean = try {
+        getApplication<Application>().startActivity(
+            android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+        true
+    } catch (_: Exception) {
+        false
+    }
+
+    override fun kiesBank(wachtId: String, keuze: String) {
+        viewModelScope.launch { nl.odelia.dashboard.meldingen.BankInbox.kies(getApplication<Application>(), wachtId, keuze) }
+    }
+
+    override fun gooiBankWeg(wachtId: String) {
+        viewModelScope.launch { nl.odelia.dashboard.meldingen.BankInbox.gooiWeg(getApplication<Application>(), wachtId) }
+    }
+
+    override fun vergeetBankRegel(regel: nl.odelia.dashboard.logica.BankRegel) = bank.wijzig({ nl.odelia.dashboard.logica.Bank.vergeet(it, regel) })
+    override fun wisBankNietHerkend() = bank.wijzig({ it.copy(nietHerkend = emptyList()) })
+    override fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) = beleggen.wijzig(wat)
+
+    // ---- Beleggen (gaat online; het scherm vraagt eerst toestemming) ----
+    override fun haalKoers(klaar: (String) -> Unit) {
+        viewModelScope.launch {
+            val bericht = try {
+                val nieuw = nl.odelia.dashboard.logica.Beleggen.leesYahoo(Online.haal(nl.odelia.dashboard.logica.Beleggen.LINK))
+                if (nieuw.isEmpty()) "Geen koersen gevonden." else {
+                    beleggen.wijzig({ it.metKoersen(nieuw) })
+                    "✅ ${nieuw.size} koersen opgehaald."
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                "Koers ophalen lukte niet. Tik de koers zelf in."
+            }
+            klaar(bericht)
+        }
+    }
 
 
     // ---- Zeilweer (gaat online; de schermen vragen eerst toestemming) ----

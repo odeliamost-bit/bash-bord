@@ -42,7 +42,7 @@ class SyncRegelsTest {
 
     @Test
     fun lokaleOnderdelenNooitOnline() {
-        for (lokaal in listOf("uren", "werk", "cyclus", "mail", "advies", "weer", "zeilweer", "thuis")) {
+        for (lokaal in listOf("uren", "uurloon", "werk", "cyclus", "beleggen", "bank")) {
             assertFalse(lokaal, lokaal in SyncRegels.ONLINE)
         }
     }

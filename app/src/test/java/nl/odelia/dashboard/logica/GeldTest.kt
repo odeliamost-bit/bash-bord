@@ -12,8 +12,8 @@ class GeldTest {
 
     // Verzonnen voorbeeld, zoals in het ontwerp.
     private val potjes = listOf(
-        Potje("zorg", "Zorg", "🩺", vastCent = 180_00),
-        Potje("vast", "Vaste lasten", "📱", vastCent = 41_30),
+        Potje("zorg", "Zorg", "🩺", vastCent = 100_00),
+        Potje("vast", "Vaste lasten", "📱", vastCent = 25_00),
         Potje("inv", "Investeren", "📈", procent = 30),
         Potje("vrij", "Vrije geld", "👛", procent = 20, startCent = 10_00),
         Potje("nood", "Noodpot", "🛟", procent = 20, echteRekening = true),
@@ -27,23 +27,23 @@ class GeldTest {
     @Test
     fun verdelen_zoalsHetOntwerp() {
         val v = Geld.verdeel(1000_00, potjes)
-        assertEquals(778_70, v.rest)
-        assertEquals(180_00L, v.perPotje["zorg"])
-        assertEquals(41_30L, v.perPotje["vast"])
-        assertEquals(233_61L, v.perPotje["inv"])
-        assertEquals(155_74L, v.perPotje["vrij"])
-        assertEquals(77_87L, v.perPotje["kerk"])
+        assertEquals(875_00, v.rest)
+        assertEquals(100_00L, v.perPotje["zorg"])
+        assertEquals(25_00L, v.perPotje["vast"])
+        assertEquals(262_50L, v.perPotje["inv"])
+        assertEquals(175_00L, v.perPotje["vrij"])
+        assertEquals(87_50L, v.perPotje["kerk"])
         assertEquals(1000_00L, v.perPotje.values.sum())
         assertEquals(0L, v.over)
         assertTrue(v.klopt)
     }
 
     @Test
-    fun startPotjes_echteBedragenVanOdelia() {
+    fun startPotjes_verdelingVanOdelia() {
         val p = GeldStart.potjes.associateBy { it.id }
-        assertEquals(41_30L, p.getValue("vast").vastCent)
-        assertEquals(180_00L, p.getValue("zorg").vastCent)
-        assertEquals(50_00L, p.getValue("lekkers").vastCent)
+        assertEquals(25_00L, p.getValue("vast").vastCent)
+        assertEquals(100_00L, p.getValue("zorg").vastCent)
+        assertEquals(30_00L, p.getValue("lekkers").vastCent)
         assertEquals(20, p.getValue("vrij").procent)
         assertEquals(30, p.getValue("inv").procent)
         assertEquals(10, p.getValue("kerk").procent)
@@ -57,17 +57,17 @@ class GeldTest {
     }
 
     @Test
-    fun verdelen_metDeEchtePotjes() {
+    fun verdelen_metDeStartPotjes() {
         val v = Geld.verdeel(1000_00, GeldStart.potjes)
-        assertEquals(728_70, v.rest) // 1000 − 41,30 − 180 − 50
-        assertEquals(41_30L, v.perPotje["vast"])
-        assertEquals(180_00L, v.perPotje["zorg"])
-        assertEquals(50_00L, v.perPotje["lekkers"])
-        assertEquals(145_74L, v.perPotje["vrij"])
-        assertEquals(218_61L, v.perPotje["inv"])
-        assertEquals(72_87L, v.perPotje["kerk"])
-        assertEquals(145_74L, v.perPotje["nood"])
-        assertEquals(145_74L, v.perPotje["spaar"])
+        assertEquals(845_00, v.rest) // 1000 − 25 − 100 − 30
+        assertEquals(25_00L, v.perPotje["vast"])
+        assertEquals(100_00L, v.perPotje["zorg"])
+        assertEquals(30_00L, v.perPotje["lekkers"])
+        assertEquals(169_00L, v.perPotje["vrij"])
+        assertEquals(253_50L, v.perPotje["inv"])
+        assertEquals(84_50L, v.perPotje["kerk"])
+        assertEquals(169_00L, v.perPotje["nood"])
+        assertEquals(169_00L, v.perPotje["spaar"])
         assertEquals(1000_00L, v.perPotje.values.sum())
         assertEquals(0L, v.over)
         assertTrue(v.klopt)
@@ -96,11 +96,11 @@ class GeldTest {
 
     @Test
     fun verdelen_teWeinigVoorVasteBedragen() {
-        val v = Geld.verdeel(200_00, potjes)
-        assertEquals(180_00L, v.perPotje["zorg"])
+        val v = Geld.verdeel(120_00, potjes)
+        assertEquals(100_00L, v.perPotje["zorg"])
         assertEquals(20_00L, v.perPotje["vast"])
         assertEquals(0L, v.rest)
-        assertEquals(200_00L, v.perPotje.values.sum())
+        assertEquals(120_00L, v.perPotje.values.sum())
     }
 
     @Test

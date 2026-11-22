@@ -156,6 +156,31 @@ fun ToevoegenScherm(
                 MicKnop(::spreekIn, maat = 60.dp)
             }
 
+            // Lijstje gedeeld (bijv. tekst uit een foto via Google Lens)? Dan in één tik losse dingen.
+            val lijst = remember(tekst) { if (oud == null) nl.odelia.dashboard.logica.Lijstje.regels(tekst) else emptyList() }
+            if (lijst.size >= 2) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(22.dp))
+                        .background(Color(0xFFFFF1C9))
+                        .padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Tekst("📋 Dit is een lijstje met ${lijst.size} dingen", 17.sp, kleur = Kleur.Inkt)
+                    lijst.take(6).forEach { Tekst("• $it", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht) }
+                    if (lijst.size > 6) Tekst("… en nog ${lijst.size - 6}", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                    GroteKnop("Maak er ${lijst.size} losse dingen van", icoon = Icoontjes.vinkje, onClick = {
+                        lijst.forEach { acties.bewaar(nl.odelia.dashboard.logica.Lijstje.naarOnthoud(it, vandaag, mensen, groepen)) }
+                        bewaard = true
+                        onMelding("${lijst.size} dingen bewaard ✓")
+                        onKlaar()
+                    })
+                }
+            } else if (oud == null && tekst.isBlank()) {
+                Tekst("📸 Lijstje op papier? Maak een foto met Google Lens, kies de tekst en deel hem met Bash-bord.", 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+            }
+
             // Wat moet je onthouden? (vrij, zo kort of lang als je wilt)
             Invoer(
                 tekst,

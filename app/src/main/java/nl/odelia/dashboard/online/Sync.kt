@@ -19,16 +19,21 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import nl.odelia.dashboard.BuildConfig
 import nl.odelia.dashboard.Acties
+import nl.odelia.dashboard.data.AdviesOpslag
 import nl.odelia.dashboard.data.Bestanden
+import nl.odelia.dashboard.data.PlekOpslag
+import nl.odelia.dashboard.data.SyncSleutel
 import nl.odelia.dashboard.data.GeldOpslag
 import nl.odelia.dashboard.data.LerenOpslag
 import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.InstellingenJson
 import nl.odelia.dashboard.logica.WensenJson
+import nl.odelia.dashboard.logica.LoginLink
 import nl.odelia.dashboard.logica.SyncRegels
 import nl.odelia.dashboard.logica.SyncRegels.Stand
 import nl.odelia.dashboard.logica.SyncRegels.Stap
+import nl.odelia.dashboard.logica.Versleutel
 import nl.odelia.dashboard.ui.SyncStaat
 import org.json.JSONObject
 
@@ -37,7 +42,9 @@ import org.json.JSONObject
  *
  * - Alles blijft ook op het apparaat; de app werkt dus zonder internet.
  * - Alleen na inloggen, en alleen de onderdelen uit [SyncRegels.ONLINE]
- *   (nu: Geld, Onthoud/Mensen, Wensen, Leren, Recepten, Instellingen; foto's nog niet).
+ *   (nu: Geld, Onthoud/Mensen, Wensen, Leren, Recepten, Instellingen, Advies, Zeilweer-plek; foto's nog niet).
+ * - Alles gaat **versleuteld** online, met een sleutel uit Odelia's geheime zin ([Versleutel]).
+ *   Zonder geheime zin op dit apparaat synct er niks.
  * - Eigen wijziging: meteen versturen. Wijziging van een ander apparaat: meteen ophalen (realtime).
  * - De inlog en de sync-stand staan in `noBackupFilesDir`, niet in de Google-back-up.
  */
@@ -53,9 +60,12 @@ object Sync {
     private var supabase: Supabase? = null
     private lateinit var map: File
     @Volatile private var sessie: Supabase.Sessie? = null
+    private lateinit var kluis: SyncSleutel
+    @Volatile private var sleutel: ByteArray? = null
     private val delen = mutableMapOf<String, Deel>()
     private val standen = mutableMapOf<String, Stand>()
     private val wachtrij = mutableMapOf<String, Job>()
+    private var logboek: (String) -> Unit = {}
 
     @Volatile private var aan = false
     @Volatile private var generatie = 0
@@ -74,6 +84,8 @@ object Sync {
             null
         }
         sessie = leesSessie()
+        kluis = SyncSleutel(map)
+        sleutel = kluis.lees()
         standen.putAll(leesStanden())
 
         // Volgorde = volgorde van bijwerken. Instellingen als laatste (nieuw in Supabase, zie README).
@@ -107,7 +119,15 @@ object Sync {
         )
         instellingen.naWijziging = { lokaalVeranderd("instellingen") }
 
-        _staat.value = SyncStaat(kan = supabase != null, email = sessie?.email)
+        val advies = AdviesOpslag.van(app)
+        delen["advies"] = Deel(advies::alsTekst, advies::vervang)
+        advies.naWijziging = { lokaalVeranderd("advies") }
+
+        delen["weer"] = Deel({ PlekOpslag.alsTekst(app) }, { t -> PlekOpslag.vervang(app, t) })
+        PlekOpslag.naWijziging = { lokaalVeranderd("weer") }
+
+        logboek = { t -> Bestanden.log(app, "☁️", t) }
+        _staat.value = SyncStaat(kan = supabase != null, email = sessie?.email, zinNodig = sessie != null && sleutel == null)
     }
 
     /** App komt in beeld: alles bijwerken en de realtime-verbinding openen. */
@@ -130,19 +150,61 @@ object Sync {
     fun vraagCode(email: String) = bezig {
         val schoon = email.trim().lowercase()
         supabase!!.vraagCode(schoon)
-        _staat.update { it.copy(codeVoor = schoon, bericht = "📬 Code gestuurd naar $schoon") }
+        _staat.update { it.copy(codeVoor = schoon, bericht = "📬 Mail gestuurd naar $schoon") }
     }
 
     fun logIn(code: String) = bezig {
         val email = _staat.value.codeVoor ?: return@bezig
-        val nieuw = supabase!!.logIn(email, code.filter(Char::isDigit))
+        ingelogd(supabase!!.logIn(email, code.filter(Char::isDigit)))
+    }
+
+    /** ↩️ Terug naar het e-mailvakje, om een nieuwe mail te vragen. */
+    fun nieuweMail() {
+        _staat.update { it.copy(codeVoor = null, bericht = null) }
+    }
+
+    /** Tik op de link in de mail opende de app (bashbord://login#…). [deel] = alles na de # of ?. */
+    fun logInMetLink(deel: String?) = bezig {
+        when (val u = LoginLink.lees(deel)) {
+            is LoginLink.Uitkomst.Fout -> _staat.update { it.copy(codeVoor = null, bericht = u.bericht) }
+            is LoginLink.Uitkomst.Ok -> {
+                val nieuw = supabase!!.logInMetLink(u.ververs)
+                val email = nieuw.email.lowercase()
+                // Alleen het adres dat hier gevraagd is, en niet stiekem een ander account dan waar je al op zit.
+                val gevraagd = _staat.value.codeVoor
+                val huidig = sessie?.email?.lowercase()
+                if ((gevraagd != null && email != gevraagd) || (huidig != null && email != huidig)) {
+                    _staat.update { it.copy(bericht = "😕 Deze link hoort bij een ander e-mailadres.") }
+                    return@bezig
+                }
+                ingelogd(nieuw)
+            }
+        }
+    }
+
+    private suspend fun ingelogd(nieuw: Supabase.Sessie) {
         sessie = nieuw
         bewaarSessie(nieuw)
-        _staat.update { it.copy(email = nieuw.email, codeVoor = null, bericht = "✅ Ingelogd") }
+        _staat.update { it.copy(email = nieuw.email, codeVoor = null, bericht = "✅ Ingelogd", zinNodig = sleutel == null) }
         if (aan) {
             allesBijwerken()
             verbind()
         }
+    }
+
+    /** Geheime zin ingetypt: sleutel maken en bewaren (de zin zelf niet), dan alles bijwerken. */
+    fun zetZin(zin: String) = bezig {
+        val s = sessie ?: return@bezig
+        if (!Versleutel.zinOk(zin)) {
+            _staat.update { it.copy(bericht = "🔐 Kies minstens 8 tekens.") }
+            return@bezig
+        }
+        val nieuw = Versleutel.sleutel(zin, s.id)
+        kluis.bewaar(nieuw)
+        sleutel = nieuw
+        _staat.update { it.copy(zinNodig = false, bericht = "🔒 Geheime zin ingesteld") }
+        allesBijwerken()
+        if (aan && !_staat.value.live) verbind()
     }
 
     fun logUit() = bezig {
@@ -150,6 +212,8 @@ object Sync {
         verbreek()
         sessie = null
         File(map, SESSIE).delete()
+        kluis.wis()
+        sleutel = null
         slot.withLock {
             standen.clear()
             bewaarStanden()
@@ -217,28 +281,48 @@ object Sync {
         val sb = supabase ?: return@withLock
         val deel = delen[naam] ?: return@withLock
         val s = geldigeSessie() ?: return@withLock
+        // Zonder sleutel niks versturen of ophalen: alles gaat versleuteld.
+        val sl = sleutel ?: run {
+            _staat.update { it.copy(zinNodig = true) }
+            return@withLock
+        }
         val online = sb.haal(s, naam)
+        // Eerst kijken of onze zin past bij wat online staat. Zo overschrijft een verkeerde zin nooit iets.
+        if (online != null) try {
+            Versleutel.open(online.inhoud, sl)
+        } catch (_: Versleutel.VerkeerdeZin) {
+            _staat.update { it.copy(bericht = "🔐 Je geheime zin is anders dan op je andere apparaat. Log uit en typ dezelfde zin.") }
+            return@withLock
+        }
         val stand = standen[naam] ?: Stand()
-        when (SyncRegels.kies(stand, online?.versie)) {
+        var stap = SyncRegels.kies(stand, online?.versie)
+        // Staat er nog onversleutelde tekst online (van vóór nov 2026)? Dan versleuteld overschrijven.
+        if (stap == Stap.Niks && online != null && !Versleutel.isDicht(online.inhoud)) stap = Stap.Verstuur
+        when (stap) {
             Stap.Niks -> return@withLock
             Stap.Neem -> {
                 online!!
+                val tekst = Versleutel.open(online.inhoud, sl)
                 // Kan het gelezen worden? Anders niks overschrijven.
-                JSONObject(online.inhoud)
+                JSONObject(tekst)
                 // De eerste keer: wat hier stond als reserve bewaren.
                 if (stand.versie == null) {
                     val reserve = File(map, "reserve-$naam.json")
                     if (!reserve.exists()) reserve.writeText(deel.tekst())
                 }
-                deel.vervang(online.inhoud)
+                deel.vervang(tekst)
                 standen[naam] = Stand(versie = online.versie)
+                logboek("Opgehaald: $naam")
+                // Stond het er nog onversleuteld (van vóór nov 2026)? Meteen versleuteld terugzetten.
+                if (!Versleutel.isDicht(online.inhoud)) standen[naam] = Stand(versie = sb.zet(s, naam, Versleutel.dicht(tekst, sl)).versie)
                 try {
                     deel.na()
                 } catch (_: Exception) {
                 }
             }
             Stap.Verstuur -> {
-                val rij = sb.zet(s, naam, deel.tekst())
+                val rij = sb.zet(s, naam, Versleutel.dicht(deel.tekst(), sl))
+                logboek("Verstuurd: $naam")
                 standen[naam] = Stand(versie = rij.versie)
             }
         }

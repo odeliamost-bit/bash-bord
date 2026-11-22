@@ -36,6 +36,17 @@ data class AppStaat(
     val advies: AdviesData = AdviesData(),
     val recepten: ReceptenData = ReceptenData(ReceptenStart.recepten),
     val sync: SyncStaat = SyncStaat(),
+    val beleggen: nl.odelia.dashboard.logica.BeleggenData = nl.odelia.dashboard.logica.BeleggenData(),
+    /** Uurloon in centen (zelf ingevuld bij Geld). Alleen op dit apparaat, gaat nooit online. */
+    val uurloonCent: Long? = null,
+    /** Geld uit ING-meldingen: aan/uit, onthouden winkels en wat nog wacht. Alleen op dit apparaat. */
+    val bank: nl.odelia.dashboard.logica.BankData = nl.odelia.dashboard.logica.BankData(),
+    /** Heeft de app in de Android-instellingen toestemming om meldingen te lezen? */
+    val bankToegang: Boolean = false,
+    /** Logboek "laatst gebeurd". Alleen op dit apparaat. */
+    val logboek: nl.odelia.dashboard.logica.LogboekData = nl.odelia.dashboard.logica.LogboekData(),
+    /** Claude-kosten deze maand (zelf ingevuld) + limiet. Alleen op dit apparaat. */
+    val apiKosten: nl.odelia.dashboard.logica.ApiKostenData = nl.odelia.dashboard.logica.ApiKostenData(),
 ) {
     val nu: LocalDateTime get() = klok.nu
 }
@@ -62,6 +73,8 @@ data class SyncStaat(
     val live: Boolean = false,
     val laatste: LocalDateTime? = null,
     val bericht: String? = null,
+    /** Ingelogd, maar nog geen geheime zin op dit apparaat: dan synct er niks. */
+    val zinNodig: Boolean = false,
 )
 
 /** Alles wat de schermen kunnen laten gebeuren. Standaard doet alles niks (handig voor voorbeelden). */
@@ -107,6 +120,9 @@ interface AppActies {
     /** Geld aanpassen (potjes, uitgaven, tags). Wordt meteen bewaard, en gesynct als Odelia is ingelogd. */
     fun wijzigGeld(wat: (GeldData) -> GeldData) {}
 
+    /** Zet een vraag klaar in de Claude-app (bijv. vertalen). Verstuurt niks. Geeft `false` als dat niet lukt. */
+    fun vraagClaude(tekst: String): Boolean = false
+
     /** Deel tekst met een andere app (bijv. Google Drive of Sheets). Geeft `false` als dat niet lukt. */
     fun deelTekst(titel: String, tekst: String): Boolean = false
     // Foto's bij Onthoud. Blijven op de telefoon (filesDir), gaan nooit online.
@@ -124,6 +140,25 @@ interface AppActies {
     fun wijzigAdvies(wat: (AdviesData) -> AdviesData) {}
     /** Recepten en ideeën aanpassen. Wordt meteen bewaard in recepten.json. */
     fun wijzigRecepten(wat: (ReceptenData) -> ReceptenData) {}
+    /** Beleggen aanpassen. Alleen op de telefoon, gaat nooit online. */
+    fun wijzigBeleggen(wat: (nl.odelia.dashboard.logica.BeleggenData) -> nl.odelia.dashboard.logica.BeleggenData) {}
+    /** Koers van Ahold ophalen (Yahoo Finance). Gaat online: alleen na "ja". [klaar] krijgt een kort berichtje. */
+    fun haalKoers(klaar: (String) -> Unit) {}
+
+    /** Uurloon zetten (centen), of weghalen met `null`. Alleen op dit apparaat (uurloon.json), gaat nooit online. */
+    fun zetUurloon(cent: Long?) {}
+
+    // Geld uit ING-meldingen. Alles blijft op dit apparaat; alleen de boeking komt bij Geld.
+    fun zetBankAan(aan: Boolean) {}
+    /** Opent de Android-instellingen "Meldingen lezen". Geeft `false` als dat niet lukt. */
+    fun openMeldingToegang(): Boolean = false
+    /** Opnieuw kijken of de toestemming er is (na terugkomen uit de instellingen). */
+    fun kijkBankToegang() {}
+    /** Wachtende betaling boeken. [keuze] = potje (uitgave) of categorie (inkomen). De keuze wordt onthouden. */
+    fun kiesBank(wachtId: String, keuze: String) {}
+    fun gooiBankWeg(wachtId: String) {}
+    fun vergeetBankRegel(regel: nl.odelia.dashboard.logica.BankRegel) {}
+    fun wisBankNietHerkend() {}
 
     /** Instellingen aanpassen. Wordt meteen bewaard (alleen op het apparaat) en zet de meldingen opnieuw. */
     fun wijzigInstellingen(wat: (InstellingenData) -> InstellingenData) {}
@@ -139,8 +174,16 @@ interface AppActies {
     // Sync tussen apparaten. Inloggen met een code per e-mail, geen wachtwoord.
     fun vraagSyncCode(email: String) {}
     fun logInSync(code: String) {}
+    fun nieuweSyncMail() {}
     fun logUitSync() {}
     fun syncNu() {}
+    /** Geheime zin voor het versleutelen van de sync (wordt niet bewaard). */
+    fun zetSyncZin(zin: String) {}
+    /** Vraag Android om de plek (voor de poort-check). [klaar] krijgt true als het mag. */
+    fun vraagLocatie(klaar: (Boolean) -> Unit): Boolean = false
+    /** Nieuwskoppen van de NOS ophalen (alleen na een tik). Lukt het niet: lege lijst. */
+    suspend fun haalNieuws(): List<nl.odelia.dashboard.logica.Nieuws.Kop> = emptyList()
+    fun wijzigApiKosten(wat: (nl.odelia.dashboard.logica.ApiKostenData) -> nl.odelia.dashboard.logica.ApiKostenData) {}
 }
 
 /** Opdracht van buitenaf: een melding, widget of andere app opent een bepaald scherm. */

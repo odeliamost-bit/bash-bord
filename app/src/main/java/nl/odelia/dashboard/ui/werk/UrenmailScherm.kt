@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -95,10 +94,9 @@ fun UrenmailScherm(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Tekst("Onderwerp: ${Urenmail.ONDERWERP}", 15.sp, dikte = FontWeight.ExtraBold, kleur = Kleur.InktGrijs)
-                // Vaste letterbreedte, zodat de kolommen van de tabel recht onder elkaar staan.
+                // Gewone letter, zoals Gmail de mail ook laat zien.
                 Text(
                     tekst,
-                    fontFamily = FontFamily.Monospace,
                     fontSize = 13.sp,
                     lineHeight = 19.sp,
                     fontWeight = FontWeight.SemiBold,

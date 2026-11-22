@@ -108,6 +108,31 @@ object Bestanden {
     @Volatile private var cyclus: JsonOpslag<CyclusData>? = null
     @Volatile private var wensen: JsonOpslag<WensenData>? = null
     @Volatile private var instellingen: JsonOpslag<InstellingenData>? = null
+    @Volatile private var beleggen: JsonOpslag<nl.odelia.dashboard.logica.BeleggenData>? = null
+
+    @Volatile private var uurloon: JsonOpslag<nl.odelia.dashboard.logica.UurloonData>? = null
+    @Volatile private var bank: JsonOpslag<nl.odelia.dashboard.logica.BankData>? = null
+
+    /** Geld uit ING-meldingen (aan/uit, onthouden winkels, wat nog wacht). Alleen op dit apparaat: niet in de sync, niet in een back-up. */
+    fun bank(context: Context): JsonOpslag<nl.odelia.dashboard.logica.BankData> = bank ?: synchronized(this) {
+        bank ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "bank.json"), nl.odelia.dashboard.logica.BankData(),
+            nl.odelia.dashboard.logica.BankJson::lees, nl.odelia.dashboard.logica.BankJson::schrijf)
+            .also { bank = it }
+    }
+
+    /** Uurloon: alleen op dit apparaat. Niet in de Google-back-up, niet in de sync en niet in de eigen back-up. */
+    fun uurloon(context: Context): JsonOpslag<nl.odelia.dashboard.logica.UurloonData> = uurloon ?: synchronized(this) {
+        uurloon ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "uurloon.json"), nl.odelia.dashboard.logica.UurloonData(),
+            nl.odelia.dashboard.logica.UurloonJson::lees, nl.odelia.dashboard.logica.UurloonJson::schrijf)
+            .also { uurloon = it }
+    }
+
+    /** Beleggen: alleen op deze telefoon, niet in de Google-back-up en niet in de sync. */
+    fun beleggen(context: Context): JsonOpslag<nl.odelia.dashboard.logica.BeleggenData> = beleggen ?: synchronized(this) {
+        beleggen ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "beleggen.json"), nl.odelia.dashboard.logica.BeleggenData(),
+            nl.odelia.dashboard.logica.BeleggenJson::lees, nl.odelia.dashboard.logica.BeleggenJson::schrijf)
+            .also { beleggen = it }
+    }
 
     /**
      * Cyclus is gevoelig: in `noBackupFilesDir`, zodat Android het niet in de
@@ -121,6 +146,36 @@ object Bestanden {
     fun wensen(context: Context): JsonOpslag<WensenData> = wensen ?: synchronized(this) {
         wensen ?: JsonOpslag(File(context.applicationContext.filesDir, "wensen.json"), WensenData(), WensenJson::lees, WensenJson::schrijf)
             .also { wensen = it }
+    }
+
+    @Volatile private var logboek: JsonOpslag<nl.odelia.dashboard.logica.LogboekData>? = null
+    @Volatile private var apiKosten: JsonOpslag<nl.odelia.dashboard.logica.ApiKostenData>? = null
+
+    /** Logboek "laatst gebeurd". Alleen op dit apparaat: niet in de sync, niet in een back-up. */
+    fun logboek(context: Context): JsonOpslag<nl.odelia.dashboard.logica.LogboekData> = logboek ?: synchronized(this) {
+        logboek ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "logboek.json"), nl.odelia.dashboard.logica.LogboekData(),
+            nl.odelia.dashboard.logica.Logboek::lees, nl.odelia.dashboard.logica.Logboek::schrijf)
+            .also { logboek = it }
+    }
+
+    /** Schrijf één regel in het logboek. */
+    fun log(context: Context, icoon: String, tekst: String) =
+        logboek(context).wijzig({ nl.odelia.dashboard.logica.Logboek.voegToe(it, nl.odelia.dashboard.logica.LogRegel(java.time.LocalDateTime.now(), icoon, tekst)) })
+
+    @Volatile private var poort: JsonOpslag<nl.odelia.dashboard.logica.PoortData>? = null
+
+    /** Poort-check: aan/uit en de plek van de poort. Alleen op dit apparaat: niet in de sync, niet in een back-up. */
+    fun poort(context: Context): JsonOpslag<nl.odelia.dashboard.logica.PoortData> = poort ?: synchronized(this) {
+        poort ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "poort.json"), nl.odelia.dashboard.logica.PoortData(),
+            nl.odelia.dashboard.logica.Poort::lees, nl.odelia.dashboard.logica.Poort::schrijf)
+            .also { poort = it }
+    }
+
+    /** Claude-kosten deze maand (zelf ingevuld) + limiet. Alleen op dit apparaat. */
+    fun apiKosten(context: Context): JsonOpslag<nl.odelia.dashboard.logica.ApiKostenData> = apiKosten ?: synchronized(this) {
+        apiKosten ?: JsonOpslag(File(context.applicationContext.noBackupFilesDir, "apikosten.json"), nl.odelia.dashboard.logica.ApiKostenData(),
+            nl.odelia.dashboard.logica.ApiKosten::lees, nl.odelia.dashboard.logica.ApiKosten::schrijf)
+            .also { apiKosten = it }
     }
 
     /** Wat Odelia zelf instelt (tijden, tegels, grote tekst …). Op het apparaat, niet online. */

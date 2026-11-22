@@ -19,7 +19,7 @@ import nl.odelia.dashboard.logica.AdviesJson
 /**
  * Bewaart Advies (je ⭐-favorieten) in één bestandje op de telefoon.
  * Een los bestand, zodat de database van uren en afspraken niet hoeft te veranderen.
- * Gaat nooit online.
+ * Gaat versleuteld mee in de sync (nov 2026), zie `online/Sync.kt`.
  */
 class AdviesOpslag private constructor(context: Context) {
     private val bestand = AtomicFile(File(context.filesDir, "advies.json"))
@@ -37,16 +37,36 @@ class AdviesOpslag private constructor(context: Context) {
         if (tekst != null) _data.value = AdviesJson.lees(tekst)
     }
 
+    /** Voor de sync: na elke eigen wijziging. */
+    @Volatile var naWijziging: (() -> Unit)? = null
+
+    suspend fun alsTekst(): String {
+        geladen.await()
+        return slot.withLock { AdviesJson.schrijf(_data.value) }
+    }
+
+    /** Gegevens van een ander apparaat erin zetten (zonder [naWijziging]). */
+    suspend fun vervang(tekst: String) {
+        geladen.await()
+        val nieuw = AdviesJson.lees(tekst)
+        slot.withLock {
+            _data.value = nieuw
+            schrijf(nieuw)
+        }
+    }
+
     /** Pas iets aan en bewaar het meteen. Eén wijziging tegelijk, in de goede volgorde. */
     fun wijzig(wat: (AdviesData) -> AdviesData) {
         werk.launch {
             geladen.await()
-            slot.withLock {
+            val veranderd = slot.withLock {
                 val nieuw = wat(_data.value)
-                if (nieuw == _data.value) return@withLock
+                if (nieuw == _data.value) return@withLock false
                 _data.value = nieuw
                 schrijf(nieuw)
+                true
             }
+            if (veranderd) naWijziging?.invoke()
         }
     }
 

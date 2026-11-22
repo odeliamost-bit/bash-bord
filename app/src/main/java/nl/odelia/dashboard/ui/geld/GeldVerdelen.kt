@@ -164,7 +164,6 @@ internal fun VerdeelPaneel(
             naar = if (gedaan != null) Groen else Lila,
         )
         if (!gedaan.isNullOrEmpty()) {
-            val zin = "Vergeet niet: maak in de ING-app over: " + gedaan.joinToString(", ") + "."
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -175,7 +174,6 @@ internal fun VerdeelPaneel(
                 Tekst("🏦 Nu zelf overmaken in de ING-app", 16.sp, kleur = Bruin)
                 gedaan.forEach { Tekst("• $it", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht) }
                 Tekst("De app maakt zelf nooit geld over.", 13.sp, dikte = FontWeight.Bold, kleur = Grijs)
-                ZachteKnop("🔊 Voorlezen", { onLees(zin) })
             }
         }
     }

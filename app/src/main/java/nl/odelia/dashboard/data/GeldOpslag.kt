@@ -22,6 +22,7 @@ import nl.odelia.dashboard.logica.GeldJson
  * Gaat mee met de sync tussen apparaten (zie online/Sync.kt), alleen als Odelia is ingelogd.
  */
 class GeldOpslag private constructor(context: Context) {
+    private val app = context.applicationContext
     private val bestand = AtomicFile(File(context.filesDir, "geld.json"))
     private val werk = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val slot = Mutex()
@@ -37,6 +38,12 @@ class GeldOpslag private constructor(context: Context) {
         if (tekst != null) _data.value = GeldJson.lees(tekst)
     }
 
+    /** Geld zoals het nu is (wacht tot het bestand gelezen is). Voor de meldingen. */
+    suspend fun nu(): GeldData {
+        geladen.await()
+        return _data.value
+    }
+
     /** Voor de sync: na elke eigen wijziging. */
     @Volatile var naWijziging: (() -> Unit)? = null
 
@@ -44,14 +51,30 @@ class GeldOpslag private constructor(context: Context) {
     fun wijzig(wat: (GeldData) -> GeldData) {
         werk.launch {
             geladen.await()
+            var oud: GeldData? = null
             val veranderd = slot.withLock {
+                oud = _data.value
                 val nieuw = wat(_data.value)
                 if (nieuw == _data.value) return@withLock false
                 _data.value = nieuw
                 schrijf(nieuw)
                 true
             }
-            if (veranderd) naWijziging?.invoke()
+            if (veranderd) {
+                naWijziging?.invoke()
+                // Alleen een melding als een potje nu net onder nul gaat (met advies).
+                oud?.let { o ->
+                    nl.odelia.dashboard.logica.PotjeAlarm.nieuwOnderNul(o, _data.value).forEach { a ->
+                        nl.odelia.dashboard.meldingen.Meldingen.toon(
+                            app, nl.odelia.dashboard.meldingen.Meldingen.ID_POTJE_MIN + (a.potje.id.hashCode() and 0xFFF),
+                            nl.odelia.dashboard.meldingen.Meldingen.KANAAL_POTJE,
+                            "${a.potje.emoji} ${a.potje.naam} staat onder nul",
+                            "Nu ${nl.odelia.dashboard.logica.Geld.bedrag(a.saldo)}. ${a.advies}",
+                            scherm = "geld",
+                        )
+                    }
+                }
+            }
         }
     }
 
