@@ -124,6 +124,9 @@ jobs:
           fi
           cp "$apk" mijn-dashboard.apk
           sha256sum mijn-dashboard.apk | tee mijn-dashboard.apk.sha256
+          # Versienummer bewaren, zodat "klaarzetten" nooit een oudere versie op de link zet.
+          "$aapt2" dump badging "$apk" | sed -nE "s/.*versionCode='([0-9]+)'.*/\1/p" | head -1 > versiecode.txt
+          echo "Versiecode: $(cat versiecode.txt)"
 
       - name: Testverslag bewaren
         if: failure()
@@ -140,6 +143,7 @@ jobs:
           path: |
             mijn-dashboard.apk
             mijn-dashboard.apk.sha256
+            versiecode.txt
           retention-days: 7
 
   klaarzetten:
@@ -164,9 +168,17 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           controle="$(cut -d' ' -f1 mijn-dashboard.apk.sha256)"
+          nieuw="$(cat versiecode.txt)"
+          # Staat er al een nieuwere versie op de link (bv. van een andere tak)? Dan niks vervangen.
+          # Zo krijgt de telefoon nooit per ongeluk een oudere versie.
+          oud="$(gh release view nieuwste --json body -q .body 2>/dev/null | sed -nE 's/.*Versiecode ([0-9]+).*/\1/p' | head -1)"
+          if [ -n "$oud" ] && [ -n "$nieuw" ] && [ "$nieuw" -lt "$oud" ]; then
+            echo "::warning::Niet klaargezet: deze versie ($nieuw) is ouder dan die op de link ($oud)."
+            exit 0
+          fi
           gh release delete nieuwste --yes --cleanup-tag || true
           gh release create nieuwste mijn-dashboard.apk mijn-dashboard.apk.sha256 \
             --target "$GITHUB_SHA" \
             --prerelease \
             --title "Nieuwste versie" \
-            --notes "Gebouwd uit ${GITHUB_REF_NAME} (${GITHUB_SHA::7}). Open deze pagina op je telefoon en tik op mijn-dashboard.apk. Controlecode (SHA-256): ${controle}"
+            --notes "Gebouwd uit ${GITHUB_REF_NAME} (${GITHUB_SHA::7}). Versiecode ${nieuw}. Open deze pagina op je telefoon en tik op mijn-dashboard.apk. Controlecode (SHA-256): ${controle}"
