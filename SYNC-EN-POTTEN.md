@@ -37,9 +37,9 @@ De bedragen in `logica/GeldData.kt` (`GeldStart.potjes`) kloppen niet. Vervang z
 
 | Potje | Bedrag |
 |---|---|
-| Vaste lasten 📱 | € 41,30 |
-| Zorg 🩺 | € 180,00 |
-| Snoep/lekkers 🍬 | € 50,00 |
+| Vaste lasten 📱 | € 25,00 (verzonnen) |
+| Zorg 🩺 | € 100,00 (verzonnen) |
+| Snoep/lekkers 🍬 | € 30,00 (verzonnen) |
 
 **Stap 2: de rest in procenten**
 

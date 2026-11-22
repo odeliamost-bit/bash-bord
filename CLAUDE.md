@@ -135,7 +135,7 @@ De kleine bestanden (zoals `GeldGekocht`) tonen alleen een andere stand van een 
 - **Leren met Claude** (uitleg-chat, kaarten laten maken): nog niet. Kan pas met een backend voor de sleutel (Odelia koos: sleutel via backend, nooit in de app).
 - **Geen wachtwoorden (gekozen door Odelia, okt 2026):** de app slaat geen wachtwoorden op. Het Wachtwoorden-scherm is weggehaald, ook uit het ontwerp. Niet opnieuw bouwen.
 - **Vaste handtekening:** via GitHub-geheim `APP_SLEUTEL` (zie README). Zolang die er niet is, gaan gegevens verloren bij een update.
-- **Potjes (gekozen door Odelia, okt 2026):** vast eerst: Vaste lasten € 41,30, Zorg € 180, Snoep € 50. Rest: Vrije geld 20%, Investeren 30% (Giro), Goede doelen 10%, Noodpot 20%, Spaarpot 20% (ING-spaar). Saldo blijft staan. In `logica/GeldData.kt`.
+- **Potjes (gekozen door Odelia, okt 2026):** vast eerst: Vaste lasten, Zorg, Snoep (in de code **verzonnen** bedragen € 25 / € 100 / € 30, nov 2026 gekozen door Odelia: de repo is openbaar; haar echte bedragen staan alleen in de app). Rest: Vrije geld 20%, Investeren 30% (Giro), Goede doelen 10%, Noodpot 20%, Spaarpot 20% (ING-spaar). Saldo blijft staan. In `logica/GeldData.kt`.
 - **Wat mag online (gekozen door Odelia, okt 2026):**
   - ☁️ Sync (eigen Supabase, alleen na inloggen, **versleuteld**): Geld, Onthoud (afspraken), Leren, Wensen, Recepten, Mensen, foto's, Instellingen (okt 2026; zonder grote tekst en tegels, die blijven per apparaat — Odelia wil op de tablet andere tegels, nog samen bespreken). Nov 2026 (bouwnacht 1, gekozen door Odelia): ook **Advies** (⭐-favorieten) en **Weer** (de zeilplek). Mail-hulp en Thuis wilde ze ook, maar die bewaren zelf niets (Thuis-tegels blijven per apparaat), dus daar is niets te synchroniseren.
   - 🔒 Nooit online, alleen op het apparaat: **Uren, uurloon, Cyclus**, en ook Beleggen, ING-meldingen-instellingen, logboek en Claude-kosten. Niet synchroniseren tussen telefoon en tablet.
@@ -220,5 +220,5 @@ GitHub-geheimen (namen): `APP_SLEUTEL`, `APP_SLEUTEL_WACHTWOORD`, `SUPABASE_URL`
   - Over: `main`, `claude/inloggen-link` (versie 0.19, getest; weg na #23), `claude/project-thread-e3xlga` (PR #23, versie 0.20) en Dependabot #20.
   - Dependabot #20 (Gradle 9, AGP 9, Kotlin 2.4, Room 2.8, OkHttp 5) **faalt bij het bouwen**: grote sprong, vraagt code-aanpassingen. Niet samengevoegd.
   - Ideeën uit gesloten PR's (code nog te zien in de PR): uren elke dag naar een Google Sheet (#16), Wensen: alle links bij elkaar + prijs-schatting (`WensenAanvulling.kt`, #19).
-  - Let op (repo is openbaar): de beginbedragen van de potjes (`GeldStart` in `logica/GeldData.kt`) zijn Odelia's echte bedragen. Nog vragen of die verzonnen moeten worden.
+  - Potjes-bedragen in de code vervangen door verzonnen bedragen (gekozen door Odelia). In de oude git-geschiedenis staan de echte nog wel.
 - Nog te doen: sync voor foto's; tegels op de tablet bespreken; webpagina voor de laptop; Google Agenda; Gmail-koppeling (concept in de draad), telefoon op stil bij inklokken (fase 2-wens).

@@ -25,7 +25,7 @@ class BankMeldingTest {
     @Test
     fun leestBijschrijving() {
         assertEquals(BankBericht(BoekSoort.In, 100_00, "J. Jansen"), BankMelding.lees("Bijschrijving", "Bijschrijving van € 100,00 van J. Jansen op je betaalrekening"))
-        assertEquals(BankBericht(BoekSoort.In, 1_850_00, "Randstad Nederland"), BankMelding.lees("ING", "Er is 1.850,00 euro bijgeschreven van RANDSTAD NEDERLAND"))
+        assertEquals(BankBericht(BoekSoort.In, 1_234_56, "Randstad Nederland"), BankMelding.lees("ING", "Er is 1.234,56 euro bijgeschreven van RANDSTAD NEDERLAND"))
         assertEquals("Onbekend", BankMelding.lees("Bijschrijving", "€ 5,00 bijgeschreven")?.naam)
     }
 
@@ -70,7 +70,7 @@ class BankMeldingTest {
 
     @Test
     fun inkomenGaatNaarInkomsten() {
-        val w = BankWacht("w2", BoekSoort.In, 1_850_00, "Randstad Nederland", dag)
+        val w = BankWacht("w2", BoekSoort.In, 1_234_56, "Randstad Nederland", dag)
         val (d, b) = Bank.kies(BankData(wachtrij = listOf(w)), GeldData(), "w2", "loon", "b2")
         assertEquals("inkomsten", b?.potjeId)
         assertEquals("loon", b?.categorie)

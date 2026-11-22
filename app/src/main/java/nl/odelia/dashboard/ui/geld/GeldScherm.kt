@@ -250,7 +250,7 @@ private fun PotjesRaster(data: GeldData, onKies: (Potje) -> Unit, onNieuw: () ->
     }
 }
 
-/** Ondertitel van een potje: "€ 180 per maand", "30% van de rest", of de echte rekening. */
+/** Ondertitel van een potje: "€ 100 per maand", "30% van de rest", of de echte rekening. */
 internal fun potjeOnder(p: Potje): String = listOfNotNull(
     p.vastCent?.let { "${Geld.bedrag(it).removeSuffix(",00")} per maand" },
     p.procent?.takeIf { it > 0 && p.vastCent == null }?.let { "$it% van de rest" },
