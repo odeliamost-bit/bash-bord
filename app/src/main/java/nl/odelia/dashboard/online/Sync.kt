@@ -29,6 +29,7 @@ import nl.odelia.dashboard.data.Opslag
 import nl.odelia.dashboard.data.ReceptenOpslag
 import nl.odelia.dashboard.logica.InstellingenJson
 import nl.odelia.dashboard.logica.WensenJson
+import nl.odelia.dashboard.logica.LoginLink
 import nl.odelia.dashboard.logica.SyncRegels
 import nl.odelia.dashboard.logica.SyncRegels.Stand
 import nl.odelia.dashboard.logica.SyncRegels.Stap
@@ -149,12 +150,34 @@ object Sync {
     fun vraagCode(email: String) = bezig {
         val schoon = email.trim().lowercase()
         supabase!!.vraagCode(schoon)
-        _staat.update { it.copy(codeVoor = schoon, bericht = "📬 Code gestuurd naar $schoon") }
+        _staat.update { it.copy(codeVoor = schoon, bericht = "📬 Mail gestuurd naar $schoon") }
     }
 
     fun logIn(code: String) = bezig {
         val email = _staat.value.codeVoor ?: return@bezig
-        val nieuw = supabase!!.logIn(email, code.filter(Char::isDigit))
+        ingelogd(supabase!!.logIn(email, code.filter(Char::isDigit)))
+    }
+
+    /** Tik op de link in de mail opende de app (bashbord://login#…). [deel] = alles na de # of ?. */
+    fun logInMetLink(deel: String?) = bezig {
+        when (val u = LoginLink.lees(deel)) {
+            is LoginLink.Uitkomst.Fout -> _staat.update { it.copy(bericht = u.bericht) }
+            is LoginLink.Uitkomst.Ok -> {
+                val nieuw = supabase!!.logInMetLink(u.ververs)
+                val email = nieuw.email.lowercase()
+                // Alleen het adres dat hier gevraagd is, en niet stiekem een ander account dan waar je al op zit.
+                val gevraagd = _staat.value.codeVoor
+                val huidig = sessie?.email?.lowercase()
+                if ((gevraagd != null && email != gevraagd) || (huidig != null && email != huidig)) {
+                    _staat.update { it.copy(bericht = "😕 Deze link hoort bij een ander e-mailadres.") }
+                    return@bezig
+                }
+                ingelogd(nieuw)
+            }
+        }
+    }
+
+    private suspend fun ingelogd(nieuw: Supabase.Sessie) {
         sessie = nieuw
         bewaarSessie(nieuw)
         _staat.update { it.copy(email = nieuw.email, codeVoor = null, bericht = "✅ Ingelogd", zinNodig = sleutel == null) }

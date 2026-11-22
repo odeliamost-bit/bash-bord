@@ -69,13 +69,14 @@ fun SyncKaart(sync: SyncStaat, acties: AppActies) {
             }
             sync.codeVoor == null -> {
                 Tekst("☁️ Zelfde gegevens op al je apparaten", 17.sp, kleur = Kleur.Inkt)
-                Tekst("Log in met je e-mail. Je krijgt een code, geen wachtwoord.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                Tekst("Log in met je e-mail. Je krijgt een mail met een link, geen wachtwoord.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 Invoer(email, { email = it }, "jouw@gmail.com", toetsen = KeyboardType.Email)
-                GroteKnop(if (sync.bezig) "Even wachten…" else "📬 Stuur code", { if (!sync.bezig && "@" in email) acties.vraagSyncCode(email) })
+                GroteKnop(if (sync.bezig) "Even wachten…" else "📬 Stuur mail", { if (!sync.bezig && "@" in email) acties.vraagSyncCode(email) })
             }
             else -> {
                 Tekst("📬 Kijk in je mail", 17.sp, kleur = Kleur.Inkt)
-                Tekst("Typ de code uit de mail van Supabase.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                Tekst("Tik in de mail van Supabase op de link, op dít apparaat. De app gaat dan vanzelf open.", 15.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
+                Tekst("Staat er een code in de mail? Typ die dan hier:", 14.sp, dikte = FontWeight.Bold, kleur = Kleur.InktZacht)
                 Invoer(code, { code = it.filter(Char::isDigit).take(8) }, "123456", toetsen = KeyboardType.Number)
                 GroteKnop(if (sync.bezig) "Even wachten…" else "✅ Inloggen", { if (!sync.bezig && code.length >= 6) acties.logInSync(code) })
             }

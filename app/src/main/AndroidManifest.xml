@@ -50,6 +50,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Inlog-link uit de mail van Supabase (bashbord://login#…), zie logica/LoginLink.kt. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bashbord" android:host="login" />
+            </intent-filter>
             <!-- Vanuit een andere app tekst delen naar "Onthoud". -->
             <intent-filter android:label="Onthoud">
                 <action android:name="android.intent.action.SEND" />

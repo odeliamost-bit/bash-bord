@@ -47,9 +47,10 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 - Open je project op supabase.com ➜ **SQL Editor** ➜ **New query**.
 - Plak alles uit `supabase/kompas.sql` en tik **Run**.
 
-**2. Inloggen met een code aanzetten**
+**2. Inloggen met de link uit de mail aanzetten**
 - **Authentication ➜ Sign In / Providers ➜ Email**: aan.
-- **Authentication ➜ Emails**: zet bij **Magic Link** én **Confirm signup** de code in de mail: `{{ .Token }}`.
+- **Authentication ➜ URL Configuration**: **Site URL** én bij **Redirect URLs**: `bashbord://login`.
+- Nieuwe projecten sturen alleen een link (de mail aanpassen kan pas met een eigen mailserver). Tik in de mail op de link, **op het apparaat waar je inlogt**: de app gaat open en je bent ingelogd. Staat er wél een code in de mail (`{{ .Token }}`), dan kan je die ook typen.
 
 **3. Twee geheimen in GitHub**
 - Supabase ➜ **Project Settings ➜ API**: kopieer de **Project URL** en de **anon/publishable key**.
@@ -59,7 +60,7 @@ Uren, Cyclus, Mail-hulp, Advies, Weer en Thuis blijven altijd alleen op het appa
 - Nooit de **service_role/secret key** gebruiken.
 
 **4. Inloggen in de app**
-- Eerst op de **telefoon**: Instellingen (of Geld) ➜ ☁️-kaart ➜ e-mail ➜ code uit de mail.
+- Eerst op de **telefoon**: Instellingen (of Geld) ➜ ☁️-kaart ➜ e-mail ➜ 📬 Stuur mail ➜ tik in de mail op de link.
 - Daarna op de tablet. Let op: de eerste keer wint wat online staat. (Wat er op de tablet stond, blijft als reserve bewaard.)
 
 **5. Alleen jij**

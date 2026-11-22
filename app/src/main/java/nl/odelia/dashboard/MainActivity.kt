@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import nl.odelia.dashboard.logica.LoginLink
 import nl.odelia.dashboard.meldingen.Meldingen
 import nl.odelia.dashboard.meldingen.Planner
 import nl.odelia.dashboard.online.Sync
@@ -179,6 +180,11 @@ class MainActivity : ComponentActivity() {
         if (intent.action == Intent.ACTION_SEND && intent.type == "text/plain") {
             // Niet te lang: gedeelde tekst komt van een andere app.
             opdracht.value = Opdracht("toevoegen", intent.getStringExtra(Intent.EXTRA_TEXT)?.take(MAX_GEDEELD))
+        } else if (intent.action == Intent.ACTION_VIEW && intent.data?.scheme == LoginLink.SCHEMA && intent.data?.host == LoginLink.HOST) {
+            // Tik op de inlog-link uit de mail van Supabase → inloggen, en Geld tonen (daar staat de ☁️-kaart).
+            val link = intent.data!!
+            Sync.logInMetLink(link.encodedFragment ?: link.encodedQuery)
+            opdracht.value = Opdracht("geld")
         } else if (intent.action == Intent.ACTION_PROCESS_TEXT) {
             // Geselecteerde tekst uit een andere app → Vertalen.
             opdracht.value = Opdracht("vertalen", intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()?.take(MAX_GEDEELD))
