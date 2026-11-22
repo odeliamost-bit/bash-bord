@@ -13,6 +13,10 @@ data class GeldData(
     val potjes: List<Potje> = GeldStart.potjes,
     val boekingen: List<Boeking> = emptyList(),
     val tags: List<String> = GeldStart.tags,
+    /** Vaste lasten die elke maand terugkomen (bouwnacht 2). */
+    val vasteLasten: List<VasteLast> = emptyList(),
+    /** Maanden die al zijn afgesloten ("2026-11"). */
+    val afgesloten: List<String> = emptyList(),
 ) {
     fun potje(id: String?): Potje? = potjes.find { it.id == id }
 
@@ -235,6 +239,10 @@ object GeldJson {
             }
         })
         put("tags", JSONArray(d.tags))
+        put("vasteLasten", JSONArray().apply {
+            d.vasteLasten.forEach { v -> put(JSONObject().put("id", v.id).put("naam", v.naam).put("cent", v.cent).put("dag", v.dag).put("potje", v.potjeId)) }
+        })
+        put("afgesloten", JSONArray(d.afgesloten))
     }.toString()
 
     fun lees(tekst: String): GeldData {
@@ -281,7 +289,16 @@ object GeldJson {
             }
         }.orEmpty()
         val tags = o.optJSONArray("tags")?.let { t -> (0 until t.length()).mapNotNull { stukje { t.getString(it) } } } ?: GeldStart.tags
-        return GeldData(potjes, boekingen, tags)
+        val vaste = o.optJSONArray("vasteLasten")?.let { a ->
+            (0 until a.length()).mapNotNull { i ->
+                stukje {
+                    val x = a.getJSONObject(i)
+                    VasteLast(x.getString("id"), x.getString("naam"), x.getLong("cent"), x.optInt("dag", 1).coerceIn(1, 28), x.getString("potje"))
+                }
+            }
+        }.orEmpty()
+        val afgesloten = o.optJSONArray("afgesloten")?.let { t -> (0 until t.length()).mapNotNull { stukje { t.getString(it) } } }.orEmpty()
+        return GeldData(potjes, boekingen, tags, vaste, afgesloten)
     }
 
     private inline fun <T> stukje(maak: () -> T): T? = try {

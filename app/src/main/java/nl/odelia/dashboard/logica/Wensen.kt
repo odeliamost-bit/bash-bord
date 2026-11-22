@@ -23,6 +23,10 @@ data class Wens(
     val gekocht: Boolean = false,
     /** Eigen uitleg bij de wens. Alleen te zien als je op de tegel tikt. */
     val beschrijving: String = "",
+    /** Wat het ongeveer kost (bouwnacht 2). */
+    val prijsCent: Long? = null,
+    /** Uit welk potje je ervoor spaart. */
+    val potjeId: String? = null,
     /** Laatst veranderd (millis), voor later synchroniseren. */
     val updatedAt: Long = 0,
 )

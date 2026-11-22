@@ -174,6 +174,8 @@ fun GeldScherm(
             }
 
             BankKaart(staat, acties, onMelding)
+            VasteLastenKaart(data, vandaag, acties)
+            GeldGrafiekKaart(data, java.time.YearMonth.from(vandaag))
             UrenKaart(staat, acties)
         }
     }

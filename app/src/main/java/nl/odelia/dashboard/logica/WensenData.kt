@@ -26,6 +26,8 @@ fun maakWens(
     beschrijving: String = oud?.beschrijving.orEmpty(),
     /** Hartjes al ingevuld in het venster (bouwnacht 1). `null` = houden wat het was. */
     hartjes: Int? = null,
+    prijsCent: Long? = oud?.prijsCent,
+    potjeId: String? = oud?.potjeId,
 ): Wens {
     val links = Wensen.linksUit(linkTekst)
     val emoji = if (oud != null && oud.soort == soort) oud.emoji else soort.emoji
@@ -37,6 +39,8 @@ fun maakWens(
         winkel = links.firstNotNullOfOrNull { Wensen.winkel(it) },
         links = links,
         hartjes = (hartjes ?: oud?.hartjes ?: 0).coerceIn(0, Wensen.MAX_HARTJES),
+        prijsCent = prijsCent,
+        potjeId = potjeId,
         gekocht = oud?.gekocht ?: false,
         beschrijving = beschrijving.trim(),
         updatedAt = nu,
@@ -62,6 +66,8 @@ object WensenJson {
                         .put("hartjes", w.hartjes)
                         .put("gekocht", w.gekocht)
                         .put("beschrijving", w.beschrijving)
+                        .put("prijs", w.prijsCent ?: JSONObject.NULL)
+                        .put("potje", w.potjeId ?: JSONObject.NULL)
                         .put("updatedAt", w.updatedAt),
                 )
             }
@@ -90,6 +96,8 @@ object WensenJson {
                     hartjes = x.optInt("hartjes").coerceIn(0, Wensen.MAX_HARTJES),
                     gekocht = x.optBoolean("gekocht"),
                     beschrijving = x.optString("beschrijving"),
+                    prijsCent = if (x.isNull("prijs") || !x.has("prijs")) null else x.optLong("prijs"),
+                    potjeId = if (x.isNull("potje") || !x.has("potje")) null else x.optString("potje").ifEmpty { null },
                     updatedAt = x.optLong("updatedAt"),
                 )
             } catch (_: Exception) {

@@ -68,6 +68,19 @@ fun LogboekScherm(staat: AppStaat, acties: AppActies, onTerug: () -> Unit, modif
                 Regel("Dit jaar", UrenStats.jaar(dagen, vandaag.year))
             }
 
+            Kaart {
+                Tekst("📈 Uren per dag", 20.sp)
+                nl.odelia.dashboard.ui.onderdelen.Staafjes(
+                    nl.odelia.dashboard.logica.Vooruit.urenPerDag(dagen, vandaag),
+                    androidx.compose.ui.graphics.Color(0xFF9CC9A8), { u -> nl.odelia.dashboard.logica.alsBreuk(u) },
+                )
+                Tekst("📈 Uren per maand", 20.sp)
+                nl.odelia.dashboard.ui.onderdelen.Staafjes(
+                    nl.odelia.dashboard.logica.Vooruit.urenPerMaand(dagen, YearMonth.from(vandaag)),
+                    androidx.compose.ui.graphics.Color(0xFFF4A58B), { u -> "${u.toInt()}" },
+                )
+            }
+
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 ZachteKnop("‹", onClick = { maand = maand.minusMonths(1) })
                 Tekst(UrenStats.naam(maand), 20.sp, Modifier.weight(1f), uitlijning = TextAlign.Center)
