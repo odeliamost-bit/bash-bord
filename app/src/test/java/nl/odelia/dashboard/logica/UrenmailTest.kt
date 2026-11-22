@@ -30,15 +30,13 @@ class UrenmailTest {
             Hierbij mijn gewerkte uren van week 43:
             Woensdag was ik vrij.
 
-            Datum     | Begin | Eind  |  Uren
-            ----------|-------|-------|------
-            ma 19-10  | 7:45  | 15:45 |  7,25
-            di 20-10  | 7:30  | 15:45 |  7,50
-            wo 21-10  | vrij
-            do 22-10  | ziek
-            vr 23-10  | –
-            ----------|-------|-------|------
-            Totaal    |       |       | 14,75
+            ma 19-10: 7:45 – 15:45 = 7,25 uur
+            di 20-10: 7:30 – 15:45 = 7,50 uur
+            wo 21-10: vrij
+            do 22-10: ziek
+            vr 23-10: –
+
+            Totaal: 14,75 uur
 
             Met vriendelijke groet,
             Odelia van der Most
